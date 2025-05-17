@@ -1,131 +1,349 @@
-import Link from "next/link"
+"use client"
+
+import { useRef } from "react"
+import { motion } from "framer-motion"
+import { FileText, Shield, Lock, Users, Database, Cookie, Clock, BabyIcon as Child, Globe, Mail } from "lucide-react"
 
 export default function PrivacyPage() {
+  const containerRef = useRef(null)
+
+  const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  }
+
+  const staggerContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  }
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
-        <p className="text-gray-600">Last updated: {new Date().toLocaleDateString()}</p>
+    <div className="container mx-auto px-4 py-12 max-w-4xl relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
+          animate={{
+            x: [50, -50, 50],
+            y: [-50, 50, -50],
+          }}
+          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY }}
+        ></motion.div>
+        <motion.div
+          className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl"
+          animate={{
+            x: [-50, 50, -50],
+            y: [50, -50, 50],
+          }}
+          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY }}
+        ></motion.div>
       </div>
 
-      <div className="prose prose-amber max-w-none">
-        <p>
-          At Redeemed Creative Arts, we respect your privacy and are committed to protecting your personal data. This
-          Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.
-        </p>
+      <motion.div
+        className="text-center mb-12 relative z-10 pt-20"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainerVariants}
+      >
+        <motion.h1 className="text-4xl font-bold mb-4 text-foreground" variants={itemVariants}>
+          Privacy Policy
+        </motion.h1>
+        <motion.p className="text-lg text-muted-foreground max-w-3xl mx-auto" variants={itemVariants}>
+          Effective Date: May 17, 2025
+        </motion.p>
+        <motion.p className="text-muted-foreground max-w-3xl mx-auto mt-4" variants={itemVariants}>
+          Redeemed Creative Arts ("we," "us," or "our") respects the privacy of our users ("you" or "your") and is
+          committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose,
+          and safeguard your information when you visit our website (the "Site") and use our services. By using the
+          Site, you consent to the data practices described in this Privacy Policy.
+        </motion.p>
+      </motion.div>
 
-        <h2>1. Information We Collect</h2>
-        <h3>1.1 Personal Information</h3>
-        <p>We may collect personal information that you provide directly to us, such as:</p>
-        <ul>
-          <li>Name, email address, and contact information</li>
-          <li>Account credentials</li>
-          <li>Profile information (biography, location, etc.)</li>
-          <li>Payment information (processed securely through third-party payment processors)</li>
-          <li>Content you upload (artwork, descriptions, comments, etc.)</li>
-          <li>Communications with us or other users</li>
-        </ul>
+      {/* Privacy Policy Content */}
+      <motion.section
+        className="mb-16 relative z-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainerVariants}
+      >
+        <motion.div
+          className="bg-card p-8 rounded-xl border border-border relative overflow-hidden"
+          variants={itemVariants}
+        >
+          <motion.div
+            className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 20, 0],
+              y: [0, -20, 0],
+            }}
+            transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY }}
+          ></motion.div>
 
-        <h3>1.2 Automatically Collected Information</h3>
-        <p>When you use our Platform, we may automatically collect certain information, including:</p>
-        <ul>
-          <li>Device information (IP address, browser type, operating system)</li>
-          <li>Usage data (pages visited, time spent, clicks)</li>
-          <li>Location information</li>
-          <li>Cookies and similar tracking technologies</li>
-        </ul>
+          <div className="relative z-10 space-y-8">
+            {/* Information We Collect */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Database className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-primary">1. Information We Collect</h2>
 
-        <h2>2. How We Use Your Information</h2>
-        <p>We use the information we collect for various purposes, including:</p>
-        <ul>
-          <li>Providing, maintaining, and improving the Platform</li>
-          <li>Processing transactions and managing accounts</li>
-          <li>Communicating with you about the Platform</li>
-          <li>Personalizing your experience</li>
-          <li>Analyzing usage patterns and trends</li>
-          <li>Protecting the security and integrity of the Platform</li>
-          <li>Complying with legal obligations</li>
-        </ul>
+                  <h3 className="text-lg font-medium mb-2 text-foreground">Personal Information</h3>
+                  <p className="text-muted-foreground mb-2">
+                    We may collect personal information that you voluntarily provide when you:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
+                    <li>Create an account (Artist, Patron, or Church/Organization).</li>
+                    <li>Make purchases through the Site.</li>
+                    <li>Subscribe to newsletters.</li>
+                    <li>Participate in events, contests, or surveys.</li>
+                    <li>Communicate with us via email, contact forms, or support channels.</li>
+                  </ul>
 
-        <h2>3. Sharing Your Information</h2>
-        <p>We may share your information in the following circumstances:</p>
-        <ul>
-          <li>With other users as part of the Platform's functionality (e.g., public profiles, artwork sharing)</li>
-          <li>With service providers who perform services on our behalf</li>
-          <li>With legal authorities when required by law</li>
-          <li>In connection with a business transaction (e.g., merger, acquisition)</li>
-          <li>With your consent or at your direction</li>
-        </ul>
+                  <p className="text-muted-foreground mb-2">This may include:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
+                    <li>Name, email address, mailing address, and phone number.</li>
+                    <li>Payment information (processed securely through third-party payment processors).</li>
+                    <li>Profile information and content you upload (including artwork, video, and text).</li>
+                  </ul>
 
-        <h2>4. Data Security</h2>
-        <p>
-          We implement appropriate technical and organizational measures to protect your personal information from
-          unauthorized access, disclosure, alteration, or destruction. However, no method of transmission over the
-          Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
-        </p>
+                  <h3 className="text-lg font-medium mb-2 text-foreground">Automatically Collected Information</h3>
+                  <p className="text-muted-foreground mb-2">When you visit the Site, we may automatically collect:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>IP address.</li>
+                    <li>Browser type and version.</li>
+                    <li>Pages viewed and time spent on the Site.</li>
+                    <li>Device identifiers.</li>
+                    <li>Cookies and similar technologies.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-        <h2>5. Your Rights and Choices</h2>
-        <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
-        <ul>
-          <li>Accessing, correcting, or deleting your personal information</li>
-          <li>Withdrawing consent</li>
-          <li>Objecting to or restricting certain processing</li>
-          <li>Data portability</li>
-          <li>Opting out of marketing communications</li>
-        </ul>
-        <p>To exercise these rights, please contact us using the information provided at the end of this policy.</p>
+            {/* How We Use Your Information */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-secondary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-secondary">2. How We Use Your Information</h2>
+                  <p className="text-muted-foreground mb-2">
+                    We use the information we collect for the following purposes:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>To operate and maintain the Site.</li>
+                    <li>To process transactions and manage accounts.</li>
+                    <li>To provide customer support.</li>
+                    <li>To personalize your experience and deliver content.</li>
+                    <li>To send promotional emails and newsletters (you can opt out at any time).</li>
+                    <li>To administer contests, giveaways, and surveys.</li>
+                    <li>To detect, prevent, and address security or technical issues.</li>
+                    <li>To comply with legal obligations.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-        <h2>6. Cookies and Tracking Technologies</h2>
-        <p>
-          We use cookies and similar tracking technologies to collect information about your browsing activities and to
-          improve your experience on our Platform. You can manage your cookie preferences through your browser settings.
-        </p>
+            {/* Sharing of Information */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Users className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-accent">3. Sharing of Information</h2>
+                  <p className="text-muted-foreground mb-2">
+                    We do not sell your personal information to third parties. We may share your information with:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>Third-party vendors: For order fulfillment, payment processing, and marketing support.</li>
+                    <li>Service providers: To assist in website hosting, data analytics, and email delivery.</li>
+                    <li>Law enforcement or regulatory bodies: When required by law or to protect our rights.</li>
+                    <li>
+                      Artists, Patrons, and Churches: Where interaction is part of platform services (e.g.,
+                      artist-patron communications, church event participation).
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-        <h2>7. Children's Privacy</h2>
-        <p>
-          Our Platform is not intended for children under the age of 13. We do not knowingly collect personal
-          information from children under 13. If you believe we have collected information from a child under 13, please
-          contact us immediately.
-        </p>
+            {/* Third-Party Fulfillment Disclaimer */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Shield className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-primary">4. Third-Party Fulfillment Disclaimer</h2>
+                  <p className="text-muted-foreground">
+                    All orders placed through Redeemed Creative Arts are fulfilled by third-party print and shipping
+                    services. Redeemed Creative Arts is not responsible for the privacy practices of these vendors,
+                    though we work with reputable partners to protect your data.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-        <h2>8. International Data Transfers</h2>
-        <p>
-          Your information may be transferred to and processed in countries other than the country in which you reside.
-          These countries may have different data protection laws. We will take appropriate measures to ensure that your
-          personal information remains protected in accordance with this Privacy Policy.
-        </p>
+            {/* Cookies & Tracking Technologies */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Cookie className="h-5 w-5 text-secondary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-secondary">5. Cookies & Tracking Technologies</h2>
+                  <p className="text-muted-foreground mb-2">We use cookies and similar technologies to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>Improve website functionality.</li>
+                    <li>Analyze usage.</li>
+                    <li>Provide personalized content and ads.</li>
+                    <li>You can control cookie settings through your browser preferences.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-        <h2>9. Changes to This Privacy Policy</h2>
-        <p>
-          We may update this Privacy Policy from time to time. If we make material changes, we will notify you by
-          updating the date at the top of this policy and, in some cases, by providing additional notice (such as adding
-          a statement to our website or sending you a notification).
-        </p>
+            {/* Data Retention */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Clock className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-accent">6. Data Retention</h2>
+                  <p className="text-muted-foreground mb-2">
+                    We retain your personal information for as long as necessary to:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>Fulfill the purposes outlined in this policy.</li>
+                    <li>Comply with legal obligations.</li>
+                    <li>Resolve disputes.</li>
+                    <li>
+                      You may request account deletion by contacting us at{" "}
+                      <a href="mailto:newmandesigners@gmail.com" className="text-primary hover:underline">
+                        newmandesigners@gmail.com
+                      </a>
+                      .
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-        <h2>10. Contact Us</h2>
-        <p>
-          If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
-        </p>
-        <p>
-          Email: privacy@redeemedcreativearts.com
-          <br />
-          Address: 123 Faith Avenue, Creative City, CA 12345
-        </p>
-      </div>
+            {/* Security of Your Information */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Lock className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+            </div>
 
-      <div className="mt-12 text-center">
-        <Link href="/terms" className="text-amber-600 hover:underline">
-          View Terms of Service
-        </Link>
-        {" | "}
-        <Link href="/helper-agreement" className="text-amber-600 hover:underline">
-          View Helper Agreement
-        </Link>
-        {" | "}
-        <Link href="/artist-disclaimer" className="text-amber-600 hover:underline">
-          View Artist Disclaimer
-        </Link>
-      </div>
+            {/* Security of Your Information */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Lock className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-primary">7. Security of Your Information</h2>
+                  <p className="text-muted-foreground mb-2">
+                    We implement reasonable security measures to protect your personal information from unauthorized
+                    access, use, or disclosure. However, no method of transmission over the internet or electronic
+                    storage is completely secure, so we cannot guarantee absolute security.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Children's Privacy */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Child className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-accent">8. Children's Privacy</h2>
+                  <p className="text-muted-foreground mb-2">
+                    Our Site is not intended for children under the age of 13. We do not knowingly collect personal
+                    information from children under 13. If you are a parent or guardian and believe that your child has
+                    provided us with personal information, please contact us, and we will take steps to delete such
+                    information.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* International Data Transfer */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Globe className="h-5 w-5 text-secondary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-secondary">9. International Data Transfer</h2>
+                  <p className="text-muted-foreground mb-2">
+                    Your information may be transferred to and maintained on servers located outside of your country or
+                    other governmental jurisdiction where the data protection laws may differ than those from your
+                    jurisdiction.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Changes to This Privacy Policy */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-primary">10. Changes to This Privacy Policy</h2>
+                  <p className="text-muted-foreground mb-2">
+                    We may update this Privacy Policy from time to time. We will notify you of any changes by posting
+                    the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for
+                    any changes.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Us */}
+            <div>
+              <div className="flex items-start">
+                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Mail className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3 text-accent">11. Contact Us</h2>
+                  <p className="text-muted-foreground">
+                    If you have any questions about this Privacy Policy, please contact us at{" "}
+                    <a href="mailto:newmandesigners@gmail.com" className="text-primary hover:underline">
+                      newmandesigners@gmail.com
+                    </a>
+                    .
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.section>
     </div>
   )
 }
