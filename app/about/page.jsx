@@ -40,7 +40,7 @@ export default function AboutPage() {
     "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-16%20at%201.51.17%E2%80%AFAM-voqzdXE4pg5P8vv6paVLeEtIoijpXd.png"
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl relative overflow-hidden">
+    <div className="container mx-auto px-4 py-44 max-w-6xl relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
