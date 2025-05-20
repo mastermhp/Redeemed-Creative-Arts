@@ -1375,6 +1375,13 @@ import {
   Facebook,
   Twitter,
   ArrowDown,
+  Eye,
+  EyeIcon,
+  EyeClosed,
+  EyeOff,
+  ScanEye,
+  LandPlot,
+  Goal,
 } from "lucide-react";
 
 // Import Swiper and modules
@@ -1995,7 +2002,7 @@ export default function Home() {
                       repeat: Number.POSITIVE_INFINITY,
                     }}
                   >
-                    <Heart className="h-10 w-10 text-[#e76f51]" />
+                    <Goal className="h-10 w-10 text-white" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -3098,7 +3105,7 @@ export default function Home() {
                         repeat: Number.POSITIVE_INFINITY,
                       }}
                     >
-                      <Star className="h-10 w-10 text-amber-500" />
+                      <ScanEye className="h-10 w-10 text-white" />
                     </motion.div>
                   </div>
                 </motion.div>
@@ -3260,7 +3267,7 @@ export default function Home() {
                 style={{ backgroundSize: "200% 200%" }}
               >
                 <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                  <Heart className="h-10 w-10 text-[#e76f51]" />
+                  <LandPlot className="h-10 w-10 text-white" />
                 </div>
               </motion.div>
 
