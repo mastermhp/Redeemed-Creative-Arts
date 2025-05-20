@@ -19,7 +19,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-md">
+    <div className="container mx-auto px-4 py-40 max-w-md">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Create Your Account</h1>
         <p className="text-gray-600">Join the Redeemed Creative Arts community</p>
@@ -40,7 +40,7 @@ export default function RegisterPage() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-xl shadow-md">
+        <div className=" p-8 rounded-xl shadow-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <Label>I am registering as a:</Label>
@@ -51,7 +51,7 @@ export default function RegisterPage() {
                 className="grid grid-cols-1 gap-4"
               >
                 <div
-                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "artist" ? "border-amber-600 bg-amber-50" : "border-gray-200"}`}
+                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "artist" ? "border-amber-600 bg-amber-500" : "border-gray-200"}`}
                 >
                   <RadioGroupItem value="artist" id="artist" />
                   <Label htmlFor="artist" className="flex items-center cursor-pointer">
@@ -60,7 +60,7 @@ export default function RegisterPage() {
                   </Label>
                 </div>
                 <div
-                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "patron" ? "border-amber-600 bg-amber-50" : "border-gray-200"}`}
+                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "patron" ? "border-amber-600 bg-amber-500" : "border-gray-200"}`}
                 >
                   <RadioGroupItem value="patron" id="patron" />
                   <Label htmlFor="patron" className="flex items-center cursor-pointer">
@@ -69,7 +69,7 @@ export default function RegisterPage() {
                   </Label>
                 </div>
                 <div
-                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "church" ? "border-amber-600 bg-amber-50" : "border-gray-200"}`}
+                  className={`flex items-center space-x-2 rounded-lg border p-4 cursor-pointer ${userType === "church" ? "border-amber-600 bg-amber-500" : "border-gray-200"}`}
                 >
                   <RadioGroupItem value="church" id="church" />
                   <Label htmlFor="church" className="flex items-center cursor-pointer">

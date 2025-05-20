@@ -40,7 +40,7 @@ export default function TermsPage() {
           transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY }}
         ></motion.div>
         <motion.div
-          className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl"
+          className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl"
           animate={{
             x: [-50, 50, -50],
             y: [50, -50, 50],
@@ -55,10 +55,10 @@ export default function TermsPage() {
         animate="visible"
         variants={staggerContainerVariants}
       >
-        <motion.h1 className="text-4xl font-bold mb-4 text-foreground" variants={itemVariants}>
+        <motion.h1 className="text-4xl font-bold mb-4 text-amber-500" variants={itemVariants}>
           Terms of Service
         </motion.h1>
-        <motion.p className="text-lg text-muted-foreground max-w-3xl mx-auto" variants={itemVariants}>
+        <motion.p className="text-lg text-amber-700 max-w-3xl mx-auto" variants={itemVariants}>
           Effective Date: May 17, 2025
         </motion.p>
         <motion.p className="text-muted-foreground max-w-3xl mx-auto mt-4" variants={itemVariants}>
@@ -94,11 +94,11 @@ export default function TermsPage() {
             {/* Overview of the Platform */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <FileText className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">1. Overview of the Platform</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">1. Overview of the Platform</h2>
                   <p className="text-muted-foreground">
                     Redeemed Creative Arts is a faith-based creative community designed to connect artists, patrons, and
                     churches/organizations. The platform fosters engagement, sales, and support for Christian visual
@@ -112,14 +112,14 @@ export default function TermsPage() {
             {/* Types of Accounts */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Users className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Users className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">2. Types of Accounts</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">2. Types of Accounts</h2>
 
-                  <h3 className="text-lg font-medium mb-2 text-foreground">Artists</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
+                  <h3 className="text-lg font-medium mb-2 text-amber-700">Artists</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-amber-700 mb-4">
                     <li>Must be human artists submitting original works created solely by them.</li>
                     <li>AI-generated art is strictly prohibited.</li>
                     <li>
@@ -141,7 +141,7 @@ export default function TermsPage() {
                     </li>
                   </ul>
 
-                  <h3 className="text-lg font-medium mb-2 text-foreground">Patrons (Supporters and Helpers)</h3>
+                  <h3 className="text-lg font-medium mb-2 text-amber-700">Patrons (Supporters and Helpers)</h3>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
                     <li>
                       Can engage with artists, make purchases, earn points, donate, and participate in community
@@ -158,7 +158,7 @@ export default function TermsPage() {
                     </li>
                   </ul>
 
-                  <h3 className="text-lg font-medium mb-2 text-foreground">Churches/Organizations</h3>
+                  <h3 className="text-lg font-medium mb-2 text-amber-700">Churches/Organizations</h3>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>Can use the site for ministry engagement, competitions, events, and rewards programs.</li>
                     <li>
@@ -174,11 +174,11 @@ export default function TermsPage() {
             {/* Intellectual Property & Licensing */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Shield className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Shield className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">3. Intellectual Property & Licensing</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">3. Intellectual Property & Licensing</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       All content, including artwork, text, videos, and other materials, remain the property of the
@@ -205,11 +205,11 @@ export default function TermsPage() {
             {/* Order Fulfillment */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <DollarSign className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <DollarSign className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">4. Order Fulfillment</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">4. Order Fulfillment</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>All, or some, product orders are fulfilled by approved third-party vendors.</li>
                     <li>
@@ -228,11 +228,11 @@ export default function TermsPage() {
             {/* Prohibited Activities */}
             <div>
               <div className="flex items-start">
-                <div className="bg-destructive/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Ban className="h-5 w-5 text-destructive" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Ban className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-destructive">5. Prohibited Activities</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">5. Prohibited Activities</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>Submission of AI-generated art or content.</li>
                     <li>Uploading art that infringes on third-party intellectual property rights.</li>
@@ -246,11 +246,11 @@ export default function TermsPage() {
             {/* Artist & Helper Conduct Clause */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Users className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Users className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">6. Artist & Helper Conduct Clause</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">6. Artist & Helper Conduct Clause</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       All Helpers, Artists, Patrons, and Churches ("Users") agree to act in accordance with Christian
@@ -274,11 +274,11 @@ export default function TermsPage() {
             {/* Community Standards & Content Guidelines */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Shield className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Shield className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">
                     7. Community Standards & Content Guidelines
                   </h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
@@ -302,11 +302,11 @@ export default function TermsPage() {
             {/* User Content Rights Clause */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <FileText className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">8. User Content Rights Clause</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">8. User Content Rights Clause</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Users may submit talent profiles, availability, videos, experiences, and other personal
@@ -332,11 +332,11 @@ export default function TermsPage() {
             {/* Dispute Resolution Clause */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <MessageSquare className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <MessageSquare className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">9. Dispute Resolution Clause</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">9. Dispute Resolution Clause</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Redeemed Creative Arts is not responsible for disputes between users, including but not limited to
@@ -362,11 +362,11 @@ export default function TermsPage() {
             {/* Refunds & Returns Clause */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <DollarSign className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <DollarSign className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">10. Refunds & Returns Clause</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">10. Refunds & Returns Clause</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Payments for services, events, talent bookings, or memberships are non-refundable unless
@@ -388,11 +388,11 @@ export default function TermsPage() {
             {/* Donations & Transparency Clause */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Heart className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Heart className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">11. Donations & Transparency Clause</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">11. Donations & Transparency Clause</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Donations made to Redeemed Creative Arts are voluntary, non-refundable, and do not substitute for
@@ -414,11 +414,11 @@ export default function TermsPage() {
             {/* Community Guidelines & Conduct */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Users className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Users className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">12. Community Guidelines & Conduct</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">12. Community Guidelines & Conduct</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Users agree to foster a respectful and encouraging environment aligned with Christian values.
@@ -435,11 +435,11 @@ export default function TermsPage() {
             {/* Limitation of Liability */}
             <div>
               <div className="flex items-start">
-                <div className="bg-destructive/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <AlertTriangle className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-destructive">13. Limitation of Liability</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">13. Limitation of Liability</h2>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>
                       Redeemed Creative Arts provides this platform "as-is" and does not guarantee uninterrupted or
@@ -475,12 +475,12 @@ export default function TermsPage() {
             {/* Indemnification */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Shield className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Shield className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">14. Indemnification</h2>
-                  <p className="text-muted-foreground">
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">14. Indemnification</h2>
+                  <p className="text-muted-amber-700">
                     Users agree to indemnify and hold harmless Redeemed Creative Arts and its affiliates from any
                     claims, demands, or liabilities resulting from the user's content, actions, or misuse of the
                     platform.
@@ -492,12 +492,12 @@ export default function TermsPage() {
             {/* Digital Agreement & Consent */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Lock className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Lock className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">15. Digital Agreement & Consent</h2>
-                  <p className="text-muted-foreground">
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">15. Digital Agreement & Consent</h2>
+                  <p className="text-muted-amber-700">
                     By using the site, creating an account, or making a purchase, you agree to these Terms of Service
                     and all associated policies (including Artist Disclaimer, Rights Agreement, and Buyer Terms).
                   </p>
@@ -508,12 +508,12 @@ export default function TermsPage() {
             {/* Updates to Terms */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <FileText className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">16. Updates to Terms</h2>
-                  <p className="text-muted-foreground">
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">16. Updates to Terms</h2>
+                  <p className="text-muted-amber-700">
                     Redeemed Creative Arts reserves the right to modify these Terms at any time. Continued use of the
                     Site after changes are posted will constitute acceptance of the revised Terms.
                   </p>
@@ -522,11 +522,11 @@ export default function TermsPage() {
             </div>
 
             {/* Contact Information */}
-            <div className="mt-8 p-6 bg-background rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-4 text-primary">Contact Information</h3>
-              <p className="text-muted-foreground">
+            <div className="mt-8 p-6 bg-amber-100/10 rounded-lg border border-border">
+              <h3 className="text-xl font-semibold mb-4 text-amber-500">Contact Information</h3>
+              <p className="text-amber-700">
                 For any questions or concerns regarding these Terms, please contact us at:{" "}
-                <a href="mailto:newmandesigners@gmail.com" className="text-primary hover:underline">
+                <a href="mailto:newmandesigners@gmail.com" className="text-amber-500 hover:underline">
                   newmandesigners@gmail.com
                 </a>
               </p>

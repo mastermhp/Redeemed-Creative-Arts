@@ -410,7 +410,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-foreground hover:text-primary hover:bg-muted"
+                className="hover:text-amber-500 font-bold transition-all duration-1000 hover:bg-white cursor-pointer text-white bg-amber-500"
               >
                 Log in
               </Button>

@@ -17,27 +17,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-md">
+    <div className="container mx-auto px-4 py-40 max-w-md">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Log In</h1>
         <p className="text-gray-600">Welcome back to Redeemed Creative Arts</p>
       </div>
 
       {isSubmitted ? (
-        <div className="bg-white p-8 rounded-xl shadow-md text-center">
+        <div className=" p-8 rounded-xl shadow-md text-center">
           <LogIn className="h-16 w-16 text-amber-600 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Login Received!</h2>
           <p className="text-gray-600 mb-6">
             In Phase 1, this is a placeholder for the login process. Full functionality will be implemented in Phase 2.
           </p>
-          <Button className="bg-amber-600 hover:bg-amber-700" asChild>
+          <Button className="bg-amber-600 hover:bg-amber-800 transition-all duration-1000 cursor-pointer" asChild>
             <Link href="/dashboard">
               Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-xl shadow-md">
+        <div className=" p-8 rounded-xl shadow-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

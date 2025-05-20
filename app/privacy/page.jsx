@@ -55,10 +55,10 @@ export default function PrivacyPage() {
         animate="visible"
         variants={staggerContainerVariants}
       >
-        <motion.h1 className="text-4xl font-bold mb-4 text-foreground" variants={itemVariants}>
+        <motion.h1 className="text-4xl font-bold mb-4 text-amber-500" variants={itemVariants}>
           Privacy Policy
         </motion.h1>
-        <motion.p className="text-lg text-muted-foreground max-w-3xl mx-auto" variants={itemVariants}>
+        <motion.p className="text-lg text-[#e76f51] max-w-3xl mx-auto" variants={itemVariants}>
           Effective Date: May 17, 2025
         </motion.p>
         <motion.p className="text-muted-foreground max-w-3xl mx-auto mt-4" variants={itemVariants}>
@@ -95,14 +95,14 @@ export default function PrivacyPage() {
             {/* Information We Collect */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Database className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Database className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">1. Information We Collect</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">1. Information We Collect</h2>
 
-                  <h3 className="text-lg font-medium mb-2 text-foreground">Personal Information</h3>
-                  <p className="text-muted-foreground mb-2">
+                  <h3 className="text-lg font-medium mb-2 text-[#e76f51]">Personal Information</h3>
+                  <p className="text-foreground mb-2">
                     We may collect personal information that you voluntarily provide when you:
                   </p>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
@@ -113,14 +113,14 @@ export default function PrivacyPage() {
                     <li>Communicate with us via email, contact forms, or support channels.</li>
                   </ul>
 
-                  <p className="text-muted-foreground mb-2">This may include:</p>
+                  <p className="text-[#e76f51] mb-2">This may include:</p>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground mb-4">
                     <li>Name, email address, mailing address, and phone number.</li>
                     <li>Payment information (processed securely through third-party payment processors).</li>
                     <li>Profile information and content you upload (including artwork, video, and text).</li>
                   </ul>
 
-                  <h3 className="text-lg font-medium mb-2 text-foreground">Automatically Collected Information</h3>
+                  <h3 className="text-lg font-medium mb-2 text-[#e76f51]">Automatically Collected Information</h3>
                   <p className="text-muted-foreground mb-2">When you visit the Site, we may automatically collect:</p>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>IP address.</li>
@@ -136,11 +136,11 @@ export default function PrivacyPage() {
             {/* How We Use Your Information */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <FileText className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">2. How We Use Your Information</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">2. How We Use Your Information</h2>
                   <p className="text-muted-foreground mb-2">
                     We use the information we collect for the following purposes:
                   </p>
@@ -161,11 +161,11 @@ export default function PrivacyPage() {
             {/* Sharing of Information */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Users className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Users className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">3. Sharing of Information</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">3. Sharing of Information</h2>
                   <p className="text-muted-foreground mb-2">
                     We do not sell your personal information to third parties. We may share your information with:
                   </p>
@@ -185,11 +185,11 @@ export default function PrivacyPage() {
             {/* Third-Party Fulfillment Disclaimer */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Shield className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Shield className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">4. Third-Party Fulfillment Disclaimer</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">4. Third-Party Fulfillment Disclaimer</h2>
                   <p className="text-muted-foreground">
                     All orders placed through Redeemed Creative Arts are fulfilled by third-party print and shipping
                     services. Redeemed Creative Arts is not responsible for the privacy practices of these vendors,
@@ -202,11 +202,11 @@ export default function PrivacyPage() {
             {/* Cookies & Tracking Technologies */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Cookie className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Cookie className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">5. Cookies & Tracking Technologies</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">5. Cookies & Tracking Technologies</h2>
                   <p className="text-muted-foreground mb-2">We use cookies and similar technologies to:</p>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     <li>Improve website functionality.</li>
@@ -221,11 +221,11 @@ export default function PrivacyPage() {
             {/* Data Retention */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Clock className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Clock className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">6. Data Retention</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">6. Data Retention</h2>
                   <p className="text-muted-foreground mb-2">
                     We retain your personal information for as long as necessary to:
                   </p>
@@ -235,7 +235,7 @@ export default function PrivacyPage() {
                     <li>Resolve disputes.</li>
                     <li>
                       You may request account deletion by contacting us at{" "}
-                      <a href="mailto:newmandesigners@gmail.com" className="text-primary hover:underline">
+                      <a href="mailto:newmandesigners@gmail.com" className="text-[#e76f51] hover:underline">
                         newmandesigners@gmail.com
                       </a>
                       .
@@ -245,23 +245,15 @@ export default function PrivacyPage() {
               </div>
             </div>
 
+            
             {/* Security of Your Information */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Lock className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </div>
-
-            {/* Security of Your Information */}
-            <div>
-              <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Lock className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Lock className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">7. Security of Your Information</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">7. Security of Your Information</h2>
                   <p className="text-muted-foreground mb-2">
                     We implement reasonable security measures to protect your personal information from unauthorized
                     access, use, or disclosure. However, no method of transmission over the internet or electronic
@@ -274,11 +266,11 @@ export default function PrivacyPage() {
             {/* Children's Privacy */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Child className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Child className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">8. Children's Privacy</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">8. Children's Privacy</h2>
                   <p className="text-muted-foreground mb-2">
                     Our Site is not intended for children under the age of 13. We do not knowingly collect personal
                     information from children under 13. If you are a parent or guardian and believe that your child has
@@ -292,11 +284,11 @@ export default function PrivacyPage() {
             {/* International Data Transfer */}
             <div>
               <div className="flex items-start">
-                <div className="bg-secondary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Globe className="h-5 w-5 text-secondary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Globe className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-secondary">9. International Data Transfer</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">9. International Data Transfer</h2>
                   <p className="text-muted-foreground mb-2">
                     Your information may be transferred to and maintained on servers located outside of your country or
                     other governmental jurisdiction where the data protection laws may differ than those from your
@@ -309,11 +301,11 @@ export default function PrivacyPage() {
             {/* Changes to This Privacy Policy */}
             <div>
               <div className="flex items-start">
-                <div className="bg-primary/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <FileText className="h-5 w-5 text-primary" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-primary">10. Changes to This Privacy Policy</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">10. Changes to This Privacy Policy</h2>
                   <p className="text-muted-foreground mb-2">
                     We may update this Privacy Policy from time to time. We will notify you of any changes by posting
                     the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for
@@ -326,14 +318,14 @@ export default function PrivacyPage() {
             {/* Contact Us */}
             <div>
               <div className="flex items-start">
-                <div className="bg-accent/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
-                  <Mail className="h-5 w-5 text-accent" />
+                <div className="bg-amber-500/30 p-3 rounded-full mr-4 flex items-center justify-center mt-1">
+                  <Mail className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-3 text-accent">11. Contact Us</h2>
+                  <h2 className="text-xl font-semibold mb-3 text-amber-500">11. Contact Us</h2>
                   <p className="text-muted-foreground">
                     If you have any questions about this Privacy Policy, please contact us at{" "}
-                    <a href="mailto:newmandesigners@gmail.com" className="text-primary hover:underline">
+                    <a href="mailto:newmandesigners@gmail.com" className="text-[#e76f51] hover:underline">
                       newmandesigners@gmail.com
                     </a>
                     .
