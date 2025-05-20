@@ -1615,7 +1615,7 @@ export default function Home() {
       </div>
 
       {/* Floating particles */}
-      {/* <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
             key={i}
@@ -1637,7 +1637,7 @@ export default function Home() {
             }}
           />
         ))}
-      </div> */}
+      </div>
 
       {/* Hero Section with Parallax */}
       <section
@@ -1923,7 +1923,7 @@ export default function Home() {
           variants={staggerContainerVariants}
         >
           <motion.div
-            className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl border border-[#e76f51] relative overflow-hidden"
+            className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl  relative overflow-hidden"
             variants={itemVariants}
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -1954,7 +1954,7 @@ export default function Home() {
             ></motion.div>
 
             {/* Animated particles */}
-            {/* {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute w-2 h-2 rounded-full bg-amber-500/30"
@@ -1972,7 +1972,7 @@ export default function Home() {
                   delay: Math.random() * 2,
                 }}
               />
-            ))} */}
+            ))}
 
             <div className="relative z-10">
               <motion.div
@@ -2810,7 +2810,7 @@ export default function Home() {
 
       {/* Core Values with Interactive Cards */}
       <section className="py-20 relative z-10 bg-gradient-to-b from-background to-background/95">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           {/* Core Values */}
           <motion.section
             className="mb-24 relative z-10 overflow-hidden"
@@ -2942,26 +2942,28 @@ export default function Home() {
                     transition: { type: "spring", stiffness: 400, damping: 10 },
                   }}
                 >
-                  <div className="bg-card rounded-xl overflow-hidden h-full relative p-1 transform-gpu">
+                  <div className={`border border-${value.color} bg-card rounded-[40px] overflow-hidden h-full relative p-1 transform-gpu`}>
                     <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br ${value.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`}
+                      className={`absolute inset-0 bg-gradient-to-br ${value.gradient} border-2 border-${value.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`}
                     ></motion.div>
 
                     <div className="relative bg-card rounded-lg p-6 h-full z-10">
-                      <motion.div
-                        className={`bg-${value.color}/20 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-${value.color}/30 transition-colors duration-300`}
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 10,
-                        }}
-                      >
-                        {value.icon}
-                      </motion.div>
+                      <div className="flex items-center justify-center">
+                        <motion.div
+                          className={`bg-${value.color}/20 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-white transition-colors duration-300`}
+                          whileHover={{ scale: 1.1, rotate: 10 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 10,
+                          }}
+                        >
+                          {value.icon}
+                        </motion.div>
+                      </div>
 
                       <h3
-                        className={`text-xl font-semibold mb-3 text-${value.color} group-hover:text-${value.color} transition-colors duration-300`}
+                        className={`text-xl text-center font-bold mb-3 text-${value.color} group-hover:text-white transition-colors duration-300`}
                       >
                         {value.title}
                       </h3>
@@ -2973,7 +2975,7 @@ export default function Home() {
                         transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
                       ></motion.div>
 
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-center">
                         {value.description}
                       </p>
 
@@ -3010,65 +3012,10 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ duration: 1.5 }}
         >
-          <div className="absolute inset-0 bg-background/90 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-background/75 backdrop-blur-lg"></div>
         </motion.div>
 
         <div className="container mx-auto px-4">
-          {/* <motion.div
-            className="bg-card/80 backdrop-blur-md p-8 md:p-12 rounded-xl border border-primary relative overflow-hidden max-w-4xl mx-auto"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUpVariants}
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          >
-            <motion.div
-              className="absolute -bottom-20 -left-20 w-64 h-64 bg-accent/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, -20, 0],
-                y: [0, 20, 0],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: 1,
-              }}
-            ></motion.div>
-
-            <div className="relative z-10">
-              <motion.div
-                className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
-              >
-                <Star className="h-8 w-8 text-primary" />
-              </motion.div>
-
-              <h2 className="text-3xl font-bold mb-6 text-center text-foreground">
-                Our Vision
-              </h2>
-
-              <p className="text-lg text-muted-foreground leading-relaxed text-center">
-                To cultivate an active,{" "}
-                <span className="text-primary font-medium">
-                  Christ-centered creative community
-                </span>{" "}
-                where artists, patrons, and ministries unite to inspire, uplift,
-                serve and glorify God through the power of visual arts and
-                storytelling, fostering engagement, support, and spiritual
-                growth. We support individuals and groups in their efforts to
-                provide faith-based services to churches, Christian events, and
-                charitable organizations.
-              </p>
-            </div>
-          </motion.div> */}
-
           {/* Vision Statement */}
           <motion.section
             className="mb-24 relative z-10 overflow-hidden"
@@ -3078,7 +3025,7 @@ export default function Home() {
             variants={staggerContainerVariants}
           >
             <motion.div
-              className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl border border-amber-500/30 relative overflow-hidden"
+              className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl  relative overflow-hidden"
               variants={itemVariants}
               whileHover={{ y: -5 }}
               transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -3109,26 +3056,26 @@ export default function Home() {
               ></motion.div>
 
               {/* Animated particles */}
-              {/* {Array.from({ length: 12 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-amber-500/40"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0, 1, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))} */}
+              {Array.from({ length: 12 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-1 h-1 rounded-full bg-amber-500/40"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                  }}
+                  animate={{
+                    y: [0, -30, 0],
+                    opacity: [0, 1, 0],
+                    scale: [0, 1, 0],
+                  }}
+                  transition={{
+                    duration: 3 + Math.random() * 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    delay: Math.random() * 2,
+                  }}
+                />
+              ))}
 
               <div className="relative z-10">
                 <motion.div
