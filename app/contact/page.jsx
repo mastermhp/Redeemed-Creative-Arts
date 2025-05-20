@@ -27,7 +27,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="container mx-auto px-4 py-44 max-w-6xl">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -37,7 +37,7 @@ export default function ContactPage() {
 
       <div className="grid md:grid-cols-2 gap-12 mb-16">
         {/* Contact Form */}
-        <div className="bg-white p-8 rounded-xl shadow-md">
+        <div className=" p-8 rounded-xl shadow-md">
           <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
 
           {isSubmitted ? (
@@ -113,7 +113,7 @@ export default function ContactPage() {
 
           <div className="space-y-6 mb-8">
             <div className="flex items-start">
-              <div className="bg-amber-100 p-3 rounded-full mr-4">
+              <div className="bg-amber-100/20 p-3 rounded-full mr-4">
                 <Mail className="h-5 w-5 text-amber-600" />
               </div>
               <div>
@@ -124,7 +124,7 @@ export default function ContactPage() {
             </div>
 
             <div className="flex items-start">
-              <div className="bg-amber-100 p-3 rounded-full mr-4">
+              <div className="bg-amber-100/20 p-3 rounded-full mr-4">
                 <Phone className="h-5 w-5 text-amber-600" />
               </div>
               <div>
@@ -135,7 +135,7 @@ export default function ContactPage() {
             </div>
 
             <div className="flex items-start">
-              <div className="bg-amber-100 p-3 rounded-full mr-4">
+              <div className="bg-amber-100/20 p-3 rounded-full mr-4">
                 <MapPin className="h-5 w-5 text-amber-600" />
               </div>
               <div>
@@ -147,7 +147,7 @@ export default function ContactPage() {
           </div>
 
           {/* FAQ Preview */}
-          <div className="bg-amber-50 p-6 rounded-xl">
+          <div className="bg-amber-100/10 p-6 rounded-xl">
             <h3 className="text-xl font-semibold mb-4">Frequently Asked Questions</h3>
             <div className="space-y-4">
               <div>
@@ -177,7 +177,7 @@ export default function ContactPage() {
       </div>
 
       {/* Newsletter Signup */}
-      <div className="bg-amber-50 p-8 rounded-xl text-center mb-16">
+      <div className="bg-amber-100/10 p-8 rounded-xl text-center mb-16">
         <h2 className="text-2xl font-bold mb-4">Stay Updated</h2>
         <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
           Subscribe to our newsletter to receive updates on our progress, new features, and community news.
@@ -201,7 +201,7 @@ export default function ContactPage() {
 
       {/* Map Placeholder */}
       <div className="relative h-[400px] rounded-xl overflow-hidden shadow-lg mb-16">
-        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
           <p className="text-gray-500 text-lg">Map Placeholder</p>
         </div>
       </div>

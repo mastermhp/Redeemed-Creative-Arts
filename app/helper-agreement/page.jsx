@@ -182,7 +182,7 @@ export default function HelperAgreementPage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl relative overflow-hidden">
+    <div className="container mx-auto px-4 py-40 max-w-6xl relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div

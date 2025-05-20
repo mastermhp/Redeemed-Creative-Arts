@@ -61,6 +61,13 @@ const Header = () => {
     setSearchOpen(false)
   }, [pathname])
 
+  // Close dropdowns when search is opened
+  useEffect(() => {
+    if (searchOpen) {
+      setOpenDropdown(null)
+    }
+  }, [searchOpen])
+
   // Focus search input when opened
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
@@ -274,10 +281,14 @@ const Header = () => {
                   onHoverEnd={() => setHoveredItem(null)}
                 >
                   {link.dropdown ? (
-                    <div className="relative">
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setOpenDropdown(index)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
                       <button
                         onClick={() => handleDropdownToggle(index)}
-                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-300 ${
+                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-1000 ${
                           pathname === link.href || openDropdown === index
                             ? "text-amber-500"
                             : "text-foreground hover:text-amber-500"
@@ -326,7 +337,7 @@ const Header = () => {
                                       pathname === dropdownItem.href
                                         ? "text-amber-500 bg-amber-500/10"
                                         : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                                    } transition-colors duration-300`}
+                                    } transition-colors duration-300 hover:bg-amber-500/10`}
                                     onClick={() => setOpenDropdown(null)}
                                   >
                                     {dropdownItem.name}
@@ -388,7 +399,10 @@ const Header = () => {
                   variant="ghost"
                   size="icon"
                   className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
-                  onClick={() => setSearchOpen(!searchOpen)}
+                  onClick={() => {
+                    setSearchOpen(!searchOpen)
+                    setOpenDropdown(null) // Close any open dropdown
+                  }}
                 >
                   <Search className="h-5 w-5" />
                 </Button>
@@ -467,7 +481,10 @@ const Header = () => {
                   variant="ghost"
                   size="icon"
                   className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
-                  onClick={() => setSearchOpen(!searchOpen)}
+                  onClick={() => {
+                    setSearchOpen(!searchOpen)
+                    setOpenDropdown(null) // Close any open dropdown
+                  }}
                 >
                   <Search className="h-5 w-5" />
                 </Button>

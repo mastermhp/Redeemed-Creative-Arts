@@ -59,7 +59,7 @@ export default function ArtistInfoPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="container mx-auto px-4 py-40 max-w-6xl">
       <motion.div
         className="text-center mb-12"
         initial="hidden"

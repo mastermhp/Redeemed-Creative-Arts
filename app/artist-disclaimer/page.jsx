@@ -31,7 +31,7 @@ export default function ArtistDisclaimerPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl relative overflow-hidden">
+    <div className="container mx-auto px-4 py-32 max-w-4xl relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
