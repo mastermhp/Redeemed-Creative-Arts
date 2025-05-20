@@ -1403,12 +1403,12 @@ import "swiper/css/navigation";
 const heroImage =
   "https://images.unsplash.com/photo-1501084291732-13b1ba8f0ebc?q=80&w=2070&auto=format&fit=crop";
 const artworkImages = [
-  "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=2145&auto=format&fit=crop",
+  "/artworkImages1.png",
   "https://images.unsplash.com/photo-1579783901586-d88db74b4fe4?q=80&w=2145&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1533158326339-7f3cf2404354?q=80&w=2071&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579783928621-7a13d66a62b1?q=80&w=2145&auto=format&fit=crop",
+  "/artworkImages2.png",
+  "/artworkImages3.png",
   "https://images.unsplash.com/photo-1526336179256-1347bdb255ee?q=80&w=1974&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1482245294234-b3f2f8d5f1a4?q=80&w=2030&auto=format&fit=crop",
+  "/artworkImages4.png",
 ];
 
 const artistImage =
@@ -1448,12 +1448,12 @@ const testimonials = [
 
 // Gallery images
 const galleryImages = [
+  "/artworkImages3.png",
   "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=2145&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579541591970-e5795a602732?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579783901586-d88db74b4fe4?q=80&w=2145&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1533158326339-7f3cf2404354?q=80&w=2071&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579783928621-7a13d66a62b1?q=80&w=2145&auto=format&fit=crop",
+  "/artworkImages1.png",
   "https://images.unsplash.com/photo-1526336179256-1347bdb255ee?q=80&w=1974&auto=format&fit=crop",
+  "/artworkImages2.png",
+  "/artworkImages4.png",
 ];
 
 // Stats
@@ -2132,7 +2132,7 @@ export default function Home() {
 
       {/* Stats Counter Section */}
       <section className="py-16 relative z-10 bg-gradient-to-b from-background/95 to-background">
-        <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <motion.div
             className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10"
             initial="hidden"
@@ -2949,7 +2949,9 @@ export default function Home() {
                     transition: { type: "spring", stiffness: 400, damping: 10 },
                   }}
                 >
-                  <div className={`border border-${value.color} bg-card rounded-[40px] overflow-hidden h-full relative p-1 transform-gpu`}>
+                  <div
+                    className={`border border-${value.color} bg-card rounded-[40px] overflow-hidden h-full relative p-1 transform-gpu`}
+                  >
                     <motion.div
                       className={`absolute inset-0 bg-gradient-to-br ${value.gradient} border-2 border-${value.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`}
                     ></motion.div>
