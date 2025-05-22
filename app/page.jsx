@@ -11,16 +11,13 @@ import {
   Palette,
   Heart,
   Church,
-  Users,
   Star,
   Check,
   Instagram,
   Facebook,
   Twitter,
   ArrowDown,
-  ScanEye,
   LandPlot,
-  Goal,
 } from "lucide-react"
 import AIChatbox from "@/components/AIChatbox"
 
@@ -503,7 +500,7 @@ export default function Home() {
               slideShadows: true,
             }}
             autoplay={{
-              delay: 3000,
+              delay: 5000, // Slowed down by 2 seconds (from 3000 to 5000)
               disableOnInteraction: false,
             }}
             pagination={{ clickable: true }}
@@ -531,257 +528,6 @@ export default function Home() {
             ))}
           </Swiper>
         </motion.div>
-      </section>
-
-      {/* Mission Statement with Parallax */}
-      <section className="py-20 relative z-10 overflow-hidden">
-        <motion.section
-          className=" relative z-10 overflow-hidden"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainerVariants}
-        >
-          <motion.div
-            className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl  relative overflow-hidden"
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          >
-            {/* Animated background elements */}
-            <motion.div
-              className="absolute -top-20 -right-20 w-64 h-64 bg-amber-200/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, 20, 0],
-                y: [0, -20, 0],
-              }}
-              transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY }}
-            ></motion.div>
-
-            <motion.div
-              className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#e76f51]/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1.2, 1, 1.2],
-                x: [0, -20, 0],
-                y: [0, 20, 0],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: 2,
-              }}
-            ></motion.div>
-
-            {/* Animated particles */}
-            {Array.from({ length: 8 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 rounded-full bg-amber-500/30"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  delay: Math.random() * 2,
-                }}
-              />
-            ))}
-
-            <div className="relative z-10">
-              <motion.div
-                className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-amber-500 to-[#e76f51] p-0.5 shadow-lg"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
-              >
-                <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 10, -10, 0],
-                    }}
-                    transition={{
-                      duration: 5,
-                      repeat: Number.POSITIVE_INFINITY,
-                    }}
-                  >
-                    <Goal className="h-10 w-10 text-white" />
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              <motion.h2
-                className="text-4xl font-bold mb-8 text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-[#e76f51]">
-                  Our Mission
-                </span>
-              </motion.h2>
-
-              <motion.div
-                className="max-w-4xl mx-auto relative"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <motion.div
-                  className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-500 to-[#e76f51]"
-                  initial={{ height: 0 }}
-                  whileInView={{ height: "100%" }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                ></motion.div>
-
-                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed pl-4">
-                  At Redeemed Creative Arts, our mission is to uplift and empower Christian artists by fostering a
-                  dynamic community where creativity, faith, and fellowship thrive together. We connect visual artists,
-                  patrons, and churches to celebrate God-given talents, encourage meaningful engagement, and build
-                  sustainable ministries that inspire, teach, and bless communities. Through art, education, and
-                  collaboration, we aim to glorify Christ, enrich the church body, and nurture the next generation of
-                  creators for His Kingdom.
-                </p>
-              </motion.div>
-
-              <motion.div
-                className="mt-10 flex justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-              >
-                <Link href="/about-mission">
-                  <Button className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 group">
-                    Learn More About Our Mission
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
-              </motion.div>
-            </div>
-          </motion.div>
-        </motion.section>
-
-        <motion.div
-          className="absolute inset-0 -z-10"
-          style={{
-            backgroundImage: `url(${churchImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          initial={{ scale: 1.1 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.5 }}
-        >
-          <div className="absolute inset-0 bg-background/90 backdrop-blur-sm"></div>
-        </motion.div>
-
-        {/* <div className="container mx-auto px-4">
-          <motion.div
-            className="bg-card/80 backdrop-blur-md p-8 md:p-12 rounded-xl border border-[#e76f51] relative overflow-hidden max-w-4xl mx-auto"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUpVariants}
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          >
-            <motion.div
-              className="absolute -top-20 -right-20 w-64 h-64 bg-amber-200/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, 20, 0],
-                y: [0, -20, 0],
-              }}
-              transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY }}
-            ></motion.div>
-
-            <div className="relative z-10">
-              <motion.div
-                className="w-16 h-16 rounded-full bg-[#e76f51]/10 flex items-center justify-center mx-auto mb-6"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
-              >
-                <Heart className="h-8 w-8 text-[#e76f51]" />
-              </motion.div>
-
-              <h2 className="text-3xl font-bold mb-6 text-center text-[#e76f51]">
-                Our Mission
-              </h2>
-
-              <p className="text-lg text-muted-foreground leading-relaxed text-center">
-                At{" "}
-                <span className="text-amber-500 font-medium">
-                  Redeemed Creative Arts
-                </span>
-                , our mission is to uplift and empower Christian artists by
-                fostering a dynamic community where creativity, faith, and
-                fellowship thrive together. We connect visual artists, patrons,
-                and churches to celebrate God-given talents, encourage
-                meaningful engagement, and build sustainable ministries that
-                inspire, teach, and bless communities.
-              </p>
-            </div>
-          </motion.div>
-        </div> */}
-      </section>
-
-      {/* Stats Counter Section */}
-      <section className="py-16 relative z-10 bg-gradient-to-b from-background/95 to-background">
-        <div className="max-w-5xl mx-auto px-4">
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainerVariants}
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 text-center"
-                variants={itemVariants}
-                whileHover={{
-                  y: -10,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                <motion.div
-                  className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4"
-                  animate={{ rotate: [0, 10, 0, -10, 0] }}
-                  transition={{
-                    duration: 5,
-                    repeat: Number.POSITIVE_INFINITY,
-                    delay: index * 0.5,
-                  }}
-                >
-                  {React.cloneElement(stat.icon, {
-                    className: "h-6 w-6 text-amber-500",
-                  })}
-                </motion.div>
-                <h3 className="text-4xl font-bold text-foreground mb-2">
-                  <Counter value={stat.value} />+
-                </h3>
-                <p className="text-muted-foreground">{stat.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
       </section>
 
       {/* Who We Serve */}
@@ -1107,558 +853,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <motion.section
-        className="mb-24 relative z-10"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainerVariants}
-      >
-        <motion.div
-          className="text-center mb-16"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainerVariants}
-        >
-          <motion.div variants={itemVariants} className="mb-4 inline-block">
-            <span className="px-4 py-1 bg-[#e76f51]/10 text-[#e76f51] rounded-full text-sm font-medium border border-[#e76f51]/20">
-              Testimonials
-            </span>
-          </motion.div>
-          <motion.h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
-            variants={itemVariants}
-          >
-            What Our <span className="text-[#e76f51]">Community</span> Says
-          </motion.h2>
-          <motion.p className="text-lg text-muted-foreground max-w-2xl mx-auto" variants={itemVariants}>
-            Hear from artists, patrons, and churches who have found value in our platform
-          </motion.p>
-        </motion.div>
-
-        <div className="relative h-[300px] md:h-[250px]">
-          <AnimatePresence mode="wait">
-            {testimonials.map(
-              (testimonial, index) =>
-                index === activeTestimonial && (
-                  <motion.div
-                    key={index}
-                    className="absolute inset-0"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="max-w-5xl mx-auto bg-card p-8 rounded-xl border border-amber-500/20 shadow-lg flex flex-col md:flex-row items-center gap-6 h-full">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
-                        <Image
-                          src={testimonial.image || "/placeholder.svg"}
-                          alt={testimonial.name}
-                          fill
-                          className="object-cover rounded-full"
-                        />
-                        <motion.div
-                          className="absolute -inset-1 rounded-full border-2 border-amber-500/50"
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 8,
-                            repeat: Number.POSITIVE_INFINITY,
-                            ease: "linear",
-                          }}
-                        ></motion.div>
-                      </div>
-                      <div className="text-center md:text-left">
-                        <p className="text-muted-foreground mb-4 italic">"{testimonial.quote}"</p>
-                        <h3 className="font-bold text-amber-500">{testimonial.name}</h3>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ),
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="flex justify-center mt-6 gap-2">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                index === activeTestimonial ? "bg-amber-500" : "bg-amber-500/30"
-              }`}
-              onClick={() => setActiveTestimonial(index)}
-            />
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Gallery Grid with Hover Effects */}
-      <section className="py-20 relative z-10">
-        <div className="container mx-auto px-4">
+      {/* Stats Counter Section - Made slightly smaller */}
+      <section className="py-16 relative z-10 bg-gradient-to-b from-background/95 to-background">
+        <div className="max-w-4xl mx-auto px-4">
+          {" "}
+          {/* Changed from max-w-5xl to max-w-4xl */}
           <motion.div
-            className="text-center mb-16"
+            className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-8" /* Reduced gap slightly */
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainerVariants}
           >
-            <motion.div variants={itemVariants} className="mb-4 inline-block">
-              <span className="px-4 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm font-medium border border-amber-500/20">
-                Gallery
-              </span>
-            </motion.div>
-            <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
-              variants={itemVariants}
-            >
-              Explore Our <span className="text-amber-500">Collection</span>
-            </motion.h2>
-            <motion.p className="text-lg text-muted-foreground max-w-2xl mx-auto" variants={itemVariants}>
-              A glimpse into the diverse artwork created by our talented community
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 gap-4"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainerVariants}
-          >
-            {galleryImages.map((image, index) => (
+            {stats.map((stat, index) => (
               <motion.div
                 key={index}
-                className="relative group overflow-hidden rounded-xl"
+                className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-5 text-center" /* Reduced padding */
                 variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+                }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
               >
-                <div className="relative aspect-square overflow-hidden">
-                  <Image
-                    src={image || "/placeholder.svg"}
-                    alt={`Gallery Image ${index + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                    <h3 className="text-white text-xl font-bold">Artwork Title {index + 1}</h3>
-                    <p className="text-white/80">Artist Name</p>
-                  </div>
-                </div>
+                <motion.div
+                  className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-3" /* Reduced size and margin */
+                  animate={{ rotate: [0, 10, 0, -10, 0] }}
+                  transition={{
+                    duration: 5,
+                    repeat: Number.POSITIVE_INFINITY,
+                    delay: index * 0.5,
+                  }}
+                >
+                  {React.cloneElement(stat.icon, {
+                    className: "h-5 w-5 text-amber-500" /* Reduced icon size */,
+                  })}
+                </motion.div>
+                <h3 className="text-3xl font-bold text-foreground mb-1">
+                  {" "}
+                  {/* Reduced text size and margin */}
+                  <Counter value={stat.value} />+
+                </h3>
+                <p className="text-sm text-muted-foreground">{stat.label}</p> {/* Reduced text size */}
               </motion.div>
             ))}
           </motion.div>
-
-          <motion.div
-            className="text-center mt-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <Link href="/gallery">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-500"
-              >
-                View Full Gallery
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Core Values with Interactive Cards */}
-      <section className="py-20 relative z-10 bg-gradient-to-b from-background to-background/95">
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Core Values */}
-          <motion.section
-            className="mb-24 relative z-10 overflow-hidden"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainerVariants}
-          >
-            <motion.div
-              className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full blur-[100px]"
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, -20, 0],
-                y: [0, 20, 0],
-              }}
-              transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY }}
-            ></motion.div>
-
-            <motion.div
-              className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#e76f51]/5 rounded-full blur-[100px]"
-              animate={{
-                scale: [1.2, 1, 1.2],
-                x: [0, 20, 0],
-                y: [0, -20, 0],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: 2,
-              }}
-            ></motion.div>
-
-            <motion.div className="text-center mb-16" variants={itemVariants}>
-              <motion.div
-                className="inline-block mb-4"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <motion.span
-                  className="px-4 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm font-medium border border-amber-500/20"
-                  animate={floatingAnimation}
-                >
-                  What Guides Us
-                </motion.span>
-              </motion.div>
-
-              <motion.h2
-                className="text-4xl font-bold mb-4 text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-[#e76f51]">
-                  Our Core Values
-                </span>
-              </motion.h2>
-
-              <motion.p
-                className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                The principles that guide our community and mission
-              </motion.p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                {
-                  title: "Faith-Driven Creativity",
-                  description:
-                    "We believe all creative gifts are given by God and should be used to honor Him and edify the body of Christ.",
-                  icon: <Star className="h-6 w-6 text-amber-500" />,
-                  color: "amber-500",
-                  gradient: "from-amber-500 to-amber-400",
-                },
-                {
-                  title: "Community & Collaboration",
-                  description:
-                    "We foster authentic connections between artists, patrons, and ministries, encouraging mutual support, mentorship, service and collective worship through art.",
-                  icon: <Users className="h-6 w-6 text-[#e76f51]" />,
-                  color: "[#e76f51]",
-                  gradient: "from-[#e76f51] to-[#e76f51]/80",
-                },
-                {
-                  title: "Integrity & Stewardship",
-                  description:
-                    "We uphold honesty, respect for intellectual property, and transparency in all interactions, ensuring that artists and contributors are supported with fairness and accountability.",
-                  icon: <Check className="h-6 w-6 text-amber-500" />,
-                  color: "amber-500",
-                  gradient: "from-amber-500 to-amber-400",
-                },
-                {
-                  title: "Celebration of Diversity",
-                  description:
-                    "We celebrate the diverse gifts and backgrounds of artists across all mediums, ages, and cultures, reflecting the beauty of God's creation.",
-                  icon: <Heart className="h-6 w-6 text-[#e76f51]" />,
-                  color: "[#e76f51]",
-                  gradient: "from-[#e76f51] to-[#e76f51]/80",
-                },
-                {
-                  title: "Empowerment & Encouragement",
-                  description:
-                    "We equip artists, supporters, and churches to grow in their calling by providing tools, recognition, and opportunities to impact communities through art and other talents.",
-                  icon: <Users className="h-6 w-6 text-amber-500" />,
-                  color: "amber-500",
-                  gradient: "from-amber-500 to-amber-400",
-                },
-                {
-                  title: "Excellence & Innovation",
-                  description:
-                    "We encourage the pursuit of excellence in artistry, innovation in presentation, and creativity in outreach, all grounded in biblical principles.",
-                  icon: <Star className="h-6 w-6 text-[#e76f51]" />,
-                  color: "[#e76f51]",
-                  gradient: "from-[#e76f51] to-[#e76f51]/80",
-                },
-              ].map((value, index) => (
-                <motion.div
-                  key={index}
-                  className="group"
-                  variants={itemVariants}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * index }}
-                  whileHover={{
-                    y: -10,
-                    transition: { type: "spring", stiffness: 400, damping: 10 },
-                  }}
-                >
-                  <div
-                    className={`border border-${value.color} bg-card rounded-[40px] overflow-hidden h-full relative p-1 transform-gpu`}
-                  >
-                    <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br ${value.gradient} border-2 border-${value.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`}
-                    ></motion.div>
-
-                    <div className="relative bg-card rounded-lg p-6 h-full z-10">
-                      <div className="flex items-center justify-center">
-                        <motion.div
-                          className={`bg-${value.color}/20 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-white transition-colors duration-300`}
-                          whileHover={{ scale: 1.1, rotate: 10 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 10,
-                          }}
-                        >
-                          {value.icon}
-                        </motion.div>
-                      </div>
-
-                      <h3
-                        className={`text-xl text-center font-bold mb-3 text-${value.color} group-hover:text-white transition-colors duration-300`}
-                      >
-                        {value.title}
-                      </h3>
-
-                      <motion.div
-                        className={`h-0.5 w-12 bg-${value.color}/50 mb-4`}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: 48 }}
-                        transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                      ></motion.div>
-
-                      <p className="text-muted-foreground text-center">{value.description}</p>
-
-                      <motion.div
-                        className={`absolute bottom-2 right-2 w-12 h-12 rounded-full bg-${value.color}/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                        animate={{
-                          scale: [1, 1.2, 1],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Number.POSITIVE_INFINITY,
-                        }}
-                      ></motion.div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
-        </div>
-      </section>
-
-      {/* Vision Statement with Parallax */}
-      <section className="py-20 relative z-10 overflow-hidden">
-        <motion.div
-          className="absolute inset-0 -z-10"
-          style={{
-            backgroundImage: `url(${artworkImages[0]})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          initial={{ scale: 1.1 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.5 }}
-        >
-          <div className="absolute inset-0 bg-background/75 backdrop-blur-lg"></div>
-        </motion.div>
-
-        <div className="container mx-auto px-4">
-          {/* Vision Statement */}
-          <motion.section
-            className="mb-24 relative z-10 overflow-hidden"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainerVariants}
-          >
-            <motion.div
-              className="bg-gradient-to-br from-card to-card/50 p-8 md:p-12 rounded-xl  relative overflow-hidden"
-              variants={itemVariants}
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
-              {/* Animated background elements */}
-              <motion.div
-                className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full blur-[100px]"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  x: [0, -20, 0],
-                  y: [0, 20, 0],
-                }}
-                transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY }}
-              ></motion.div>
-
-              <motion.div
-                className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#e76f51]/5 rounded-full blur-[100px]"
-                animate={{
-                  scale: [1.2, 1, 1.2],
-                  x: [0, 20, 0],
-                  y: [0, -20, 0],
-                }}
-                transition={{
-                  duration: 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  delay: 2,
-                }}
-              ></motion.div>
-
-              {/* Animated particles */}
-              {Array.from({ length: 12 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 rounded-full bg-amber-500/40"
-                  style={{
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                  }}
-                  animate={{
-                    y: [0, -30, 0],
-                    opacity: [0, 1, 0],
-                    scale: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: 3 + Math.random() * 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    delay: Math.random() * 2,
-                  }}
-                />
-              ))}
-
-              <div className="relative z-10">
-                <motion.div
-                  className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-amber-500 to-[#e76f51] p-0.5 shadow-lg"
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 20,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "linear",
-                  }}
-                >
-                  <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        rotate: [0, 10, -10, 0],
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Number.POSITIVE_INFINITY,
-                      }}
-                    >
-                      <ScanEye className="h-10 w-10 text-white" />
-                    </motion.div>
-                  </div>
-                </motion.div>
-
-                <motion.h2
-                  className="text-4xl font-bold mb-8 text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-[#e76f51]">
-                    Our Vision
-                  </span>
-                </motion.h2>
-
-                <motion.div
-                  className="max-w-4xl mx-auto bg-card/50 backdrop-blur-sm rounded-xl p-8 border border-amber-500/10 shadow-xl"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <motion.div
-                    className="absolute -left-2 -right-2 -top-2 -bottom-2 border border-amber-500/20 rounded-xl opacity-0 group-hover:opacity-100"
-                    animate={{
-                      scale: [1, 1.02, 1],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Number.POSITIVE_INFINITY,
-                    }}
-                  ></motion.div>
-
-                  <div className="flex flex-col md:flex-row gap-8 items-center">
-                    <motion.div
-                      className="w-full md:w-1/3 relative"
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                    >
-                      <div className="aspect-square relative rounded-xl overflow-hidden border-2 border-amber-500/20">
-                        <Image
-                          src="data:image/jpeg;base64,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"
-                          alt="Vision"
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-                      </div>
-
-                      <motion.div
-                        className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-amber-500/20 to-[#e76f51]/20 rounded-full blur-xl"
-                        animate={{
-                          scale: [1, 1.2, 1],
-                        }}
-                        transition={{
-                          duration: 4,
-                          repeat: Number.POSITIVE_INFINITY,
-                        }}
-                      ></motion.div>
-                    </motion.div>
-
-                    <motion.div
-                      className="w-full md:w-2/3"
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.6 }}
-                    >
-                      <p className="text-lg md:text-xl text-muted-foreground leading-relaxed relative">
-                        <span className="text-4xl font-serif text-amber-500/40 absolute -top-4 -left-4">"</span>
-                        To cultivate an active, Christ-centered creative community where artists, patrons, and
-                        ministries unite to inspire, uplift, serve and glorify God through the power of visual arts and
-                        storytelling, fostering engagement, support, and spiritual growth. We support individuals and
-                        groups in their efforts to provide faith-based services to churches, Christian events, and
-                        charitable organizations.
-                        <span className="text-4xl font-serif text-amber-500/40 absolute -bottom-8 -right-4">"</span>
-                      </p>
-                    </motion.div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="mt-12 flex justify-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                >
-                  <Link href="/about-vision">
-                    <Button className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 group">
-                      Learn More About Our Vision
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </Link>
-                </motion.div>
-              </div>
-            </motion.div>
-          </motion.section>
         </div>
       </section>
 
@@ -1666,7 +905,7 @@ export default function Home() {
       <section className="py-20 relative z-10">
         <div className="container mx-auto px-4">
           <motion.div
-            className="bg-card p-12 rounded-xl  relative overflow-hidden"
+            className="bg-card p-12 rounded-xl relative overflow-hidden"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -1797,6 +1036,254 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Gallery Grid with Hover Effects - Updated to be more like Huber designs */}
+      <section className="py-20 relative z-10 bg-gradient-to-b from-background to-background/95">
+        <div className="container mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainerVariants}
+          >
+            <motion.div variants={itemVariants} className="mb-4 inline-block">
+              <span className="px-4 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm font-medium border border-amber-500/20">
+                Gallery
+              </span>
+            </motion.div>
+            <motion.h2
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
+              variants={itemVariants}
+            >
+              Explore Our <span className="text-amber-500">Collection</span>
+            </motion.h2>
+            <motion.p className="text-lg text-muted-foreground max-w-2xl mx-auto" variants={itemVariants}>
+              A glimpse into the diverse artwork created by our talented community
+            </motion.p>
+          </motion.div>
+
+          {/* Updated Gallery Grid - Huber Design Style */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {galleryImages.slice(0, 3).map((image, index) => (
+              <motion.div
+                key={index}
+                className="relative overflow-hidden rounded-xl shadow-lg group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -10 }}
+              >
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image
+                    src={image || "/placeholder.svg"}
+                    alt={`Featured Artwork ${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  {/* Artwork Info - Appears on Hover */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                    <h3 className="text-white text-xl font-bold">{`Featured Artwork ${index + 1}`}</h3>
+                    <p className="text-white/80 text-sm mb-2">Artist Name</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-xs">
+                        {index % 2 === 0 ? "Painting" : "Digital Art"}
+                      </span>
+                      <span className="px-2 py-1 bg-[#e76f51]/20 text-[#e76f51] rounded-full text-xs">
+                        {index % 3 === 0 ? "Featured" : "New"}
+                      </span>
+                    </div>
+                    <Button
+                      className="mt-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30"
+                      size="sm"
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom Info Bar - Always Visible */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white font-medium truncate">{`Artwork ${index + 1}`}</h4>
+                    <div className="flex items-center gap-2">
+                      <motion.div
+                        className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Heart className="h-4 w-4 text-white" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-8">
+            {galleryImages.slice(3, 6).map((image, index) => (
+              <motion.div
+                key={index + 3}
+                className="relative overflow-hidden rounded-xl shadow-lg group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: (index + 3) * 0.1 }}
+                whileHover={{ y: -10 }}
+              >
+                <div className="relative aspect-square overflow-hidden">
+                  <Image
+                    src={image || "/placeholder.svg"}
+                    alt={`Gallery Image ${index + 4}`}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  {/* Artwork Info - Appears on Hover */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                    <h3 className="text-white text-xl font-bold">{`Gallery Artwork ${index + 4}`}</h3>
+                    <p className="text-white/80 text-sm mb-2">Artist Name</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-xs">
+                        {index % 2 === 0 ? "Sculpture" : "Photography"}
+                      </span>
+                    </div>
+                    <Button
+                      className="mt-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30"
+                      size="sm"
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom Info Bar - Always Visible */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white font-medium truncate">{`Artwork ${index + 4}`}</h4>
+                    <div className="flex items-center gap-2">
+                      <motion.div
+                        className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Heart className="h-4 w-4 text-white" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/gallery">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-500"
+              >
+                View Full Gallery
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <motion.section
+        className="py-20 mb-12 relative z-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainerVariants}
+      >
+        <motion.div
+          className="text-center mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainerVariants}
+        >
+          <motion.div variants={itemVariants} className="mb-4 inline-block">
+            <span className="px-4 py-1 bg-[#e76f51]/10 text-[#e76f51] rounded-full text-sm font-medium border border-[#e76f51]/20">
+              Testimonials
+            </span>
+          </motion.div>
+          <motion.h2
+            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
+            variants={itemVariants}
+          >
+            What Our <span className="text-[#e76f51]">Community</span> Says
+          </motion.h2>
+          <motion.p className="text-lg text-muted-foreground max-w-2xl mx-auto" variants={itemVariants}>
+            Hear from artists, patrons, and churches who have found value in our platform
+          </motion.p>
+        </motion.div>
+
+        <div className="relative h-[300px] md:h-[250px]">
+          <AnimatePresence mode="wait">
+            {testimonials.map(
+              (testimonial, index) =>
+                index === activeTestimonial && (
+                  <motion.div
+                    key={index}
+                    className="absolute inset-0"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="max-w-5xl mx-auto bg-card p-8 rounded-xl border border-amber-500/20 shadow-lg flex flex-col md:flex-row items-center gap-6 h-full">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
+                        <Image
+                          src={testimonial.image || "/placeholder.svg"}
+                          alt={testimonial.name}
+                          fill
+                          className="object-cover rounded-full"
+                        />
+                        <motion.div
+                          className="absolute -inset-1 rounded-full border-2 border-amber-500/50"
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            duration: 8,
+                            repeat: Number.POSITIVE_INFINITY,
+                            ease: "linear",
+                          }}
+                        ></motion.div>
+                      </div>
+                      <div className="text-center md:text-left">
+                        <p className="text-muted-foreground mb-4 italic">"{testimonial.quote}"</p>
+                        <h3 className="font-bold text-amber-500">{testimonial.name}</h3>
+                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ),
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="flex justify-center mt-6 gap-2">
+          {testimonials.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                index === activeTestimonial ? "bg-amber-500" : "bg-amber-500/30"
+              }`}
+              onClick={() => setActiveTestimonial(index)}
+            />
+          ))}
+        </div>
+      </motion.section>
     </div>
   )
 }
