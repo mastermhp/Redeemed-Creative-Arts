@@ -8,14 +8,45 @@
   --ivory: #f9f7f1;
   --crimson-red: #c0392b;
 
-  /* Dark theme by default */
+  /* Light theme (default) */
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --card-background: #ffffff;
+  --card-border: #e5e7eb;
+  --card-highlight: #f9fafb;
+
+  /* UI colors for light mode */
+  --primary: var(--warm-gold);
+  --primary-foreground: #ffffff;
+  --secondary: var(--dark-teal);
+  --secondary-foreground: #ffffff;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: var(--coral-red);
+  --accent-foreground: #ffffff;
+  --destructive: var(--crimson-red);
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #f9fafb;
+  --ring: var(--warm-gold);
+  --radius: 0.5rem;
+
+  /* Card colors for light mode */
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+}
+
+/* Dark theme */
+.dark {
   --background: #0a0a0a;
   --foreground: var(--ivory);
   --card-background: #171717;
-  --card-border: #e76f51;
+  --card-border: #333333;
   --card-highlight: #222222;
 
-  /* UI colors */
+  /* UI colors for dark mode */
   --primary: var(--warm-gold);
   --primary-foreground: #0a0a0a;
   --secondary: var(--dark-teal);
@@ -29,7 +60,12 @@
   --border: #333333;
   --input: #1f2937;
   --ring: var(--warm-gold);
-  --radius: 0.5rem;
+
+  /* Card colors for dark mode */
+  --card: #171717;
+  --card-foreground: var(--ivory);
+  --popover: #171717;
+  --popover-foreground: var(--ivory);
 }
 
 @theme inline {
@@ -40,52 +76,11 @@
 }
 
 body {
-  @apply bg-background text-foreground;
+  @apply bg-background text-foreground transition-colors duration-300;
   font-family: Arial, Helvetica, sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-/* p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-span,
-div,
-label,
-input,
-textarea {
-  color: var(--foreground);
-} */
-/* button {
-  color: var(--coral-red);
-} */
-
-/* p.text-gray-300,
-p.text-gray-400,
-p.text-gray-500,
-p.text-gray-600,
-span.text-gray-300,
-span.text-gray-400,
-span.text-gray-500,
-span.text-gray-600,
-div.text-gray-300,
-div.text-gray-400,
-div.text-gray-500,
-div.text-gray-600,
-label.text-gray-300,
-label.text-gray-400,
-label.text-gray-500,
-label.text-gray-600,
-.text-gray-300,
-.text-gray-400,
-.text-gray-500,
-.text-gray-600 {
-  color: #d1d5db !important;
-} */
-/* 
 /* Animations */
 @keyframes float {
   0% {
@@ -233,4 +228,9 @@ label.text-gray-600,
 
 .swiper-pagination-bullet-active {
   opacity: 1 !important;
+}
+
+/* Theme transition for smooth switching */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }

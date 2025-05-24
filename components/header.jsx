@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   Menu,
   X,
@@ -26,75 +26,98 @@ import {
   Gift,
   Home,
   Grid,
-} from "lucide-react"
-import { useMobile } from "@/hooks/use-mobile"
+} from "lucide-react";
+import { useMobile } from "@/hooks/use-mobile";
+import { useTheme } from "./theme-provider";
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const pathname = usePathname()
-  const isMobile = useMobile()
-  const searchInputRef = useRef(null)
-  const headerRef = useRef(null)
-  const [clickOutsideEnabled, setClickOutsideEnabled] = useState(false)
+  const { theme, setTheme } = useTheme();
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const pathname = usePathname();
+  const isMobile = useMobile();
+  const searchInputRef = useRef(null);
+  const headerRef = useRef(null);
+  const [clickOutsideEnabled, setClickOutsideEnabled] = useState(false);
+
+  useEffect(() => {
+    const dark =
+      theme === "dark" ||
+      (theme === "system" &&
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    setIsDarkMode(dark);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+    setTheme(newTheme);
+    setIsDarkMode(!isDarkMode);
+  };
 
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
       // For header background
       if (window.scrollY > 10) {
-        setScrolled(true)
+        setScrolled(true);
       } else {
-        setScrolled(false)
+        setScrolled(false);
       }
 
       // For scroll progress
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
-      const scrollTop = window.scrollY
-      const progress = (scrollTop / scrollHeight) * 100
-      setScrollProgress(progress)
-    }
+      const scrollHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const scrollTop = window.scrollY;
+      const progress = (scrollTop / scrollHeight) * 100;
+      setScrollProgress(progress);
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
-    setIsOpen(false)
-    setSearchOpen(false)
-  }, [pathname])
+    setIsOpen(false);
+    setSearchOpen(false);
+  }, [pathname]);
 
   // Close dropdowns when search is opened
   useEffect(() => {
     if (searchOpen) {
-      setOpenDropdown(null)
+      setOpenDropdown(null);
     }
-  }, [searchOpen])
+  }, [searchOpen]);
 
   // Focus search input when opened
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
+      searchInputRef.current.focus();
     }
-  }, [searchOpen])
+  }, [searchOpen]);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (headerRef.current && !headerRef.current.contains(event.target) && clickOutsideEnabled) {
-        setOpenDropdown(null)
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target) &&
+        clickOutsideEnabled
+      ) {
+        setOpenDropdown(null);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [clickOutsideEnabled])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [clickOutsideEnabled]);
 
   // Main navigation structure
   const mainNavLinks = [
@@ -187,26 +210,30 @@ const Header = () => {
       href: "/contact",
       icon: <Phone className="h-4 w-4" />,
     },
-  ]
+  ];
 
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const [hoveredItem, setHoveredItem] = useState(null)
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   const handleDropdownToggle = (index) => {
     if (openDropdown === index) {
-      setOpenDropdown(null)
+      setOpenDropdown(null);
     } else {
-      setOpenDropdown(index)
-      setClickOutsideEnabled(true)
+      setOpenDropdown(index);
+      setClickOutsideEnabled(true);
     }
-  }
+  };
 
   // Animation variants
   const logoVariants = {
     initial: { opacity: 0, x: -20 },
-    animate: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
     hover: { scale: 1.05, transition: { duration: 0.3, ease: "easeOut" } },
-  }
+  };
 
   const navItemVariants = {
     initial: { opacity: 0, y: -10 },
@@ -216,7 +243,7 @@ const Header = () => {
       transition: { duration: 0.5, delay: 0.1 + i * 0.1 },
     }),
     hover: { y: -3, transition: { duration: 0.3, ease: "easeOut" } },
-  }
+  };
 
   const dropdownVariants = {
     hidden: { opacity: 0, y: -5, height: 0 },
@@ -235,7 +262,7 @@ const Header = () => {
       height: 0,
       transition: { duration: 0.2 },
     },
-  }
+  };
 
   const megaMenuVariants = {
     hidden: { opacity: 0, y: -10 },
@@ -252,7 +279,7 @@ const Header = () => {
       y: -10,
       transition: { duration: 0.2 },
     },
-  }
+  };
 
   const dropdownItemVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -262,7 +289,7 @@ const Header = () => {
       transition: { duration: 0.2 },
     },
     hover: { x: 5, transition: { duration: 0.2 } },
-  }
+  };
 
   const mobileMenuVariants = {
     hidden: { opacity: 0, height: 0 },
@@ -283,13 +310,13 @@ const Header = () => {
         ease: "easeInOut",
       },
     },
-  }
+  };
 
   const searchVariants = {
     hidden: { opacity: 0, width: 0 },
     visible: { opacity: 1, width: "100%", transition: { duration: 0.3 } },
     exit: { opacity: 0, width: 0, transition: { duration: 0.3 } },
-  }
+  };
 
   const buttonVariants = {
     initial: { opacity: 0, scale: 0.9 },
@@ -300,14 +327,16 @@ const Header = () => {
     }),
     hover: { scale: 1.05, transition: { duration: 0.2 } },
     tap: { scale: 0.95 },
-  }
+  };
 
   return (
     <>
       <header
         ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled ? "bg-background/90 backdrop-blur-lg shadow-md py-2" : "bg-background/50 backdrop-blur-md py-3"
+          scrolled
+            ? "bg-background/90 backdrop-blur-lg shadow-md py-2"
+            : "bg-background/50 backdrop-blur-md py-3"
         }`}
       >
         <div className="container mx-auto px-4">
@@ -372,7 +401,9 @@ const Header = () => {
                       <button
                         onClick={() => handleDropdownToggle(index)}
                         className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-1000 ${
-                          openDropdown === index ? "text-amber-500" : "text-foreground hover:text-amber-500"
+                          openDropdown === index
+                            ? "text-amber-500"
+                            : "text-foreground hover:text-amber-500"
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
@@ -414,31 +445,41 @@ const Header = () => {
                                 <div key={sectionIndex} className="space-y-4">
                                   <div className="flex items-center gap-2 mb-3">
                                     {section.icon}
-                                    <h3 className="font-semibold text-foreground">{section.title}</h3>
+                                    <h3 className="font-semibold text-foreground">
+                                      {section.title}
+                                    </h3>
                                   </div>
                                   <ul className="space-y-2">
-                                    {section.links.map((subLink, subLinkIndex) => (
-                                      <motion.li key={subLinkIndex} variants={dropdownItemVariants} whileHover="hover">
-                                        <Link
-                                          href={subLink.href}
-                                          className={`flex items-center justify-between text-sm ${
-                                            pathname === subLink.href
-                                              ? "text-amber-500"
-                                              : "text-muted-foreground hover:text-amber-500"
-                                          } transition-colors duration-1000 py-1 px-2 rounded-md hover:bg-amber-500/5`}
-                                          onClick={() => setOpenDropdown(null)}
+                                    {section.links.map(
+                                      (subLink, subLinkIndex) => (
+                                        <motion.li
+                                          key={subLinkIndex}
+                                          variants={dropdownItemVariants}
+                                          whileHover="hover"
                                         >
-                                          {subLink.name}
-                                          <motion.div
-                                            initial={{ opacity: 0, x: -5 }}
-                                            whileHover={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.2 }}
+                                          <Link
+                                            href={subLink.href}
+                                            className={`flex items-center justify-between text-sm ${
+                                              pathname === subLink.href
+                                                ? "text-amber-500"
+                                                : "text-muted-foreground hover:text-amber-500"
+                                            } transition-colors duration-1000 py-1 px-2 rounded-md hover:bg-amber-500/5`}
+                                            onClick={() =>
+                                              setOpenDropdown(null)
+                                            }
                                           >
-                                            <ArrowRight className="h-3 w-3" />
-                                          </motion.div>
-                                        </Link>
-                                      </motion.li>
-                                    ))}
+                                            {subLink.name}
+                                            <motion.div
+                                              initial={{ opacity: 0, x: -5 }}
+                                              whileHover={{ opacity: 1, x: 0 }}
+                                              transition={{ duration: 0.2 }}
+                                            >
+                                              <ArrowRight className="h-3 w-3" />
+                                            </motion.div>
+                                          </Link>
+                                        </motion.li>
+                                      )
+                                    )}
                                   </ul>
                                 </div>
                               ))}
@@ -508,28 +549,34 @@ const Header = () => {
                             className="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-red-900 ring-1 ring-black/5 z-50 overflow-hidden"
                           >
                             <div className="py-1">
-                              {link.dropdown.map((dropdownItem, dropdownIndex) => (
-                                <motion.div key={dropdownIndex} variants={dropdownItemVariants} whileHover="hover">
-                                  <Link
-                                    href={dropdownItem.href}
-                                    className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                      pathname === dropdownItem.href
-                                        ? "text-amber-500 bg-amber-500/10"
-                                        : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                                    } transition-colors duration-1000 hover:bg-amber-500/10`}
-                                    onClick={() => setOpenDropdown(null)}
+                              {link.dropdown.map(
+                                (dropdownItem, dropdownIndex) => (
+                                  <motion.div
+                                    key={dropdownIndex}
+                                    variants={dropdownItemVariants}
+                                    whileHover="hover"
                                   >
-                                    {dropdownItem.name}
-                                    <motion.div
-                                      initial={{ opacity: 0, x: -5 }}
-                                      whileHover={{ opacity: 1, x: 0 }}
-                                      transition={{ duration: 0.2 }}
+                                    <Link
+                                      href={dropdownItem.href}
+                                      className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                        pathname === dropdownItem.href
+                                          ? "text-amber-500 bg-amber-500/10"
+                                          : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
+                                      } transition-colors duration-1000 hover:bg-amber-500/10`}
+                                      onClick={() => setOpenDropdown(null)}
                                     >
-                                      <ArrowRight className="h-3 w-3" />
-                                    </motion.div>
-                                  </Link>
-                                </motion.div>
-                              ))}
+                                      {dropdownItem.name}
+                                      <motion.div
+                                        initial={{ opacity: 0, x: -5 }}
+                                        whileHover={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                      >
+                                        <ArrowRight className="h-3 w-3" />
+                                      </motion.div>
+                                    </Link>
+                                  </motion.div>
+                                )
+                              )}
                             </div>
                           </motion.div>
                         )}
@@ -540,7 +587,9 @@ const Header = () => {
                       <Link
                         href={link.href}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-1000 flex items-center gap-1.5 ${
-                          pathname === link.href ? "text-amber-500" : "text-foreground hover:text-amber-500"
+                          pathname === link.href
+                            ? "text-amber-500"
+                            : "text-foreground hover:text-amber-500"
                         }`}
                       >
                         {link.icon}
@@ -579,8 +628,8 @@ const Header = () => {
                   size="icon"
                   className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
                   onClick={() => {
-                    setSearchOpen(!searchOpen)
-                    setOpenDropdown(null) // Close any open dropdown
+                    setSearchOpen(!searchOpen);
+                    setOpenDropdown(null); // Close any open dropdown
                   }}
                 >
                   <Search className="h-5 w-5" />
@@ -595,14 +644,22 @@ const Header = () => {
                 custom={1}
                 variants={buttonVariants}
               >
+                
+
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
-                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10 mr-14 "
+                  onClick={toggleTheme}
                 >
-                  {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {isDarkMode ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
                 </Button>
+
+                
               </motion.div>
 
               {/* Donate Button */}
@@ -697,14 +754,18 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <div className="lg:hidden flex items-center gap-2">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
                 <Button
                   variant="ghost"
                   size="icon"
                   className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
                   onClick={() => {
-                    setSearchOpen(!searchOpen)
-                    setOpenDropdown(null) // Close any open dropdown
+                    setSearchOpen(!searchOpen);
+                    setOpenDropdown(null); // Close any open dropdown
                   }}
                 >
                   <Search className="h-5 w-5" />
@@ -712,16 +773,27 @@ const Header = () => {
               </motion.div>
 
               {/* Donate Button for Mobile */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.1 }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
                 <Link href="/donate">
-                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white"
+                  >
                     <Gift className="h-4 w-4 mr-1.5" />
                     Donate
                   </Button>
                 </Link>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.2 }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
                 <Button
                   variant="ghost"
                   size="icon"
@@ -759,7 +831,13 @@ const Header = () => {
           {/* Search Bar */}
           <AnimatePresence>
             {searchOpen && (
-              <motion.div initial="hidden" animate="visible" exit="exit" variants={searchVariants} className="py-2">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={searchVariants}
+                className="py-2"
+              >
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
@@ -795,7 +873,12 @@ const Header = () => {
               <div className="container mx-auto px-4 py-4">
                 <nav className="flex flex-col space-y-1">
                   {mainNavLinks.map((link, index) => (
-                    <motion.div key={index} variants={navItemVariants} custom={index} className="overflow-hidden">
+                    <motion.div
+                      key={index}
+                      variants={navItemVariants}
+                      custom={index}
+                      className="overflow-hidden"
+                    >
                       {link.megaMenu ? (
                         <div>
                           <button
@@ -811,7 +894,9 @@ const Header = () => {
                               {link.name}
                             </span>
                             <motion.div
-                              animate={{ rotate: openDropdown === index ? 180 : 0 }}
+                              animate={{
+                                rotate: openDropdown === index ? 180 : 0,
+                              }}
                               transition={{ duration: 0.3 }}
                             >
                               <ChevronDown className="h-4 w-4" />
@@ -831,29 +916,37 @@ const Header = () => {
                                   <div key={sectionIndex} className="mb-4">
                                     <div className="flex items-center gap-2 mb-2 mt-3">
                                       {section.icon}
-                                      <h3 className="font-semibold text-foreground text-sm">{section.title}</h3>
+                                      <h3 className="font-semibold text-foreground text-sm">
+                                        {section.title}
+                                      </h3>
                                     </div>
-                                    {section.links.map((subLink, subLinkIndex) => (
-                                      <motion.div key={subLinkIndex} variants={dropdownItemVariants} whileHover="hover">
-                                        <Link
-                                          href={subLink.href}
-                                          className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                            pathname === subLink.href
-                                              ? "text-amber-500"
-                                              : "text-muted-foreground hover:text-amber-500"
-                                          } transition-colors duration-1000`}
+                                    {section.links.map(
+                                      (subLink, subLinkIndex) => (
+                                        <motion.div
+                                          key={subLinkIndex}
+                                          variants={dropdownItemVariants}
+                                          whileHover="hover"
                                         >
-                                          {subLink.name}
-                                          <motion.div
-                                            initial={{ opacity: 0, x: -5 }}
-                                            whileHover={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.2 }}
+                                          <Link
+                                            href={subLink.href}
+                                            className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                              pathname === subLink.href
+                                                ? "text-amber-500"
+                                                : "text-muted-foreground hover:text-amber-500"
+                                            } transition-colors duration-1000`}
                                           >
-                                            <ArrowRight className="h-3 w-3" />
-                                          </motion.div>
-                                        </Link>
-                                      </motion.div>
-                                    ))}
+                                            {subLink.name}
+                                            <motion.div
+                                              initial={{ opacity: 0, x: -5 }}
+                                              whileHover={{ opacity: 1, x: 0 }}
+                                              transition={{ duration: 0.2 }}
+                                            >
+                                              <ArrowRight className="h-3 w-3" />
+                                            </motion.div>
+                                          </Link>
+                                        </motion.div>
+                                      )
+                                    )}
                                   </div>
                                 ))}
                               </motion.div>
@@ -875,7 +968,9 @@ const Header = () => {
                               {link.name}
                             </span>
                             <motion.div
-                              animate={{ rotate: openDropdown === index ? 180 : 0 }}
+                              animate={{
+                                rotate: openDropdown === index ? 180 : 0,
+                              }}
                               transition={{ duration: 0.3 }}
                             >
                               <ChevronDown className="h-4 w-4" />
@@ -891,27 +986,33 @@ const Header = () => {
                                 variants={dropdownVariants}
                                 className="pl-6 mt-1 border-l-2 border-amber-500/20 ml-4 overflow-hidden"
                               >
-                                {link.dropdown.map((dropdownItem, dropdownIndex) => (
-                                  <motion.div key={dropdownIndex} variants={dropdownItemVariants} whileHover="hover">
-                                    <Link
-                                      href={dropdownItem.href}
-                                      className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                        pathname === dropdownItem.href
-                                          ? "text-amber-500"
-                                          : "text-foreground hover:text-amber-500"
-                                      } transition-colors duration-1000`}
+                                {link.dropdown.map(
+                                  (dropdownItem, dropdownIndex) => (
+                                    <motion.div
+                                      key={dropdownIndex}
+                                      variants={dropdownItemVariants}
+                                      whileHover="hover"
                                     >
-                                      {dropdownItem.name}
-                                      <motion.div
-                                        initial={{ opacity: 0, x: -5 }}
-                                        whileHover={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.2 }}
+                                      <Link
+                                        href={dropdownItem.href}
+                                        className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                          pathname === dropdownItem.href
+                                            ? "text-amber-500"
+                                            : "text-foreground hover:text-amber-500"
+                                        } transition-colors duration-1000`}
                                       >
-                                        <ArrowRight className="h-3 w-3" />
-                                      </motion.div>
-                                    </Link>
-                                  </motion.div>
-                                ))}
+                                        {dropdownItem.name}
+                                        <motion.div
+                                          initial={{ opacity: 0, x: -5 }}
+                                          whileHover={{ opacity: 1, x: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                        >
+                                          <ArrowRight className="h-3 w-3" />
+                                        </motion.div>
+                                      </Link>
+                                    </motion.div>
+                                  )
+                                )}
                               </motion.div>
                             )}
                           </AnimatePresence>
@@ -998,7 +1099,7 @@ const Header = () => {
         style={{ scaleX: scrollProgress / 100, transformOrigin: "0%" }}
       />
     </>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
