@@ -202,7 +202,7 @@ export default function Home() {
   }
 
   return (
-    <div className="relative overflow-hidden" ref={containerRef}>
+    <div className="relative overflow-hidden bg-white" ref={containerRef}>
       {/* AI Chatbox Component */}
       <AIChatbox />
 
@@ -500,7 +500,7 @@ export default function Home() {
               slideShadows: true,
             }}
             autoplay={{
-              delay: 5000, // Slowed down by 2 seconds (from 3000 to 5000)
+              delay: 5000,
               disableOnInteraction: false,
             }}
             pagination={{ clickable: true }}
@@ -519,6 +519,39 @@ export default function Home() {
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   </div>
+
+                  {/* Huber-style Rating Badge */}
+                  <div
+                    className={`absolute bottom-4 right-4 ${
+                      index % 4 === 0
+                        ? "bg-green-500"
+                        : index % 4 === 1
+                          ? "bg-blue-500"
+                          : index % 4 === 2
+                            ? "bg-purple-500"
+                            : "bg-orange-500"
+                    } text-white px-3 py-2 rounded-lg shadow-lg`}
+                  >
+                    <div className="text-2xl font-bold">
+                      {index % 4 === 0 ? "9.2" : index % 4 === 1 ? "8.7" : index % 4 === 2 ? "9.5" : "8.1"}
+                    </div>
+                    <div className="text-xs font-medium">
+                      {index % 4 === 0
+                        ? "EXCELLENT"
+                        : index % 4 === 1
+                          ? "GREAT"
+                          : index % 4 === 2
+                            ? "MASTERPIECE"
+                            : "GOOD"}
+                    </div>
+                  </div>
+
+                  {/* Points Badge */}
+                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                    <Star className="h-3 w-3 mr-1 text-yellow-400" />
+                    {850 + index * 50} pts
+                  </div>
+
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                     <h3 className="text-white text-xl font-bold">Artwork Title {index + 1}</h3>
                     <p className="text-white/80">Artist Name</p>
@@ -1038,7 +1071,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Grid with Hover Effects - Updated to be more like Huber designs */}
-      <section className="py-20 relative z-10 bg-gradient-to-b from-background to-background/95">
+      <section className="py-20 relative z-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center mb-16"
@@ -1048,17 +1081,17 @@ export default function Home() {
             variants={staggerContainerVariants}
           >
             <motion.div variants={itemVariants} className="mb-4 inline-block">
-              <span className="px-4 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm font-medium border border-amber-500/20">
+              <span className="px-4 py-1 bg-amber-500/10 text-amber-600 rounded-full text-sm font-medium border border-amber-500/20">
                 Gallery
               </span>
             </motion.div>
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900"
               variants={itemVariants}
             >
               Explore Our <span className="text-amber-500">Collection</span>
             </motion.h2>
-            <motion.p className="text-lg text-muted-foreground max-w-2xl mx-auto" variants={itemVariants}>
+            <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
               A glimpse into the diverse artwork created by our talented community
             </motion.p>
           </motion.div>
@@ -1083,17 +1116,33 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
+                  {/* Huber-style Rating Badge */}
+                  <div
+                    className={`absolute bottom-4 right-4 ${
+                      index % 3 === 0 ? "bg-emerald-500" : index % 3 === 1 ? "bg-blue-500" : "bg-purple-500"
+                    } text-white px-3 py-2 rounded-lg shadow-lg`}
+                  >
+                    <div className="text-xl font-bold">{index % 3 === 0 ? "9.5" : index % 3 === 1 ? "8.9" : "9.1"}</div>
+                    <div className="text-xs font-medium">
+                      {index % 3 === 0 ? "MASTERPIECE" : index % 3 === 1 ? "AMAZING" : "EXCELLENT"}
+                    </div>
+                  </div>
+
+                  {/* Points Badge */}
+                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                    <Star className="h-3 w-3 mr-1 text-yellow-400" />
+                    {920 + index * 30} pts
+                  </div>
+
                   {/* Artwork Info - Appears on Hover */}
                   <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                     <h3 className="text-white text-xl font-bold">{`Featured Artwork ${index + 1}`}</h3>
                     <p className="text-white/80 text-sm mb-2">Artist Name</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-xs">
+                      <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
                         {index % 2 === 0 ? "Painting" : "Digital Art"}
                       </span>
-                      <span className="px-2 py-1 bg-[#e76f51]/20 text-[#e76f51] rounded-full text-xs">
-                        {index % 3 === 0 ? "Featured" : "New"}
-                      </span>
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">Featured</span>
                     </div>
                     <Button
                       className="mt-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30"
@@ -1101,21 +1150,6 @@ export default function Home() {
                     >
                       View Details
                     </Button>
-                  </div>
-                </div>
-
-                {/* Bottom Info Bar - Always Visible */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-white font-medium truncate">{`Artwork ${index + 1}`}</h4>
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center"
-                        whileHover={{ scale: 1.2 }}
-                      >
-                        <Heart className="h-4 w-4 text-white" />
-                      </motion.div>
-                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -1141,12 +1175,30 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
+                  {/* Huber-style Rating Badge */}
+                  <div
+                    className={`absolute bottom-4 right-4 ${
+                      index % 3 === 0 ? "bg-orange-500" : index % 3 === 1 ? "bg-red-500" : "bg-indigo-500"
+                    } text-white px-3 py-2 rounded-lg shadow-lg`}
+                  >
+                    <div className="text-lg font-bold">{index % 3 === 0 ? "8.3" : index % 3 === 1 ? "7.9" : "8.7"}</div>
+                    <div className="text-xs font-medium">
+                      {index % 3 === 0 ? "GOOD" : index % 3 === 1 ? "SOLID" : "GREAT"}
+                    </div>
+                  </div>
+
+                  {/* Points Badge */}
+                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                    <Star className="h-3 w-3 mr-1 text-yellow-400" />
+                    {650 + index * 40} pts
+                  </div>
+
                   {/* Artwork Info - Appears on Hover */}
                   <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                     <h3 className="text-white text-xl font-bold">{`Gallery Artwork ${index + 4}`}</h3>
                     <p className="text-white/80 text-sm mb-2">Artist Name</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-xs">
+                      <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
                         {index % 2 === 0 ? "Sculpture" : "Photography"}
                       </span>
                     </div>
@@ -1156,21 +1208,6 @@ export default function Home() {
                     >
                       View Details
                     </Button>
-                  </div>
-                </div>
-
-                {/* Bottom Info Bar - Always Visible */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-white font-medium truncate">{`Artwork ${index + 4}`}</h4>
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center"
-                        whileHover={{ scale: 1.2 }}
-                      >
-                        <Heart className="h-4 w-4 text-white" />
-                      </motion.div>
-                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -1185,11 +1222,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/gallery">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-500"
-              >
+              <Button size="lg" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50">
                 View Full Gallery
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -1200,7 +1233,7 @@ export default function Home() {
 
       {/* Testimonials */}
       <motion.section
-        className="py-20 mb-12 relative z-10"
+        className="py-20 mb-12 relative z-10 bg-gray-50"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
