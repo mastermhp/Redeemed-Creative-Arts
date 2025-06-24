@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button"
 import {
   Menu,
   X,
@@ -15,8 +15,6 @@ import {
   LogIn,
   UserPlus,
   Search,
-  Sun,
-  Moon,
   ArrowRight,
   Info,
   Phone,
@@ -26,98 +24,78 @@ import {
   Gift,
   Home,
   Grid,
-} from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
-import { useTheme } from "./theme-provider";
+  Star,
+  Trophy,
+} from "lucide-react"
+import { useMobile } from "@/hooks/use-mobile"
 
 const Header = () => {
-  const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const pathname = usePathname();
-  const isMobile = useMobile();
-  const searchInputRef = useRef(null);
-  const headerRef = useRef(null);
-  const [clickOutsideEnabled, setClickOutsideEnabled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const pathname = usePathname()
+  const isMobile = useMobile()
+  const searchInputRef = useRef(null)
+  const headerRef = useRef(null)
+  const [clickOutsideEnabled, setClickOutsideEnabled] = useState(false)
 
-  useEffect(() => {
-    const dark =
-      theme === "dark" ||
-      (theme === "system" &&
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-    setIsDarkMode(dark);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const newTheme = isDarkMode ? "light" : "dark";
-    setTheme(newTheme);
-    setIsDarkMode(!isDarkMode);
-  };
+  // Mock user points for demonstration
+  const userPoints = 2450
+  const userLevel = "Gold Member"
 
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
-      // For header background
       if (window.scrollY > 10) {
-        setScrolled(true);
+        setScrolled(true)
       } else {
-        setScrolled(false);
+        setScrolled(false)
       }
 
-      // For scroll progress
-      const scrollHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const scrollTop = window.scrollY;
-      const progress = (scrollTop / scrollHeight) * 100;
-      setScrollProgress(progress);
-    };
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
+      const scrollTop = window.scrollY
+      const progress = (scrollTop / scrollHeight) * 100
+      setScrollProgress(progress)
+    }
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Close mobile menu when route changes
   useEffect(() => {
-    setIsOpen(false);
-    setSearchOpen(false);
-  }, [pathname]);
+    setIsOpen(false)
+    setSearchOpen(false)
+  }, [pathname])
 
   // Close dropdowns when search is opened
   useEffect(() => {
     if (searchOpen) {
-      setOpenDropdown(null);
+      setOpenDropdown(null)
     }
-  }, [searchOpen]);
+  }, [searchOpen])
 
   // Focus search input when opened
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
+      searchInputRef.current.focus()
     }
-  }, [searchOpen]);
+  }, [searchOpen])
 
   // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        headerRef.current &&
-        !headerRef.current.contains(event.target) &&
-        clickOutsideEnabled
-      ) {
-        setOpenDropdown(null);
+      if (headerRef.current && !headerRef.current.contains(event.target) && clickOutsideEnabled) {
+        setOpenDropdown(null)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [clickOutsideEnabled]);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [clickOutsideEnabled])
 
   // Main navigation structure
   const mainNavLinks = [
@@ -125,6 +103,11 @@ const Header = () => {
       name: "Home",
       href: "/",
       icon: <Home className="h-4 w-4" />,
+    },
+    {
+      name: "Gallery",
+      href: "/artist-gallery",
+      icon: <Grid className="h-4 w-4" />,
     },
     {
       name: "Discover",
@@ -210,19 +193,19 @@ const Header = () => {
       href: "/contact",
       icon: <Phone className="h-4 w-4" />,
     },
-  ];
+  ]
 
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [hoveredItem, setHoveredItem] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null)
+  const [hoveredItem, setHoveredItem] = useState(null)
 
   const handleDropdownToggle = (index) => {
     if (openDropdown === index) {
-      setOpenDropdown(null);
+      setOpenDropdown(null)
     } else {
-      setOpenDropdown(index);
-      setClickOutsideEnabled(true);
+      setOpenDropdown(index)
+      setClickOutsideEnabled(true)
     }
-  };
+  }
 
   // Animation variants
   const logoVariants = {
@@ -233,7 +216,7 @@ const Header = () => {
       transition: { duration: 0.6, ease: "easeOut" },
     },
     hover: { scale: 1.05, transition: { duration: 0.3, ease: "easeOut" } },
-  };
+  }
 
   const navItemVariants = {
     initial: { opacity: 0, y: -10 },
@@ -243,7 +226,7 @@ const Header = () => {
       transition: { duration: 0.5, delay: 0.1 + i * 0.1 },
     }),
     hover: { y: -3, transition: { duration: 0.3, ease: "easeOut" } },
-  };
+  }
 
   const dropdownVariants = {
     hidden: { opacity: 0, y: -5, height: 0 },
@@ -262,7 +245,7 @@ const Header = () => {
       height: 0,
       transition: { duration: 0.2 },
     },
-  };
+  }
 
   const megaMenuVariants = {
     hidden: { opacity: 0, y: -10 },
@@ -279,7 +262,7 @@ const Header = () => {
       y: -10,
       transition: { duration: 0.2 },
     },
-  };
+  }
 
   const dropdownItemVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -289,7 +272,7 @@ const Header = () => {
       transition: { duration: 0.2 },
     },
     hover: { x: 5, transition: { duration: 0.2 } },
-  };
+  }
 
   const mobileMenuVariants = {
     hidden: { opacity: 0, height: 0 },
@@ -310,13 +293,13 @@ const Header = () => {
         ease: "easeInOut",
       },
     },
-  };
+  }
 
   const searchVariants = {
     hidden: { opacity: 0, width: 0 },
     visible: { opacity: 1, width: "100%", transition: { duration: 0.3 } },
     exit: { opacity: 0, width: 0, transition: { duration: 0.3 } },
-  };
+  }
 
   const buttonVariants = {
     initial: { opacity: 0, scale: 0.9 },
@@ -327,16 +310,14 @@ const Header = () => {
     }),
     hover: { scale: 1.05, transition: { duration: 0.2 } },
     tap: { scale: 0.95 },
-  };
+  }
 
   return (
     <>
       <header
         ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-background/90 backdrop-blur-lg shadow-md py-2"
-            : "bg-background/50 backdrop-blur-md py-3"
+          scrolled ? "bg-white/95 backdrop-blur-lg shadow-md py-2" : "bg-white/80 backdrop-blur-md py-3"
         }`}
       >
         <div className="container mx-auto px-4">
@@ -371,12 +352,28 @@ const Header = () => {
                   <span className="font-bold text-xl text-amber-500 transition-all duration-500 group-hover:text-[#e76f51]">
                     Redeemed
                   </span>
-                  <span className="text-xs text-muted-foreground transition-all duration-500 group-hover:text-amber-500">
+                  <span className="text-xs text-gray-600 transition-all duration-500 group-hover:text-amber-500">
                     Creative Arts
                   </span>
                 </div>
               </Link>
             </motion.div>
+
+            {/* Points Display - Desktop */}
+            <div className="hidden lg:flex items-center bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-2 rounded-full border border-amber-200">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1">
+                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  <span className="font-bold text-amber-600">{userPoints.toLocaleString()}</span>
+                  <span className="text-xs text-gray-600">pts</span>
+                </div>
+                <div className="h-4 w-px bg-amber-300"></div>
+                <div className="flex items-center space-x-1">
+                  <Trophy className="h-4 w-4 text-orange-500" />
+                  <span className="text-sm font-medium text-gray-700">{userLevel}</span>
+                </div>
+              </div>
+            </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-1">
@@ -400,10 +397,8 @@ const Header = () => {
                     >
                       <button
                         onClick={() => handleDropdownToggle(index)}
-                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-1000 ${
-                          openDropdown === index
-                            ? "text-amber-500"
-                            : "text-foreground hover:text-amber-500"
+                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-300 ${
+                          openDropdown === index ? "text-amber-500" : "text-gray-700 hover:text-amber-500"
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
@@ -438,56 +433,44 @@ const Header = () => {
                             animate="visible"
                             exit="exit"
                             variants={megaMenuVariants}
-                            className="absolute left-1/2 -translate-x-1/2 mt-4 ml-20 w-[800px] rounded-xl shadow-xl bg-red-900 ring-1 ring-black/5 z-50 overflow-hidden"
+                            className="absolute left-1/2 -translate-x-1/2 mt-4 ml-20 w-[800px] rounded-xl shadow-xl bg-white ring-1 ring-black/5 z-50 overflow-hidden"
                           >
                             <div className="grid grid-cols-4 gap-0 p-6">
                               {link.sections.map((section, sectionIndex) => (
                                 <div key={sectionIndex} className="space-y-4">
                                   <div className="flex items-center gap-2 mb-3">
                                     {section.icon}
-                                    <h3 className="font-semibold text-foreground">
-                                      {section.title}
-                                    </h3>
+                                    <h3 className="font-semibold text-gray-800">{section.title}</h3>
                                   </div>
                                   <ul className="space-y-2">
-                                    {section.links.map(
-                                      (subLink, subLinkIndex) => (
-                                        <motion.li
-                                          key={subLinkIndex}
-                                          variants={dropdownItemVariants}
-                                          whileHover="hover"
+                                    {section.links.map((subLink, subLinkIndex) => (
+                                      <motion.li key={subLinkIndex} variants={dropdownItemVariants} whileHover="hover">
+                                        <Link
+                                          href={subLink.href}
+                                          className={`flex items-center justify-between text-sm ${
+                                            pathname === subLink.href
+                                              ? "text-amber-500"
+                                              : "text-gray-600 hover:text-amber-500"
+                                          } transition-colors duration-300 py-1 px-2 rounded-md hover:bg-amber-500/5`}
+                                          onClick={() => setOpenDropdown(null)}
                                         >
-                                          <Link
-                                            href={subLink.href}
-                                            className={`flex items-center justify-between text-sm ${
-                                              pathname === subLink.href
-                                                ? "text-amber-500"
-                                                : "text-muted-foreground hover:text-amber-500"
-                                            } transition-colors duration-1000 py-1 px-2 rounded-md hover:bg-amber-500/5`}
-                                            onClick={() =>
-                                              setOpenDropdown(null)
-                                            }
+                                          {subLink.name}
+                                          <motion.div
+                                            initial={{ opacity: 0, x: -5 }}
+                                            whileHover={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.2 }}
                                           >
-                                            {subLink.name}
-                                            <motion.div
-                                              initial={{ opacity: 0, x: -5 }}
-                                              whileHover={{ opacity: 1, x: 0 }}
-                                              transition={{ duration: 0.2 }}
-                                            >
-                                              <ArrowRight className="h-3 w-3" />
-                                            </motion.div>
-                                          </Link>
-                                        </motion.li>
-                                      )
-                                    )}
+                                            <ArrowRight className="h-3 w-3" />
+                                          </motion.div>
+                                        </Link>
+                                      </motion.li>
+                                    ))}
                                   </ul>
                                 </div>
                               ))}
                             </div>
-                            <div className="bg-muted/30 p-4 flex justify-between items-center">
-                              <p className="text-sm text-muted-foreground">
-                                Discover all our resources and opportunities
-                              </p>
+                            <div className="bg-gray-50 p-4 flex justify-between items-center">
+                              <p className="text-sm text-gray-600">Discover all our resources and opportunities</p>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -508,10 +491,10 @@ const Header = () => {
                     >
                       <button
                         onClick={() => handleDropdownToggle(index)}
-                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-1000 ${
+                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-300 ${
                           pathname === link.href || openDropdown === index
                             ? "text-amber-500"
-                            : "text-foreground hover:text-amber-500"
+                            : "text-gray-700 hover:text-amber-500"
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
@@ -546,37 +529,31 @@ const Header = () => {
                             animate="visible"
                             exit="exit"
                             variants={dropdownVariants}
-                            className="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-red-900 ring-1 ring-black/5 z-50 overflow-hidden"
+                            className="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black/5 z-50 overflow-hidden"
                           >
                             <div className="py-1">
-                              {link.dropdown.map(
-                                (dropdownItem, dropdownIndex) => (
-                                  <motion.div
-                                    key={dropdownIndex}
-                                    variants={dropdownItemVariants}
-                                    whileHover="hover"
+                              {link.dropdown.map((dropdownItem, dropdownIndex) => (
+                                <motion.div key={dropdownIndex} variants={dropdownItemVariants} whileHover="hover">
+                                  <Link
+                                    href={dropdownItem.href}
+                                    className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                      pathname === dropdownItem.href
+                                        ? "text-amber-500 bg-amber-500/10"
+                                        : "text-gray-700 hover:text-amber-500 hover:bg-amber-500/5"
+                                    } transition-colors duration-300 hover:bg-amber-500/10`}
+                                    onClick={() => setOpenDropdown(null)}
                                   >
-                                    <Link
-                                      href={dropdownItem.href}
-                                      className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                        pathname === dropdownItem.href
-                                          ? "text-amber-500 bg-amber-500/10"
-                                          : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                                      } transition-colors duration-1000 hover:bg-amber-500/10`}
-                                      onClick={() => setOpenDropdown(null)}
+                                    {dropdownItem.name}
+                                    <motion.div
+                                      initial={{ opacity: 0, x: -5 }}
+                                      whileHover={{ opacity: 1, x: 0 }}
+                                      transition={{ duration: 0.2 }}
                                     >
-                                      {dropdownItem.name}
-                                      <motion.div
-                                        initial={{ opacity: 0, x: -5 }}
-                                        whileHover={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                      >
-                                        <ArrowRight className="h-3 w-3" />
-                                      </motion.div>
-                                    </Link>
-                                  </motion.div>
-                                )
-                              )}
+                                      <ArrowRight className="h-3 w-3" />
+                                    </motion.div>
+                                  </Link>
+                                </motion.div>
+                              ))}
                             </div>
                           </motion.div>
                         )}
@@ -586,10 +563,8 @@ const Header = () => {
                     <div className="relative">
                       <Link
                         href={link.href}
-                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-1000 flex items-center gap-1.5 ${
-                          pathname === link.href
-                            ? "text-amber-500"
-                            : "text-foreground hover:text-amber-500"
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 flex items-center gap-1.5 ${
+                          pathname === link.href ? "text-amber-500" : "text-gray-700 hover:text-amber-500"
                         }`}
                       >
                         {link.icon}
@@ -626,40 +601,14 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
+                  className="text-gray-700 hover:text-amber-500 hover:bg-amber-500/10"
                   onClick={() => {
-                    setSearchOpen(!searchOpen);
-                    setOpenDropdown(null); // Close any open dropdown
+                    setSearchOpen(!searchOpen)
+                    setOpenDropdown(null)
                   }}
                 >
                   <Search className="h-5 w-5" />
                 </Button>
-              </motion.div>
-
-              <motion.div
-                initial="initial"
-                animate="animate"
-                whileHover="hover"
-                whileTap="tap"
-                custom={1}
-                variants={buttonVariants}
-              >
-                
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10 mr-14 "
-                  onClick={toggleTheme}
-                >
-                  {isDarkMode ? (
-                    <Sun className="h-5 w-5" />
-                  ) : (
-                    <Moon className="h-5 w-5" />
-                  )}
-                </Button>
-
-                
               </motion.div>
 
               {/* Donate Button */}
@@ -675,7 +624,7 @@ const Header = () => {
                 <Link href="/donate">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-1000 relative overflow-hidden group font-bold"
+                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 relative overflow-hidden group font-bold"
                   >
                     <span className="relative z-10 flex items-center">
                       <Gift className="h-4 w-4 mr-1.5" />
@@ -716,7 +665,7 @@ const Header = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-1000"
+                    className="border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-300"
                   >
                     <LogIn className="h-4 w-4 mr-1.5" />
                     Log in
@@ -735,7 +684,7 @@ const Header = () => {
                 <Link href="/register">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-1000 relative overflow-hidden group"
+                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 relative overflow-hidden group"
                   >
                     <span className="relative z-10 flex items-center">
                       <UserPlus className="h-4 w-4 mr-1.5" />
@@ -754,18 +703,20 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <div className="lg:hidden flex items-center gap-2">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
+              {/* Points Display - Mobile */}
+              <div className="flex items-center bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-1 rounded-full border border-amber-200">
+                <Star className="h-3 w-3 text-amber-500 fill-amber-500 mr-1" />
+                <span className="text-xs font-bold text-amber-600">{userPoints.toLocaleString()}</span>
+              </div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
+                  className="text-gray-700 hover:text-amber-500 hover:bg-amber-500/10"
                   onClick={() => {
-                    setSearchOpen(!searchOpen);
-                    setOpenDropdown(null); // Close any open dropdown
+                    setSearchOpen(!searchOpen)
+                    setOpenDropdown(null)
                   }}
                 >
                   <Search className="h-5 w-5" />
@@ -773,32 +724,21 @@ const Header = () => {
               </motion.div>
 
               {/* Donate Button for Mobile */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.1 }}>
                 <Link href="/donate">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white"
-                  >
+                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-[#e76f51] text-white">
                     <Gift className="h-4 w-4 mr-1.5" />
                     Donate
                   </Button>
                 </Link>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.2 }}>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsOpen(!isOpen)}
-                  className="text-foreground hover:text-amber-500 hover:bg-amber-500/10"
+                  className="text-gray-700 hover:text-amber-500 hover:bg-amber-500/10"
                 >
                   <AnimatePresence mode="wait">
                     {isOpen ? (
@@ -831,25 +771,19 @@ const Header = () => {
           {/* Search Bar */}
           <AnimatePresence>
             {searchOpen && (
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={searchVariants}
-                className="py-2"
-              >
+              <motion.div initial="hidden" animate="visible" exit="exit" variants={searchVariants} className="py-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search for artists, artwork, events..."
-                    className="w-full pl-10 pr-4 py-2 rounded-md bg-muted/50 border border-border focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all duration-1000"
+                    className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-50 border border-gray-200 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all duration-300"
                   />
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-gray-700"
                     onClick={() => setSearchOpen(false)}
                   >
                     <X className="h-4 w-4" />
@@ -868,17 +802,26 @@ const Header = () => {
               animate="visible"
               exit="exit"
               variants={mobileMenuVariants}
-              className="lg:hidden bg-background/95 backdrop-blur-lg border-t border-border overflow-hidden max-h-[80vh] overflow-y-auto"
+              className="lg:hidden bg-white/95 backdrop-blur-lg border-t border-gray-200 overflow-hidden max-h-[80vh] overflow-y-auto"
             >
               <div className="container mx-auto px-4 py-4">
+                {/* Mobile Points Display */}
+                <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                      <span className="font-bold text-amber-600">{userPoints.toLocaleString()} points</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Trophy className="h-4 w-4 text-orange-500" />
+                      <span className="text-sm font-medium text-gray-700">{userLevel}</span>
+                    </div>
+                  </div>
+                </div>
+
                 <nav className="flex flex-col space-y-1">
                   {mainNavLinks.map((link, index) => (
-                    <motion.div
-                      key={index}
-                      variants={navItemVariants}
-                      custom={index}
-                      className="overflow-hidden"
-                    >
+                    <motion.div key={index} variants={navItemVariants} custom={index} className="overflow-hidden">
                       {link.megaMenu ? (
                         <div>
                           <button
@@ -886,8 +829,8 @@ const Header = () => {
                             className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium flex items-center justify-between ${
                               openDropdown === index
                                 ? "text-amber-500 bg-amber-500/10"
-                                : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                            } transition-colors duration-1000`}
+                                : "text-gray-700 hover:text-amber-500 hover:bg-amber-500/5"
+                            } transition-colors duration-300`}
                           >
                             <span className="flex items-center gap-2">
                               {link.icon}
@@ -916,37 +859,29 @@ const Header = () => {
                                   <div key={sectionIndex} className="mb-4">
                                     <div className="flex items-center gap-2 mb-2 mt-3">
                                       {section.icon}
-                                      <h3 className="font-semibold text-foreground text-sm">
-                                        {section.title}
-                                      </h3>
+                                      <h3 className="font-semibold text-gray-800 text-sm">{section.title}</h3>
                                     </div>
-                                    {section.links.map(
-                                      (subLink, subLinkIndex) => (
-                                        <motion.div
-                                          key={subLinkIndex}
-                                          variants={dropdownItemVariants}
-                                          whileHover="hover"
+                                    {section.links.map((subLink, subLinkIndex) => (
+                                      <motion.div key={subLinkIndex} variants={dropdownItemVariants} whileHover="hover">
+                                        <Link
+                                          href={subLink.href}
+                                          className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                            pathname === subLink.href
+                                              ? "text-amber-500"
+                                              : "text-gray-600 hover:text-amber-500"
+                                          } transition-colors duration-300`}
                                         >
-                                          <Link
-                                            href={subLink.href}
-                                            className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                              pathname === subLink.href
-                                                ? "text-amber-500"
-                                                : "text-muted-foreground hover:text-amber-500"
-                                            } transition-colors duration-1000`}
+                                          {subLink.name}
+                                          <motion.div
+                                            initial={{ opacity: 0, x: -5 }}
+                                            whileHover={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.2 }}
                                           >
-                                            {subLink.name}
-                                            <motion.div
-                                              initial={{ opacity: 0, x: -5 }}
-                                              whileHover={{ opacity: 1, x: 0 }}
-                                              transition={{ duration: 0.2 }}
-                                            >
-                                              <ArrowRight className="h-3 w-3" />
-                                            </motion.div>
-                                          </Link>
-                                        </motion.div>
-                                      )
-                                    )}
+                                            <ArrowRight className="h-3 w-3" />
+                                          </motion.div>
+                                        </Link>
+                                      </motion.div>
+                                    ))}
                                   </div>
                                 ))}
                               </motion.div>
@@ -960,8 +895,8 @@ const Header = () => {
                             className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium flex items-center justify-between ${
                               pathname === link.href || openDropdown === index
                                 ? "text-amber-500 bg-amber-500/10"
-                                : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                            } transition-colors duration-1000`}
+                                : "text-gray-700 hover:text-amber-500 hover:bg-amber-500/5"
+                            } transition-colors duration-300`}
                           >
                             <span className="flex items-center gap-2">
                               {link.icon}
@@ -986,33 +921,27 @@ const Header = () => {
                                 variants={dropdownVariants}
                                 className="pl-6 mt-1 border-l-2 border-amber-500/20 ml-4 overflow-hidden"
                               >
-                                {link.dropdown.map(
-                                  (dropdownItem, dropdownIndex) => (
-                                    <motion.div
-                                      key={dropdownIndex}
-                                      variants={dropdownItemVariants}
-                                      whileHover="hover"
+                                {link.dropdown.map((dropdownItem, dropdownIndex) => (
+                                  <motion.div key={dropdownIndex} variants={dropdownItemVariants} whileHover="hover">
+                                    <Link
+                                      href={dropdownItem.href}
+                                      className={`flex items-center justify-between px-4 py-2 text-sm ${
+                                        pathname === dropdownItem.href
+                                          ? "text-amber-500"
+                                          : "text-gray-700 hover:text-amber-500"
+                                      } transition-colors duration-300`}
                                     >
-                                      <Link
-                                        href={dropdownItem.href}
-                                        className={`flex items-center justify-between px-4 py-2 text-sm ${
-                                          pathname === dropdownItem.href
-                                            ? "text-amber-500"
-                                            : "text-foreground hover:text-amber-500"
-                                        } transition-colors duration-1000`}
+                                      {dropdownItem.name}
+                                      <motion.div
+                                        initial={{ opacity: 0, x: -5 }}
+                                        whileHover={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.2 }}
                                       >
-                                        {dropdownItem.name}
-                                        <motion.div
-                                          initial={{ opacity: 0, x: -5 }}
-                                          whileHover={{ opacity: 1, x: 0 }}
-                                          transition={{ duration: 0.2 }}
-                                        >
-                                          <ArrowRight className="h-3 w-3" />
-                                        </motion.div>
-                                      </Link>
-                                    </motion.div>
-                                  )
-                                )}
+                                        <ArrowRight className="h-3 w-3" />
+                                      </motion.div>
+                                    </Link>
+                                  </motion.div>
+                                ))}
                               </motion.div>
                             )}
                           </AnimatePresence>
@@ -1023,8 +952,8 @@ const Header = () => {
                           className={`block px-3 py-2 rounded-md text-sm font-medium ${
                             pathname === link.href
                               ? "text-amber-500 bg-amber-500/10"
-                              : "text-foreground hover:text-amber-500 hover:bg-amber-500/5"
-                          } transition-colors duration-1000 flex items-center gap-2`}
+                              : "text-gray-700 hover:text-amber-500 hover:bg-amber-500/5"
+                          } transition-colors duration-300 flex items-center gap-2`}
                         >
                           {link.icon}
                           {link.name}
@@ -1039,25 +968,6 @@ const Header = () => {
                   variants={navItemVariants}
                   custom={mainNavLinks.length}
                 >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-foreground hover:text-amber-500 hover:bg-amber-500/10"
-                    onClick={() => setIsDarkMode(!isDarkMode)}
-                  >
-                    {isDarkMode ? (
-                      <>
-                        <Sun className="h-4 w-4 mr-2" />
-                        Light Mode
-                      </>
-                    ) : (
-                      <>
-                        <Moon className="h-4 w-4 mr-2" />
-                        Dark Mode
-                      </>
-                    )}
-                  </Button>
-
                   <Link href="/login" className="w-full">
                     <Button
                       variant="outline"
@@ -1072,7 +982,7 @@ const Header = () => {
                   <Link href="/register" className="w-full">
                     <Button
                       size="sm"
-                      className="w-full justify-start bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-md hover:shadow-amber-500/20 transition-all duration-1000 relative overflow-hidden group"
+                      className="w-full justify-start bg-gradient-to-r from-amber-500 to-[#e76f51] text-white hover:shadow-md hover:shadow-amber-500/20 transition-all duration-300 relative overflow-hidden group"
                     >
                       <span className="relative z-10 flex items-center">
                         <UserPlus className="h-4 w-4 mr-2" />
@@ -1099,7 +1009,7 @@ const Header = () => {
         style={{ scaleX: scrollProgress / 100, transformOrigin: "0%" }}
       />
     </>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
