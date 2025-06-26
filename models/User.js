@@ -1,5 +1,5 @@
-import mongoose from "mongoose"
-import bcrypt from "bcryptjs"
+const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
 
 const UserSchema = new mongoose.Schema(
   {
@@ -204,4 +204,4 @@ UserSchema.methods.generatePasswordResetToken = function () {
   return this.resetPasswordToken
 }
 
-export default mongoose.models.User || mongoose.model("User", UserSchema)
+module.exports = mongoose.models.User || mongoose.model("User", UserSchema)
