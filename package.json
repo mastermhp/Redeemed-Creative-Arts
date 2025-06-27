@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node -r dotenv/config scripts/seed-database.js dotenv_config_path=.env.local"
+    "seed": "node -r dotenv/config scripts/seed-database.js dotenv_config_path=.env.local",
+    "comprehensive": "node -r dotenv/config scripts/comprehensive-seed.js dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

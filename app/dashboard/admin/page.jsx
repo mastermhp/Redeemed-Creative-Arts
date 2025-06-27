@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Users,
@@ -34,35 +33,14 @@ import {
   Palette,
   Target,
   Heart,
-  Star,
-  Ban,
-  UserX,
-  Edit,
 } from "lucide-react"
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState({
-    name: "Admin User",
-    email: "admin@redeemedcreativearts.com",
-    userType: "admin",
-    points: { current: 0, level: "admin" },
-  })
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const [stats, setStats] = useState({
-    totalUsers: 1247,
-    totalArtists: 342,
-    totalPatrons: 678,
-    totalChurches: 227,
-    totalDonations: 45620,
-    pendingApprovals: 12,
-    activeContests: 8,
-    systemHealth: 98,
-    totalArtworks: 1847,
-    flaggedContent: 5,
-    monthlyGrowth: 15.2,
-    revenueThisMonth: 12450,
-  })
-
+  // Mock data for design elements (will be replaced with real data when available)
   const [recentActivity, setRecentActivity] = useState([
     {
       id: 1,
@@ -149,61 +127,6 @@ export default function AdminDashboard() {
     },
   ])
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah@example.com",
-      userType: "artist",
-      tier: "tier2",
-      status: "active",
-      joinDate: "2024-01-15",
-      lastActive: "2 hours ago",
-      points: 2450,
-      artworks: 24,
-      earnings: 3240,
-    },
-    {
-      id: 2,
-      name: "David Thompson",
-      email: "david@example.com",
-      userType: "patron",
-      tier: "tier2",
-      status: "active",
-      joinDate: "2024-01-10",
-      lastActive: "1 day ago",
-      points: 1850,
-      donated: 5420,
-      supported: 12,
-    },
-    {
-      id: 3,
-      name: "Grace Community Church",
-      email: "admin@gracechurch.org",
-      userType: "church",
-      tier: "tier1",
-      status: "active",
-      joinDate: "2024-01-05",
-      lastActive: "5 hours ago",
-      points: 980,
-      events: 15,
-      raised: 8420,
-    },
-    {
-      id: 4,
-      name: "Michael Chen",
-      email: "michael@example.com",
-      userType: "artist",
-      tier: "tier1",
-      status: "suspended",
-      joinDate: "2024-01-01",
-      lastActive: "1 week ago",
-      points: 1200,
-      artworks: 8,
-      earnings: 890,
-    },
-  ])
-
   const [systemMetrics, setSystemMetrics] = useState([
     { name: "Server Uptime", value: "99.9%", status: "good" },
     { name: "Database Performance", value: "Fast", status: "good" },
@@ -216,6 +139,34 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState(null)
   const [userActionDialog, setUserActionDialog] = useState(false)
   const [actionType, setActionType] = useState("")
+
+  useEffect(() => {
+    fetchAdminStats()
+  }, [])
+
+  const fetchAdminStats = async () => {
+    try {
+      const response = await fetch("/api/dashboard/admin/stats", {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || "Failed to fetch stats")
+      }
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error)
+      setError("Network error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleApprove = (id, type) => {
     setPendingApprovals((prev) => prev.filter((item) => item.id !== id))
@@ -234,13 +185,8 @@ export default function AdminDashboard() {
   }
 
   const executeUserAction = () => {
-    if (actionType === "ban") {
-      setUsers((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, status: "banned" } : u)))
-    } else if (actionType === "suspend") {
-      setUsers((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, status: "suspended" } : u)))
-    } else if (actionType === "activate") {
-      setUsers((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, status: "active" } : u)))
-    }
+    // This would make API calls to update user status
+    console.log(`${actionType} user:`, selectedUser)
     setUserActionDialog(false)
     setSelectedUser(null)
     setActionType("")
@@ -286,6 +232,38 @@ export default function AdminDashboard() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-6 my-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-32 bg-gray-200 rounded-2xl"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-6 my-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Dashboard</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={fetchAdminStats}>Try Again</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-6 my-32">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -303,14 +281,14 @@ export default function AdminDashboard() {
                 </Badge>
                 <Badge className="bg-white/20 text-white border-white/30">
                   <Activity className="h-3 w-3 mr-1" />
-                  System Health: {stats.systemHealth}%
+                  System Health: 98%
                 </Badge>
               </div>
             </div>
             <div className="flex gap-3">
               <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
                 <Bell className="h-4 w-4 mr-2" />
-                Alerts ({stats.pendingApprovals})
+                Alerts ({stats?.pendingArtworks || 0})
               </Button>
               <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
                 <Settings className="h-4 w-4 mr-2" />
@@ -353,8 +331,8 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-blue-100 text-sm font-medium">Total Users</p>
-                      <p className="text-3xl font-bold">{stats.totalUsers.toLocaleString()}</p>
-                      <p className="text-blue-100 text-xs">+{stats.monthlyGrowth}% this month</p>
+                      <p className="text-3xl font-bold">{stats?.totalUsers || 0}</p>
+                      <p className="text-blue-100 text-xs">Platform-wide users</p>
                     </div>
                     <Users className="h-8 w-8 text-blue-200" />
                   </div>
@@ -367,8 +345,8 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-green-100 text-sm font-medium">Total Donations</p>
-                      <p className="text-3xl font-bold">${stats.totalDonations.toLocaleString()}</p>
-                      <p className="text-green-100 text-xs">+18% this month</p>
+                      <p className="text-3xl font-bold">${stats?.totalDonations || 0}</p>
+                      <p className="text-green-100 text-xs">Platform revenue</p>
                     </div>
                     <DollarSign className="h-8 w-8 text-green-200" />
                   </div>
@@ -381,7 +359,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-orange-100 text-sm font-medium">Pending Approvals</p>
-                      <p className="text-3xl font-bold">{stats.pendingApprovals}</p>
+                      <p className="text-3xl font-bold">{stats?.pendingArtworks || 0}</p>
                       <p className="text-orange-100 text-xs">Requires attention</p>
                     </div>
                     <Clock className="h-8 w-8 text-orange-200" />
@@ -394,9 +372,9 @@ export default function AdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-purple-100 text-sm font-medium">System Health</p>
-                      <p className="text-3xl font-bold">{stats.systemHealth}%</p>
-                      <p className="text-purple-100 text-xs">All systems operational</p>
+                      <p className="text-purple-100 text-sm font-medium">Total Artworks</p>
+                      <p className="text-3xl font-bold">{stats?.totalArtworks || 0}</p>
+                      <p className="text-purple-100 text-xs">All platform content</p>
                     </div>
                     <Activity className="h-8 w-8 text-purple-200" />
                   </div>
@@ -415,51 +393,31 @@ export default function AdminDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Heart className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Patrons</span>
+                  {Object.entries(stats?.usersByType || {}).map(([type, count]) => (
+                    <div key={type} className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          {type === "artist" && <Palette className="h-4 w-4 text-blue-500" />}
+                          {type === "patron" && <Heart className="h-4 w-4 text-green-500" />}
+                          {type === "church" && <Building className="h-4 w-4 text-purple-500" />}
+                          <span className="text-sm capitalize">{type}s</span>
+                        </div>
+                        <span className="text-sm font-medium">{count}</span>
                       </div>
-                      <span className="text-sm font-medium">{stats.totalPatrons}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
-                        style={{ width: `${(stats.totalPatrons / stats.totalUsers) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Palette className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm">Artists</span>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${
+                            type === "artist"
+                              ? "bg-gradient-to-r from-blue-500 to-indigo-500"
+                              : type === "patron"
+                                ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                                : "bg-gradient-to-r from-purple-500 to-pink-500"
+                          }`}
+                          style={{ width: `${stats?.totalUsers ? (count / stats.totalUsers) * 100 : 0}%` }}
+                        ></div>
                       </div>
-                      <span className="text-sm font-medium">{stats.totalArtists}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full"
-                        style={{ width: `${(stats.totalArtists / stats.totalUsers) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm">Churches</span>
-                      </div>
-                      <span className="text-sm font-medium">{stats.totalChurches}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
-                        style={{ width: `${(stats.totalChurches / stats.totalUsers) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                  ))}
                 </CardContent>
               </Card>
 
@@ -497,63 +455,35 @@ export default function AdminDashboard() {
               </Card>
             </div>
 
-            {/* Pending Approvals */}
+            {/* Top Artists */}
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Clock className="h-5 w-5 mr-2 text-orange-600" />
-                  Pending Approvals
+                  <Crown className="h-5 w-5 mr-2 text-yellow-600" />
+                  Top Artists
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Submitter</TableHead>
-                      <TableHead>Tier</TableHead>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingApprovals.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {item.type.replace("_", " ")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">{item.title}</TableCell>
-                        <TableCell>{item.submitter}</TableCell>
-                        <TableCell>{getTierBadge(item.tier)}</TableCell>
-                        <TableCell>{item.submittedAt}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleApprove(item.id, item.type)}
-                              className="bg-green-500 hover:bg-green-600"
-                            >
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleReject(item.id, item.type)}
-                              className="bg-transparent"
-                            >
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="space-y-4">
+                  {stats?.topArtists?.map((artist, index) => (
+                    <div key={artist._id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                        {index === 0 ? (
+                          <Crown className="h-5 w-5 text-yellow-500" />
+                        ) : (
+                          <span className="text-sm font-bold text-primary">{index + 1}</span>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{artist.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {artist.points?.total || 0} points • {artist.points?.level || "bronze"} level
+                        </p>
+                      </div>
+                      <Badge variant="outline">{artist.artistInfo?.specialties?.[0] || "Artist"}</Badge>
+                    </div>
+                  )) || <p className="text-center text-muted-foreground py-8">No artist data available</p>}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -581,126 +511,61 @@ export default function AdminDashboard() {
               <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
                 <CardContent className="p-6 text-center">
                   <Palette className="h-12 w-12 mx-auto text-blue-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-blue-600">{stats.totalArtists}</h3>
+                  <h3 className="text-2xl font-bold text-blue-600">{stats?.usersByType?.artist || 0}</h3>
                   <p className="text-blue-600 font-medium">Artists</p>
-                  <p className="text-sm text-gray-600 mt-2">+15 this month</p>
+                  <p className="text-sm text-gray-600 mt-2">Creative professionals</p>
                 </CardContent>
               </Card>
 
               <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
                 <CardContent className="p-6 text-center">
                   <Heart className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-green-600">{stats.totalPatrons}</h3>
+                  <h3 className="text-2xl font-bold text-green-600">{stats?.usersByType?.patron || 0}</h3>
                   <p className="text-green-600 font-medium">Patrons</p>
-                  <p className="text-sm text-gray-600 mt-2">+28 this month</p>
+                  <p className="text-sm text-gray-600 mt-2">Art supporters</p>
                 </CardContent>
               </Card>
 
               <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
                 <CardContent className="p-6 text-center">
                   <Building className="h-12 w-12 mx-auto text-purple-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-purple-600">{stats.totalChurches}</h3>
+                  <h3 className="text-2xl font-bold text-purple-600">{stats?.usersByType?.church || 0}</h3>
                   <p className="text-purple-600 font-medium">Churches</p>
-                  <p className="text-sm text-gray-600 mt-2">+8 this month</p>
+                  <p className="text-sm text-gray-600 mt-2">Ministry organizations</p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Users Table */}
+            {/* Recent Users */}
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>All Users</CardTitle>
+                <CardTitle>Recent Users</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Tier</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Points</TableHead>
-                      <TableHead>Activity</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {user.name.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-medium">{user.name}</p>
-                              <p className="text-sm text-gray-500">{user.email}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getUserTypeIcon(user.userType)}
-                            <span className="capitalize">{user.userType}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{getTierBadge(user.tier)}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 text-yellow-400" />
-                            <span>{user.points}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            <p>Joined: {user.joinDate}</p>
-                            <p className="text-gray-500">Last: {user.lastActive}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUserAction(user, "edit")}
-                              className="bg-transparent"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            {user.status === "active" ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleUserAction(user, "suspend")}
-                                className="bg-transparent text-yellow-600 hover:bg-yellow-50"
-                              >
-                                <UserX className="h-3 w-3" />
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleUserAction(user, "activate")}
-                                className="bg-transparent text-green-600 hover:bg-green-50"
-                              >
-                                <UserCheck className="h-3 w-3" />
-                              </Button>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUserAction(user, "ban")}
-                              className="bg-transparent text-red-600 hover:bg-red-50"
-                            >
-                              <Ban className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="space-y-4">
+                  {stats?.recentUsers?.map((user) => (
+                    <div key={user._id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          {getUserTypeIcon(user.userType)}
+                        </div>
+                        <div>
+                          <h4 className="font-medium">{user.name}</h4>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Joined {new Date(user.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={user.userType === "admin" ? "default" : "secondary"}>{user.userType}</Badge>
+                        <Badge variant={user.isActive ? "default" : "destructive"}>
+                          {user.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                    </div>
+                  )) || <p className="text-center text-muted-foreground py-8">No recent users to display</p>}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -734,23 +599,19 @@ export default function AdminDashboard() {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between">
                     <span>Total Artworks</span>
-                    <span className="font-medium">{stats.totalArtworks}</span>
+                    <span className="font-medium">{stats?.totalArtworks || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Pending Review</span>
-                    <span className="font-medium text-yellow-600">23</span>
+                    <span className="font-medium text-yellow-600">{stats?.pendingArtworks || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Flagged Content</span>
-                    <span className="font-medium text-red-600">{stats.flaggedContent}</span>
+                    <span>Total Events</span>
+                    <span className="font-medium">{stats?.totalEvents || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Active Contests</span>
-                    <span className="font-medium">{stats.activeContests}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Approved Today</span>
-                    <span className="font-medium text-green-600">15</span>
+                    <span>Active Users</span>
+                    <span className="font-medium">{stats?.activeUsers || 0}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -759,36 +620,32 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Flag className="h-5 w-5 mr-2 text-red-600" />
-                    Recent Reports
+                    Platform Health
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">Inappropriate artwork reported</p>
-                      <p className="text-xs text-gray-500">2 hours ago • Reported by 3 users</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="bg-transparent">
-                      Review
-                    </Button>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">User Engagement</span>
+                    <span className="font-medium">94%</span>
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">Spam comment detected</p>
-                      <p className="text-xs text-gray-500">4 hours ago • Auto-flagged</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="bg-transparent">
-                      Review
-                    </Button>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: "94%" }}></div>
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">Contest entry flagged</p>
-                      <p className="text-xs text-gray-500">1 day ago • Copyright concern</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="bg-transparent">
-                      Review
-                    </Button>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Content Quality</span>
+                    <span className="font-medium">87%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "87%" }}></div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Platform Stability</span>
+                    <span className="font-medium">99%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: "99%" }}></div>
                   </div>
                 </CardContent>
               </Card>
@@ -817,7 +674,7 @@ export default function AdminDashboard() {
               <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
                 <CardContent className="p-6 text-center">
                   <DollarSign className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-green-600">${stats.totalDonations.toLocaleString()}</h3>
+                  <h3 className="text-2xl font-bold text-green-600">${stats?.totalDonations || 0}</h3>
                   <p className="text-green-600 font-medium">Total Donations</p>
                   <p className="text-sm text-gray-600 mt-2">All-time platform donations</p>
                 </CardContent>
@@ -826,27 +683,32 @@ export default function AdminDashboard() {
               <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
                 <CardContent className="p-6 text-center">
                   <TrendingUp className="h-12 w-12 mx-auto text-blue-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-blue-600">${stats.revenueThisMonth.toLocaleString()}</h3>
+                  <h3 className="text-2xl font-bold text-blue-600">${stats?.monthlyRevenue || 0}</h3>
                   <p className="text-blue-600 font-medium">This Month</p>
-                  <p className="text-sm text-gray-600 mt-2">+18% vs last month</p>
+                  <p className="text-sm text-gray-600 mt-2">Current month revenue</p>
                 </CardContent>
               </Card>
 
               <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
                 <CardContent className="p-6 text-center">
                   <Target className="h-12 w-12 mx-auto text-purple-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-purple-600">127</h3>
-                  <p className="text-purple-600 font-medium">Active Campaigns</p>
-                  <p className="text-sm text-gray-600 mt-2">Across all churches</p>
+                  <h3 className="text-2xl font-bold text-purple-600">{stats?.totalEvents || 0}</h3>
+                  <p className="text-purple-600 font-medium">Active Events</p>
+                  <p className="text-sm text-gray-600 mt-2">Platform-wide events</p>
                 </CardContent>
               </Card>
 
               <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
                 <CardContent className="p-6 text-center">
                   <Award className="h-12 w-12 mx-auto text-orange-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-orange-600">$127</h3>
-                  <p className="text-orange-600 font-medium">Average Donation</p>
-                  <p className="text-sm text-gray-600 mt-2">+$12 vs last month</p>
+                  <h3 className="text-2xl font-bold text-orange-600">
+                    $
+                    {stats?.totalDonations && stats?.totalUsers
+                      ? Math.round(stats.totalDonations / stats.totalUsers)
+                      : 0}
+                  </h3>
+                  <p className="text-orange-600 font-medium">Avg per User</p>
+                  <p className="text-sm text-gray-600 mt-2">Average donation amount</p>
                 </CardContent>
               </Card>
             </div>

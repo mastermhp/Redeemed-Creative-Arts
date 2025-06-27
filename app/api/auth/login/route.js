@@ -15,6 +15,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
+    console.log("📧 Login attempt for email:", email)
+    console.log("🔑 Password provided:", password)
+    console.log("🔑 Password length:", password.length)
+
     // Connect to database
     await connectDB()
     console.log("✅ Database connected for login")
@@ -28,6 +32,9 @@ export async function POST(request) {
     }
 
     console.log("👤 User found:", user.email, "Type:", user.userType)
+    console.log("🔍 User has password hash:", !!user.password)
+    console.log("🔍 Stored password hash:", user.password)
+    console.log("🔍 Stored password hash length:", user.password?.length)
 
     // Check if user is active
     if (!user.isActive) {
@@ -35,11 +42,18 @@ export async function POST(request) {
       return NextResponse.json({ error: "Account is inactive. Please contact support." }, { status: 401 })
     }
 
-    // Compare password using bcrypt directly
+    // Compare password directly with bcrypt
+    console.log("🔍 Comparing passwords...")
+    console.log("🔍 Input password:", password)
+    console.log("🔍 Stored hash:", user.password)
+
     const isPasswordValid = await bcrypt.compare(password, user.password)
+    console.log("🔍 Password comparison result:", isPasswordValid)
 
     if (!isPasswordValid) {
       console.log("❌ Invalid password for user:", email)
+      console.log("❌ Tried password:", password)
+      console.log("❌ Against hash:", user.password)
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
     }
 
@@ -93,6 +107,8 @@ export async function POST(request) {
       churchInfo: user.churchInfo,
       isHelper: user.isHelper,
       helperInfo: user.helperInfo,
+      profileImage: user.profileImage,
+      socialLinks: user.socialLinks,
     }
 
     console.log("🎉 Login successful for:", email)

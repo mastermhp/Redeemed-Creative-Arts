@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const matchingCampaignSchema = new mongoose.Schema(
+const challengeCampaignSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -12,25 +12,20 @@ const matchingCampaignSchema = new mongoose.Schema(
       required: true,
       maxlength: 1000,
     },
-    matchRatio: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 10, // Maximum 10x match
-    },
-    matchCap: {
-      type: Number,
-      required: true,
-      min: 100,
-    },
-    currentMatched: {
+    // targetAmount: {
+    //   type: Number,
+    //   required: true,
+    //   min: 100,
+    // },
+    currentAmount: {
       type: Number,
       default: 0,
     },
-    totalDonations: {
-      type: Number,
-      default: 0,
-    },
+    // bonusAmount: {
+    //   type: Number,
+    //   required: true,
+    //   min: 1,
+    // },
     donationCount: {
       type: Number,
       default: 0,
@@ -47,33 +42,40 @@ const matchingCampaignSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    isCompleted: {
+      type: Boolean,
+      default: false,
     },
-    targetCategories: [
+    completedAt: Date,
+    // createdBy: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
+    beneficiaries: [
       {
-        type: String,
-        enum: ["artist", "patron", "church", "general"],
-      },
-    ],
-    restrictions: {
-      minDonation: {
-        type: Number,
-        default: 1,
-      },
-      maxDonation: {
-        type: Number,
-        default: null,
-      },
-      eligibleUsers: [
-        {
+        userId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
         },
-      ],
-    },
+        percentage: {
+          type: Number,
+          min: 0,
+          max: 100,
+        },
+      },
+    ],
+    milestones: [
+      {
+        amount: Number,
+        description: String,
+        isReached: {
+          type: Boolean,
+          default: false,
+        },
+        reachedAt: Date,
+      },
+    ],
   },
   {
     timestamps: true,
@@ -81,23 +83,29 @@ const matchingCampaignSchema = new mongoose.Schema(
 )
 
 // Indexes
-matchingCampaignSchema.index({ isActive: 1, startDate: 1, endDate: 1 })
-matchingCampaignSchema.index({ createdBy: 1 })
-
-// Virtual for remaining match capacity
-matchingCampaignSchema.virtual("remainingMatch").get(function () {
-  return Math.max(0, this.matchCap - this.currentMatched)
-})
+challengeCampaignSchema.index({ isActive: 1, startDate: 1, endDate: 1 })
+challengeCampaignSchema.index({ createdBy: 1 })
+challengeCampaignSchema.index({ isCompleted: 1 })
 
 // Virtual for progress percentage
-matchingCampaignSchema.virtual("progressPercentage").get(function () {
-  return Math.min(100, (this.currentMatched / this.matchCap) * 100)
-})
+// challengeCampaignSchema.virtual("progressPercentage").get(function () {
+//   return Math.min(100, (this.currentAmount / this.targetAmount) * 100)
+// })
+
+// Virtual for remaining amount
+// challengeCampaignSchema.virtual("remainingAmount").get(function () {
+//   return Math.max(0, this.targetAmount - this.currentAmount)
+// })
+
+// Method to check if challenge is met
+// challengeCampaignSchema.methods.isChallengeMet = function () {
+//   return this.currentAmount >= this.targetAmount
+// }
 
 // Method to check if campaign is currently active
-matchingCampaignSchema.methods.isCurrentlyActive = function () {
+challengeCampaignSchema.methods.isCurrentlyActive = function () {
   const now = new Date()
-  return this.isActive && this.startDate <= now && this.endDate >= now && this.currentMatched < this.matchCap
+  return this.isActive && !this.isCompleted && this.startDate <= now && this.endDate >= now
 }
 
-export default mongoose.models.MatchingCampaign || mongoose.model("MatchingCampaign", matchingCampaignSchema)
+export default mongoose.models.ChallengeCampaign || mongoose.model("ChallengeCampaign", challengeCampaignSchema)

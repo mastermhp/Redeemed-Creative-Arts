@@ -235,32 +235,32 @@ const userSchema = new mongoose.Schema(
 )
 
 // Indexes for better performance
-userSchema.index({ email: 1 })
+userSchema.index({ email: 1 }, { unique: true })
 userSchema.index({ userType: 1 })
 userSchema.index({ isActive: 1 })
 userSchema.index({ "location.coordinates": "2dsphere" })
 
-// Pre-save middleware to hash password
-userSchema.pre("save", async function (next) {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified("password")) return next()
-
-  try {
-    // Hash password with cost of 12
-    const salt = await bcrypt.genSalt(12)
-    this.password = await bcrypt.hash(this.password, salt)
-    next()
-  } catch (error) {
-    next(error)
-  }
-})
+// DON'T hash password in pre-save middleware - we'll do it manually in registration
+// This was causing the double hashing issue
 
 // Method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
-    return await bcrypt.compare(candidatePassword, this.password)
+    console.log("🔍 comparePassword method called")
+    console.log("🔍 Candidate password:", candidatePassword)
+    console.log("🔍 Stored password hash:", this.password)
+
+    if (!this.password) {
+      console.log("❌ No stored password hash found")
+      return false
+    }
+
+    const isMatch = await bcrypt.compare(candidatePassword, this.password)
+    console.log("🔍 Password comparison result:", isMatch)
+    return isMatch
   } catch (error) {
-    throw error
+    console.error("❌ Password comparison error:", error)
+    return false
   }
 }
 

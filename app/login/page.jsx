@@ -47,13 +47,16 @@ export default function LoginPage() {
       if (response.ok) {
         toast.success("Login successful!")
 
-        // Store user data in localStorage for client-side access
+        // Store token in localStorage for client-side access
+        localStorage.setItem("auth-token", data.token)
+
+        // Store user data separately
         localStorage.setItem("user", JSON.stringify(data.user))
 
         // Redirect based on user type
         switch (data.user.userType) {
           case "admin":
-            router.push("/admin/dashboard")
+            router.push("/dashboard/admin")
             break
           case "artist":
             router.push("/dashboard/artist")

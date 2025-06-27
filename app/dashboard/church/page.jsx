@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useAuth } from "@/lib/hooks/useAuth"
+import toast from "react-hot-toast"
 import {
   Calendar,
   Users,
@@ -34,168 +36,28 @@ import {
 } from "lucide-react"
 
 export default function ChurchDashboard() {
-  const [user, setUser] = useState({
-    name: "Grace Community Church",
-    email: "admin@gracechurch.org",
-    userType: "church",
-    tier: "tier2",
-    points: { current: 1850, total: 3200, level: "silver" },
-    membership: { tier: "silver", subscriptionStatus: "active" },
-    churchInfo: {
-      organizationName: "Grace Community Church",
-      denomination: "Non-denominational",
-      pastor: "Rev. John Smith",
-      artsMinistryContact: "Mary Johnson",
-      size: "500-1000 members",
-    },
-  })
-
+  const { user } = useAuth()
   const [stats, setStats] = useState({
-    upcomingEvents: 5,
-    totalHelpers: 18,
-    activeCampaigns: 3,
-    totalRaised: 8420,
-    eventsThisMonth: 12,
-    helpersBooked: 24,
-    communityReach: 1250,
-    artworksCommissioned: 15,
+    upcomingEvents: 0,
+    totalHelpers: 0,
+    activeCampaigns: 0,
+    totalRaised: 0,
+    eventsThisMonth: 0,
+    helpersBooked: 0,
+    communityReach: 0,
+    artworksCommissioned: 0,
   })
 
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "Easter Sunday Service",
-      date: "2024-03-31",
-      time: "10:00 AM",
-      location: "Main Sanctuary",
-      helpersNeeded: 3,
-      helpersBooked: 2,
-      status: "active",
-      description: "Special Easter celebration with live art demonstration",
-      skills: ["Live Painting", "Setup", "Photography"],
-      budget: 500,
-      attendees: 300,
-    },
-    {
-      id: 2,
-      title: "Youth Art Workshop",
-      date: "2024-04-05",
-      time: "2:00 PM",
-      location: "Fellowship Hall",
-      helpersNeeded: 2,
-      helpersBooked: 2,
-      status: "fully_booked",
-      description: "Teaching young people Christian art techniques",
-      skills: ["Art Instruction", "Youth Ministry"],
-      budget: 200,
-      attendees: 25,
-    },
-    {
-      id: 3,
-      title: "Community Art Fair",
-      date: "2024-04-12",
-      time: "9:00 AM",
-      location: "Church Grounds",
-      helpersNeeded: 5,
-      helpersBooked: 1,
-      status: "active",
-      description: "Showcasing local Christian artists and their work",
-      skills: ["Event Setup", "Art Display", "Customer Service", "Photography"],
-      budget: 1000,
-      attendees: 500,
-    },
-  ])
-
-  const [helpers, setHelpers] = useState([
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      skills: ["Live Painting", "Art Instruction", "Setup"],
-      rating: 4.9,
-      completedJobs: 15,
-      availability: "available",
-      hourlyRate: 25,
-      avatar: "/placeholder.svg?height=50&width=50",
-      distance: "2.3 miles",
-      lastWorked: "2024-01-20",
-      tier: "tier2",
-      specialties: ["Digital Art", "Traditional Art"],
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      skills: ["Photography", "Video", "Art Display"],
-      rating: 4.8,
-      completedJobs: 22,
-      availability: "busy",
-      hourlyRate: 30,
-      avatar: "/placeholder.svg?height=50&width=50",
-      distance: "1.8 miles",
-      lastWorked: "2024-01-18",
-      tier: "tier1",
-      specialties: ["Photography", "Video Production"],
-    },
-    {
-      id: 3,
-      name: "Emma Rodriguez",
-      skills: ["Youth Ministry", "Art Instruction", "Event Setup"],
-      rating: 4.7,
-      completedJobs: 18,
-      availability: "available",
-      hourlyRate: 22,
-      avatar: "/placeholder.svg?height=50&width=50",
-      distance: "3.1 miles",
-      lastWorked: "2024-01-15",
-      tier: "tier2",
-      specialties: ["Sculpture", "Mixed Media"],
-    },
-  ])
-
-  const [campaigns, setCampaigns] = useState([
-    {
-      id: 1,
-      title: "Sanctuary Beautification",
-      goal: 5000,
-      raised: 3200,
-      supporters: 28,
-      daysLeft: 45,
-      description: "Commissioning beautiful artwork for our sanctuary walls",
-      status: "active",
-      matchingAvailable: true,
-      matchRatio: 0.5,
-      category: "Church Improvement",
-    },
-    {
-      id: 2,
-      title: "Youth Art Program",
-      goal: 2000,
-      raised: 1450,
-      supporters: 18,
-      daysLeft: 22,
-      description: "Providing art supplies and instruction for our youth ministry",
-      status: "active",
-      matchingAvailable: false,
-      matchRatio: 0,
-      category: "Education",
-    },
-    {
-      id: 3,
-      title: "Community Outreach Art",
-      goal: 3000,
-      raised: 2100,
-      supporters: 24,
-      daysLeft: 30,
-      description: "Creating art for community centers and local schools",
-      status: "active",
-      matchingAvailable: true,
-      matchRatio: 0.25,
-      category: "Community",
-    },
-  ])
+  const [events, setEvents] = useState([])
+  const [helpers, setHelpers] = useState([])
+  const [campaigns, setCampaigns] = useState([])
+  const [recentActivity, setRecentActivity] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const [createEventDialog, setCreateEventDialog] = useState(false)
   const [createCampaignDialog, setCreateCampaignDialog] = useState(false)
   const [bookHelperDialog, setBookHelperDialog] = useState(false)
+
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
@@ -205,7 +67,126 @@ export default function ChurchDashboard() {
     helpersNeeded: 1,
     budget: "",
     skills: [],
+    expectedAttendees: 100,
+    category: "worship",
   })
+
+  const [newCampaign, setNewCampaign] = useState({
+    title: "",
+    description: "",
+    goal: "",
+    category: "church-improvement",
+  })
+
+  useEffect(() => {
+    if (user) {
+      fetchDashboardData()
+    }
+  }, [user])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+
+      // Fetch stats
+      const statsResponse = await fetch("/api/dashboard/church/stats")
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats(statsData.stats)
+        setRecentActivity(statsData.recentActivity)
+      }
+
+      // Fetch events
+      const eventsResponse = await fetch("/api/dashboard/church/events")
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json()
+        setEvents(eventsData.events)
+      }
+
+      // Fetch helpers
+      const helpersResponse = await fetch("/api/dashboard/church/helpers")
+      if (helpersResponse.ok) {
+        const helpersData = await helpersResponse.json()
+        setHelpers(helpersData.helpers)
+      }
+
+      // Fetch campaigns
+      const campaignsResponse = await fetch("/api/dashboard/church/campaigns")
+      if (campaignsResponse.ok) {
+        const campaignsData = await campaignsResponse.json()
+        setCampaigns(campaignsData.campaigns)
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error)
+      toast.error("Failed to load dashboard data")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateEvent = async (e) => {
+    e.preventDefault()
+    try {
+      const response = await fetch("/api/dashboard/church/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEvent),
+      })
+
+      if (response.ok) {
+        toast.success("Event created successfully!")
+        setCreateEventDialog(false)
+        setNewEvent({
+          title: "",
+          description: "",
+          date: "",
+          time: "",
+          location: "",
+          helpersNeeded: 1,
+          budget: "",
+          skills: [],
+          expectedAttendees: 100,
+          category: "worship",
+        })
+        fetchDashboardData()
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "Failed to create event")
+      }
+    } catch (error) {
+      console.error("Create event error:", error)
+      toast.error("Failed to create event")
+    }
+  }
+
+  const handleCreateCampaign = async (e) => {
+    e.preventDefault()
+    try {
+      const response = await fetch("/api/dashboard/church/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCampaign),
+      })
+
+      if (response.ok) {
+        toast.success("Campaign created successfully!")
+        setCreateCampaignDialog(false)
+        setNewCampaign({
+          title: "",
+          description: "",
+          goal: "",
+          category: "church-improvement",
+        })
+        fetchDashboardData()
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "Failed to create campaign")
+      }
+    } catch (error) {
+      console.error("Create campaign error:", error)
+      toast.error("Failed to create campaign")
+    }
+  }
 
   const getTierBadge = (tier) => {
     return tier === "tier2" ? (
@@ -236,32 +217,21 @@ export default function ChurchDashboard() {
     }
   }
 
-  const handleCreateEvent = () => {
-    setCreateEventDialog(true)
-  }
-
-  const handleBookHelper = (helperId) => {
-    setBookHelperDialog(true)
-  }
-
-  const handleCreateCampaign = () => {
-    setCreateCampaignDialog(true)
-  }
-
-  const handleSubmitEvent = (e) => {
-    e.preventDefault()
-    console.log("Creating event:", newEvent)
-    setCreateEventDialog(false)
-    setNewEvent({
-      title: "",
-      description: "",
-      date: "",
-      time: "",
-      location: "",
-      helpersNeeded: 1,
-      budget: "",
-      skills: [],
-    })
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 my-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -273,18 +243,20 @@ export default function ChurchDashboard() {
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <h1 className="text-4xl font-bold mb-2">Church Dashboard</h1>
-              <p className="text-blue-100 text-lg">Welcome back, {user.churchInfo.organizationName}! ⛪</p>
+              <p className="text-blue-100 text-lg">
+                Welcome back, {user?.churchInfo?.organizationName || user?.name}! ⛪
+              </p>
               <div className="flex items-center gap-4 mt-4">
-                {getTierBadge(user.tier)}
+                {getTierBadge(user?.membership?.tier || "tier1")}
                 <div
-                  className={`px-4 py-2 rounded-full bg-gradient-to-r ${getLevelColor(user.points.level)} text-white font-bold`}
+                  className={`px-4 py-2 rounded-full bg-gradient-to-r ${getLevelColor(user?.points?.level)} text-white font-bold`}
                 >
                   <Award className="h-4 w-4 inline mr-2" />
-                  {user.points.current.toLocaleString()} pts
+                  {user?.points?.current?.toLocaleString() || 0} pts
                 </div>
                 <Badge className="bg-white/20 text-white border-white/30">
                   <Building className="h-3 w-3 mr-1" />
-                  {user.churchInfo.size}
+                  {user?.churchInfo?.size || "Small Church"}
                 </Badge>
               </div>
             </div>
@@ -292,7 +264,7 @@ export default function ChurchDashboard() {
               <Button
                 variant="secondary"
                 className="bg-white/20 hover:bg-white/30 text-white border-white/30"
-                onClick={handleCreateEvent}
+                onClick={() => setCreateEventDialog(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Event
@@ -400,16 +372,16 @@ export default function ChurchDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {events.slice(0, 3).map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div key={event._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-bold">{event.title}</h4>
                         <p className="text-sm text-gray-600">
-                          {event.date} at {event.time}
+                          {new Date(event.date).toLocaleDateString()} at {event.time}
                         </p>
                         <div className="flex items-center mt-2 gap-4">
                           <span className="flex items-center text-xs text-gray-500">
                             <Users className="h-3 w-3 mr-1" />
-                            {event.helpersBooked}/{event.helpersNeeded} helpers
+                            {event.helpersBooked?.length || 0}/{event.helpersNeeded} helpers
                           </span>
                           <span className="flex items-center text-xs text-gray-500">
                             <DollarSign className="h-3 w-3 mr-1" />${event.budget}
@@ -421,6 +393,7 @@ export default function ChurchDashboard() {
                       </Badge>
                     </div>
                   ))}
+                  {events.length === 0 && <p className="text-gray-500 text-center py-4">No upcoming events</p>}
                 </CardContent>
               </Card>
 
@@ -436,7 +409,7 @@ export default function ChurchDashboard() {
                     <Button
                       variant="outline"
                       className="h-20 flex-col bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100"
-                      onClick={handleCreateEvent}
+                      onClick={() => setCreateEventDialog(true)}
                     >
                       <Calendar className="h-6 w-6 mb-2 text-blue-600" />
                       <span className="text-sm font-medium">Create Event</span>
@@ -451,7 +424,7 @@ export default function ChurchDashboard() {
                     <Button
                       variant="outline"
                       className="h-20 flex-col bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 hover:from-purple-100 hover:to-pink-100"
-                      onClick={handleCreateCampaign}
+                      onClick={() => setCreateCampaignDialog(true)}
                     >
                       <Target className="h-6 w-6 mb-2 text-purple-600" />
                       <span className="text-sm font-medium">Start Campaign</span>
@@ -497,7 +470,7 @@ export default function ChurchDashboard() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
-                        style={{ width: `${(campaign.raised / campaign.goal) * 100}%` }}
+                        style={{ width: `${Math.min((campaign.raised / campaign.goal) * 100, 100)}%` }}
                       ></div>
                     </div>
                     <div className="flex justify-between text-xs text-gray-500">
@@ -506,6 +479,7 @@ export default function ChurchDashboard() {
                     </div>
                   </div>
                 ))}
+                {campaigns.length === 0 && <p className="text-gray-500 text-center py-4">No active campaigns</p>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -517,7 +491,7 @@ export default function ChurchDashboard() {
                 Event Management
               </h2>
               <Button
-                onClick={handleCreateEvent}
+                onClick={() => setCreateEventDialog(true)}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -527,7 +501,7 @@ export default function ChurchDashboard() {
 
             <div className="grid gap-6">
               {events.map((event) => (
-                <Card key={event.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card key={event._id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
@@ -542,7 +516,7 @@ export default function ChurchDashboard() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-2 text-blue-500" />
-                            <span>{event.date}</span>
+                            <span>{new Date(event.date).toLocaleDateString()}</span>
                           </div>
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 mr-2 text-orange-500" />
@@ -555,7 +529,7 @@ export default function ChurchDashboard() {
                           <div className="flex items-center">
                             <Users className="h-4 w-4 mr-2 text-purple-500" />
                             <span>
-                              {event.helpersBooked}/{event.helpersNeeded} helpers
+                              {event.helpersBooked?.length || 0}/{event.helpersNeeded} helpers
                             </span>
                           </div>
                         </div>
@@ -567,20 +541,22 @@ export default function ChurchDashboard() {
                           </div>
                           <div className="flex items-center">
                             <Heart className="h-4 w-4 mr-2 text-red-500" />
-                            <span>Expected: {event.attendees} attendees</span>
+                            <span>Expected: {event.expectedAttendees} attendees</span>
                           </div>
                         </div>
 
-                        <div className="mb-4">
-                          <p className="text-sm font-medium mb-2">Skills Needed:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {event.skills.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {skill}
-                              </Badge>
-                            ))}
+                        {event.skills && event.skills.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm font-medium mb-2">Skills Needed:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {event.skills.map((skill, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <div className="ml-4 flex flex-col gap-2">
@@ -598,7 +574,7 @@ export default function ChurchDashboard() {
                     {event.status !== "fully_booked" && (
                       <div className="border-t pt-4">
                         <p className="text-sm text-gray-600 mb-2">
-                          Need {event.helpersNeeded - event.helpersBooked} more helpers
+                          Need {event.helpersNeeded - (event.helpersBooked?.length || 0)} more helpers
                         </p>
                         <Button size="sm" className="bg-gradient-to-r from-green-500 to-emerald-500">
                           <Plus className="h-3 w-3 mr-1" />
@@ -609,6 +585,19 @@ export default function ChurchDashboard() {
                   </CardContent>
                 </Card>
               ))}
+              {events.length === 0 && (
+                <Card className="border-0 shadow-lg">
+                  <CardContent className="p-12 text-center">
+                    <Calendar className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-xl font-bold text-gray-600 mb-2">No Events Yet</h3>
+                    <p className="text-gray-500 mb-4">Create your first event to get started!</p>
+                    <Button onClick={() => setCreateEventDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Event
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -630,7 +619,7 @@ export default function ChurchDashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4 mb-4">
                       <img
-                        src={helper.avatar || "/placeholder.svg"}
+                        src={helper.avatar || "/placeholder.svg?height=50&width=50"}
                         alt={helper.name}
                         className="w-12 h-12 rounded-full object-cover ring-2 ring-green-200"
                       />
@@ -669,16 +658,18 @@ export default function ChurchDashboard() {
                         </div>
                       </div>
 
-                      <div>
-                        <p className="text-sm font-medium mb-1">Specialties:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {helper.specialties.map((specialty, index) => (
-                            <Badge key={index} variant="outline" className="text-xs bg-purple-50 text-purple-700">
-                              {specialty}
-                            </Badge>
-                          ))}
+                      {helper.specialties && helper.specialties.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium mb-1">Specialties:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {helper.specialties.map((specialty, index) => (
+                              <Badge key={index} variant="outline" className="text-xs bg-purple-50 text-purple-700">
+                                {specialty}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -704,7 +695,7 @@ export default function ChurchDashboard() {
                         size="sm"
                         className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                         disabled={helper.availability !== "available"}
-                        onClick={() => handleBookHelper(helper.id)}
+                        onClick={() => setBookHelperDialog(true)}
                       >
                         <UserCheck className="h-3 w-3 mr-1" />
                         Book Helper
@@ -716,6 +707,13 @@ export default function ChurchDashboard() {
                   </CardContent>
                 </Card>
               ))}
+              {helpers.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <Users className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-bold text-gray-600 mb-2">No Helpers Available</h3>
+                  <p className="text-gray-500">Check back later for available helpers in your area.</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -726,7 +724,7 @@ export default function ChurchDashboard() {
                 Fundraising Campaigns
               </h2>
               <Button
-                onClick={handleCreateCampaign}
+                onClick={() => setCreateCampaignDialog(true)}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -762,7 +760,7 @@ export default function ChurchDashboard() {
                           <div className="w-full bg-gray-200 rounded-full h-3">
                             <div
                               className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full"
-                              style={{ width: `${(campaign.raised / campaign.goal) * 100}%` }}
+                              style={{ width: `${Math.min((campaign.raised / campaign.goal) * 100, 100)}%` }}
                             ></div>
                           </div>
                         </div>
@@ -788,6 +786,19 @@ export default function ChurchDashboard() {
                   </CardContent>
                 </Card>
               ))}
+              {campaigns.length === 0 && (
+                <Card className="border-0 shadow-lg">
+                  <CardContent className="p-12 text-center">
+                    <Target className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-xl font-bold text-gray-600 mb-2">No Campaigns Yet</h3>
+                    <p className="text-gray-500 mb-4">Start your first fundraising campaign!</p>
+                    <Button onClick={() => setCreateCampaignDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Campaign
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -830,30 +841,16 @@ export default function ChurchDashboard() {
 
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>Community Testimonials</CardTitle>
+                <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm italic mb-2">
-                    "The art program has transformed our youth ministry. The kids are more engaged and excited about
-                    their faith."
-                  </p>
-                  <p className="text-xs text-gray-600">- Sarah M., Youth Pastor</p>
-                </div>
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm italic mb-2">
-                    "The sanctuary beautification project has made our worship space so much more inspiring and
-                    welcoming."
-                  </p>
-                  <p className="text-xs text-gray-600">- John D., Church Member</p>
-                </div>
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <p className="text-sm italic mb-2">
-                    "Working with the helpers from this platform has been amazing. They're skilled and share our
-                    values."
-                  </p>
-                  <p className="text-xs text-gray-600">- Mary J., Arts Ministry Leader</p>
-                </div>
+                {recentActivity.map((activity, index) => (
+                  <div key={index} className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm mb-2">{activity.description}</p>
+                    <p className="text-xs text-gray-600">{activity.timestamp}</p>
+                  </div>
+                ))}
+                {recentActivity.length === 0 && <p className="text-gray-500 text-center py-4">No recent activity</p>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -886,26 +883,26 @@ export default function ChurchDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="orgName">Organization Name</Label>
-                      <Input id="orgName" defaultValue={user.churchInfo.organizationName} />
+                      <Input id="orgName" defaultValue={user?.churchInfo?.organizationName || ""} />
                     </div>
                     <div>
                       <Label htmlFor="denomination">Denomination</Label>
-                      <Input id="denomination" defaultValue={user.churchInfo.denomination} />
+                      <Input id="denomination" defaultValue={user?.churchInfo?.denomination || ""} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="pastor">Pastor Name</Label>
-                      <Input id="pastor" defaultValue={user.churchInfo.pastor} />
+                      <Input id="pastor" defaultValue={user?.churchInfo?.pastor || ""} />
                     </div>
                     <div>
                       <Label htmlFor="artsContact">Arts Ministry Contact</Label>
-                      <Input id="artsContact" defaultValue={user.churchInfo.artsMinistryContact} />
+                      <Input id="artsContact" defaultValue={user?.churchInfo?.artsMinistryContact || ""} />
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="size">Church Size</Label>
-                    <Select defaultValue={user.churchInfo.size}>
+                    <Select defaultValue={user?.churchInfo?.size || "100-500"}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -931,21 +928,21 @@ export default function ChurchDashboard() {
                       <p className="font-medium">Auto-approve Helper Applications</p>
                       <p className="text-sm text-gray-500">Automatically approve qualified helpers</p>
                     </div>
-                    <input type="checkbox" className="toggle" />
+                    <Checkbox />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Event Reminders</p>
                       <p className="text-sm text-gray-500">Send reminders to helpers before events</p>
                     </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
+                    <Checkbox defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Public Event Listings</p>
                       <p className="text-sm text-gray-500">Make your events visible to the community</p>
                     </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
+                    <Checkbox defaultChecked />
                   </div>
                   <Button className="w-full">Save Preferences</Button>
                 </CardContent>
@@ -964,7 +961,7 @@ export default function ChurchDashboard() {
               </DialogTitle>
               <DialogDescription>Plan and organize your church art event</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmitEvent} className="space-y-4">
+            <form onSubmit={handleCreateEvent} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="eventTitle">Event Title</Label>
@@ -1032,16 +1029,28 @@ export default function ChurchDashboard() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="helpersNeeded">Helpers Needed</Label>
-                <Input
-                  id="helpersNeeded"
-                  type="number"
-                  value={newEvent.helpersNeeded}
-                  onChange={(e) => setNewEvent({ ...newEvent, helpersNeeded: Number.parseInt(e.target.value) })}
-                  min="1"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="helpersNeeded">Helpers Needed</Label>
+                  <Input
+                    id="helpersNeeded"
+                    type="number"
+                    value={newEvent.helpersNeeded}
+                    onChange={(e) => setNewEvent({ ...newEvent, helpersNeeded: Number.parseInt(e.target.value) })}
+                    min="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="expectedAttendees">Expected Attendees</Label>
+                  <Input
+                    id="expectedAttendees"
+                    type="number"
+                    value={newEvent.expectedAttendees}
+                    onChange={(e) => setNewEvent({ ...newEvent, expectedAttendees: Number.parseInt(e.target.value) })}
+                    placeholder="100"
+                  />
+                </div>
               </div>
 
               <div>
@@ -1101,26 +1110,44 @@ export default function ChurchDashboard() {
               </DialogTitle>
               <DialogDescription>Start a campaign to raise funds for your art projects</DialogDescription>
             </DialogHeader>
-            <form className="space-y-4">
+            <form onSubmit={handleCreateCampaign} className="space-y-4">
               <div>
                 <Label htmlFor="campaignTitle">Campaign Title</Label>
-                <Input id="campaignTitle" placeholder="Sanctuary Beautification" required />
+                <Input
+                  id="campaignTitle"
+                  value={newCampaign.title}
+                  onChange={(e) => setNewCampaign({ ...newCampaign, title: e.target.value })}
+                  placeholder="Sanctuary Beautification"
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="campaignGoal">Funding Goal ($)</Label>
-                <Input id="campaignGoal" type="number" placeholder="5000" required />
+                <Input
+                  id="campaignGoal"
+                  type="number"
+                  value={newCampaign.goal}
+                  onChange={(e) => setNewCampaign({ ...newCampaign, goal: e.target.value })}
+                  placeholder="5000"
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="campaignDescription">Description</Label>
                 <Textarea
                   id="campaignDescription"
+                  value={newCampaign.description}
+                  onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
                   placeholder="Describe your project and how the funds will be used"
                   required
                 />
               </div>
               <div>
                 <Label htmlFor="campaignCategory">Category</Label>
-                <Select>
+                <Select
+                  value={newCampaign.category}
+                  onValueChange={(value) => setNewCampaign({ ...newCampaign, category: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -1169,8 +1196,8 @@ export default function ChurchDashboard() {
                     {events
                       .filter((event) => event.status !== "fully_booked")
                       .map((event) => (
-                        <SelectItem key={event.id} value={event.id.toString()}>
-                          {event.title} - {event.date}
+                        <SelectItem key={event._id} value={event._id}>
+                          {event.title} - {new Date(event.date).toLocaleDateString()}
                         </SelectItem>
                       ))}
                   </SelectContent>

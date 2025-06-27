@@ -2,94 +2,163 @@ import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
 import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
 
 export async function POST(request) {
   try {
-    await connectDB()
+    console.log("🔐 Registration attempt started")
 
     const body = await request.json()
-    const { name, email, password, userType, agreements } = body
+    console.log("📝 Registration data received:", {
+      name: body.name,
+      email: body.email,
+      userType: body.userType,
+      passwordLength: body.password?.length,
+    })
+
+    const { name, email, password, userType, artistInfo, churchInfo, agreements } = body
 
     // Validation
     if (!name || !email || !password || !userType) {
-      return NextResponse.json({ error: "All fields are required" }, { status: 400 })
+      console.log("❌ Missing required fields")
+      return NextResponse.json({ error: "Name, email, password, and user type are required" }, { status: 400 })
     }
 
     if (password.length < 6) {
-      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 })
+      console.log("❌ Password too short:", password.length)
+      return NextResponse.json({ error: "Password must be at least 6 characters long" }, { status: 400 })
     }
+
+    console.log("🔑 Password validation passed. Length:", password.length)
+    console.log("🔑 Raw password:", password)
+
+    // Connect to database
+    await connectDB()
+    console.log("✅ Database connected for registration")
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() })
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists with this email" }, { status: 400 })
+      console.log("❌ User already exists:", email)
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 400 })
     }
 
-    // Hash password
+    console.log("✅ Email is unique, proceeding with registration")
+
+    // Hash password manually to debug
+    console.log("🔒 Starting password hashing...")
     const salt = await bcrypt.genSalt(12)
     const hashedPassword = await bcrypt.hash(password, salt)
+    console.log("✅ Password hashed successfully")
+    console.log("🔍 Original password:", password)
+    console.log("🔍 Hashed password length:", hashedPassword.length)
 
-    // Create user
-    const user = await User.create({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
+    // Create user object
+    const userData = {
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword, // Use manually hashed password
       userType,
       isVerified: false,
+      isActive: true,
       points: {
-        current: 50, // Welcome bonus
-        total: 50,
+        current: 10,
+        total: 10,
         level: "bronze",
       },
       membership: {
         tier: "free",
+        subscriptionStatus: "inactive",
       },
-      agreements: {
-        termsAccepted: agreements?.terms || false,
-        termsAcceptedDate: agreements?.terms ? new Date() : null,
-        artistDisclaimer: agreements?.artistDisclaimer || false,
-        artistDisclaimerDate: agreements?.artistDisclaimer ? new Date() : null,
-        noAIConfirmation: agreements?.noAI || false,
-        noAIConfirmationDate: agreements?.noAI ? new Date() : null,
-      },
-    })
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, userType: user.userType },
-      process.env.JWT_SECRET || "fallback-secret",
-      { expiresIn: "7d" },
-    )
-
-    // Remove password from response
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      userType: user.userType,
-      points: user.points,
-      membership: user.membership,
-      isVerified: user.isVerified,
     }
 
-    const response = NextResponse.json({
-      message: "User registered successfully",
-      user: userResponse,
-      token,
+    // Add type-specific data
+    if (userType === "artist" && artistInfo) {
+      userData.artistInfo = artistInfo
+      if (agreements?.artistDisclaimer) {
+        userData.agreements = {
+          ...userData.agreements,
+          artistDisclaimer: true,
+          artistDisclaimerDate: new Date(),
+        }
+      }
+      if (agreements?.noAIConfirmation) {
+        userData.agreements = {
+          ...userData.agreements,
+          noAIConfirmation: true,
+          noAIConfirmationDate: new Date(),
+        }
+      }
+    }
+
+    if (userType === "church" && churchInfo) {
+      userData.churchInfo = churchInfo
+    }
+
+    // Add agreements
+    if (agreements) {
+      userData.agreements = {
+        ...userData.agreements,
+        termsAccepted: agreements.termsAccepted || false,
+        termsAcceptedDate: agreements.termsAccepted ? new Date() : null,
+        privacyAccepted: agreements.privacyAccepted || false,
+        privacyAcceptedDate: agreements.privacyAccepted ? new Date() : null,
+      }
+    }
+
+    console.log("👤 Creating user with data:", {
+      name: userData.name,
+      email: userData.email,
+      userType: userData.userType,
+      hasPassword: !!userData.password,
+      passwordLength: userData.password?.length,
     })
 
-    // Set HTTP-only cookie
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    })
+    // Create user (skip pre-save middleware by setting password directly)
+    const user = new User(userData)
 
-    return response
+    // Save without triggering pre-save middleware again
+    const savedUser = await user.save()
+    console.log("✅ User created successfully:", savedUser.email)
+
+    // Test password immediately after creation
+    console.log("🧪 Testing password immediately after creation...")
+    const testUser = await User.findById(savedUser._id).select("+password")
+    console.log("🔍 Retrieved user has password:", !!testUser.password)
+    console.log("🔍 Retrieved password length:", testUser.password?.length)
+
+    const testComparison = await bcrypt.compare(password, testUser.password)
+    console.log("🧪 Immediate password test result:", testComparison)
+
+    // Prepare response data (exclude password)
+    const responseUser = {
+      _id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+      userType: savedUser.userType,
+      isVerified: savedUser.isVerified,
+      isActive: savedUser.isActive,
+      points: savedUser.points,
+      membership: savedUser.membership,
+    }
+
+    console.log("🎉 Registration completed successfully for:", email)
+
+    return NextResponse.json(
+      {
+        message: "User registered successfully",
+        user: responseUser,
+      },
+      { status: 201 },
+    )
   } catch (error) {
-    console.error("Registration error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("❌ Registration error:", error)
+    console.error("❌ Error stack:", error.stack)
+    return NextResponse.json(
+      {
+        error: "Registration failed",
+        details: error.message,
+      },
+      { status: 500 },
+    )
   }
 }

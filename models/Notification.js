@@ -23,6 +23,8 @@ const NotificationSchema = new mongoose.Schema(
         "new_follower",
         "commission_request",
         "system_announcement",
+        "donation_received",
+        "commission_completed"
       ],
       required: true,
     },
