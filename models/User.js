@@ -1,63 +1,79 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
+import mongoose from "mongoose"
+import bcrypt from "bcryptjs"
 
-const UserSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
-    // Basic Information
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true,
+      maxlength: [100, "Name cannot exceed 100 characters"],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
     },
     password: {
       type: String,
-      required: true,
-      minlength: 6,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
     },
-
-    // User Type & Role
     userType: {
       type: String,
+      required: [true, "User type is required"],
       enum: ["artist", "patron", "church", "admin"],
-      required: true,
+      default: "patron",
     },
-
-    // Profile Information
-    profileImage: {
-      type: String,
-      default: null,
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     bio: {
       type: String,
-      maxlength: 500,
+      maxlength: [500, "Bio cannot exceed 500 characters"],
+    },
+    profileImage: {
+      type: String,
+      default: "",
     },
     location: {
       city: String,
       state: String,
       country: String,
-    },
-
-    // Contact Information
-    phone: String,
-    website: String,
-    socialMedia: {
-      instagram: String,
-      facebook: String,
-      twitter: String,
+      coordinates: {
+        lat: Number,
+        lng: Number,
+      },
     },
 
     // Artist-specific fields
     artistInfo: {
       specialties: [String],
-      experience: String,
-      portfolio: [String], // Cloudinary URLs
+      experience: {
+        type: String,
+        enum: ["beginner", "intermediate", "advanced", "professional"],
+      },
+      portfolio: [
+        {
+          title: String,
+          description: String,
+          imageUrl: String,
+          category: String,
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
       commissionRates: {
         hourly: Number,
         project: Number,
@@ -84,26 +100,41 @@ const UserSchema = new mongoose.Schema(
       artsMinistryContact: String,
     },
 
-    // Points & Gamification
+    // Points and gamification
     points: {
-      current: { type: Number, default: 0 },
-      total: { type: Number, default: 0 },
-      level: { type: String, default: "bronze" },
+      current: {
+        type: Number,
+        default: 0,
+      },
+      total: {
+        type: Number,
+        default: 0,
+      },
+      level: {
+        type: String,
+        enum: ["bronze", "silver", "gold", "platinum", "diamond"],
+        default: "bronze",
+      },
     },
 
-    // Membership & Subscription
+    // Membership and subscription
     membership: {
       tier: {
         type: String,
         enum: ["free", "bronze", "silver", "gold", "platinum", "diamond"],
         default: "free",
       },
+      subscriptionStatus: {
+        type: String,
+        enum: ["active", "inactive", "cancelled", "expired"],
+        default: "inactive",
+      },
       subscriptionId: String,
-      subscriptionStatus: String,
-      subscriptionExpiry: Date,
+      subscriptionStartDate: Date,
+      subscriptionEndDate: Date,
     },
 
-    // Helper Program
+    // Helper system
     isHelper: {
       type: Boolean,
       default: false,
@@ -114,68 +145,108 @@ const UserSchema = new mongoose.Schema(
         days: [String],
         hours: String,
       },
-      radius: Number, // miles willing to travel
+      radius: Number,
       rating: {
-        average: { type: Number, default: 0 },
-        count: { type: Number, default: 0 },
+        average: {
+          type: Number,
+          default: 0,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
       },
     },
 
-    // Account Status
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verificationToken: String,
-
-    // Password Reset
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-
-    // Agreements & Disclaimers
+    // Legal agreements
     agreements: {
-      termsAccepted: { type: Boolean, default: false },
+      termsAccepted: {
+        type: Boolean,
+        default: false,
+      },
       termsAcceptedDate: Date,
-      artistDisclaimer: { type: Boolean, default: false },
+      privacyAccepted: {
+        type: Boolean,
+        default: false,
+      },
+      privacyAcceptedDate: Date,
+      artistDisclaimer: {
+        type: Boolean,
+        default: false,
+      },
       artistDisclaimerDate: Date,
-      helperAgreement: { type: Boolean, default: false },
+      helperAgreement: {
+        type: Boolean,
+        default: false,
+      },
       helperAgreementDate: Date,
-      noAIConfirmation: { type: Boolean, default: false },
+      noAIConfirmation: {
+        type: Boolean,
+        default: false,
+      },
       noAIConfirmationDate: Date,
     },
 
-    // Tracking
-    lastLogin: Date,
-    loginCount: { type: Number, default: 0 },
-    ipAddress: String,
+    // Email verification
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
 
-    // Notifications
+    // Password reset
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+
+    // Social connections
+    socialLinks: {
+      website: String,
+      instagram: String,
+      facebook: String,
+      twitter: String,
+      linkedin: String,
+    },
+
+    // Notifications preferences
     notifications: {
-      email: { type: Boolean, default: true },
-      push: { type: Boolean, default: true },
-      marketing: { type: Boolean, default: false },
+      email: {
+        type: Boolean,
+        default: true,
+      },
+      push: {
+        type: Boolean,
+        default: true,
+      },
+      marketing: {
+        type: Boolean,
+        default: false,
+      },
+    },
+
+    // Activity tracking
+    lastLogin: Date,
+    loginCount: {
+      type: Number,
+      default: 0,
     },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 )
 
-// Indexes
-UserSchema.index({ email: 1 })
-UserSchema.index({ userType: 1 })
-UserSchema.index({ "points.level": 1 })
-UserSchema.index({ isActive: 1 })
+// Indexes for better performance
+userSchema.index({ email: 1 })
+userSchema.index({ userType: 1 })
+userSchema.index({ isActive: 1 })
+userSchema.index({ "location.coordinates": "2dsphere" })
 
-// Hash password before saving
-UserSchema.pre("save", async function (next) {
+// Pre-save middleware to hash password
+userSchema.pre("save", async function (next) {
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) return next()
 
   try {
+    // Hash password with cost of 12
     const salt = await bcrypt.genSalt(12)
     this.password = await bcrypt.hash(this.password, salt)
     next()
@@ -184,24 +255,27 @@ UserSchema.pre("save", async function (next) {
   }
 })
 
-// Compare password method
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password)
+// Method to compare password
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password)
+  } catch (error) {
+    throw error
+  }
 }
 
-// Generate verification token
-UserSchema.methods.generateVerificationToken = function () {
-  const crypto = require("crypto")
-  this.verificationToken = crypto.randomBytes(32).toString("hex")
-  return this.verificationToken
+// Method to update last login
+userSchema.methods.updateLastLogin = function () {
+  this.lastLogin = new Date()
+  this.loginCount += 1
+  return this.save()
 }
 
-// Generate password reset token
-UserSchema.methods.generatePasswordResetToken = function () {
-  const crypto = require("crypto")
-  this.resetPasswordToken = crypto.randomBytes(32).toString("hex")
-  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000 // 10 minutes
-  return this.resetPasswordToken
-}
+// Virtual for full name (if needed)
+userSchema.virtual("displayName").get(function () {
+  return this.name || this.email
+})
 
-module.exports = mongoose.models.User || mongoose.model("User", UserSchema)
+// Export model
+const User = mongoose.models.User || mongoose.model("User", userSchema)
+export default User

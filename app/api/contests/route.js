@@ -1,33 +1,33 @@
-import { NextResponse } from "next/request"
+import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Contest from "@/models/Contest"
-import User from "@/models/User"
-import { verifyToken } from "@/lib/auth"
+import { getServerSession } from "@/lib/auth"
 
 export async function GET(request) {
   try {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get("status")
     const page = Number.parseInt(searchParams.get("page")) || 1
     const limit = Number.parseInt(searchParams.get("limit")) || 10
+    const status = searchParams.get("status")
+    const featured = searchParams.get("featured")
+
+    const filter = {}
+    if (status && status !== "all") filter.status = status
+    if (featured === "true") filter.featured = true
+
     const skip = (page - 1) * limit
 
-    // Build query
-    const query = {}
-    if (status) {
-      query.status = status
-    }
-
-    const contests = await Contest.find(query)
+    const contests = await Contest.find(filter)
       .populate("createdBy", "name email")
-      .populate("submissions.artistId", "name email profile.portfolio")
+      .populate("submissions.artistId", "name email profileImage")
+      .populate("submissions.artworkId", "title images")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
 
-    const total = await Contest.countDocuments(query)
+    const total = await Contest.countDocuments(filter)
 
     return NextResponse.json({
       contests,
@@ -39,65 +39,56 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error("Contests fetch error:", error)
-    return NextResponse.json({ error: "Failed to fetch contests" }, { status: 500 })
+    console.error("Contests API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function POST(request) {
   try {
-    await connectDB()
+    const session = await getServerSession()
 
-    const token = request.headers.get("authorization")?.replace("Bearer ", "") || request.cookies.get("token")?.value
-
-    if (!token) {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const decoded = verifyToken(token)
-    const user = await User.findById(decoded.userId)
+    await connectDB()
 
-    if (!user || (user.role !== "admin" && user.role !== "church")) {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
-    }
+    const { contestId, artworkId, action } = await request.json()
 
-    const contestData = await request.json()
-
-    // Validate required fields
-    const requiredFields = ["title", "description", "startDate", "endDate", "votingEndDate"]
-    for (const field of requiredFields) {
-      if (!contestData[field]) {
-        return NextResponse.json({ error: `${field} is required` }, { status: 400 })
+    if (action === "submit") {
+      const contest = await Contest.findById(contestId)
+      if (!contest) {
+        return NextResponse.json({ error: "Contest not found" }, { status: 404 })
       }
+
+      if (contest.status !== "active") {
+        return NextResponse.json({ error: "Contest is not accepting submissions" }, { status: 400 })
+      }
+
+      // Check if user already submitted max entries
+      const userSubmissions = contest.submissions.filter((sub) => sub.artistId.toString() === session.userId)
+
+      if (userSubmissions.length >= contest.maxSubmissions) {
+        return NextResponse.json(
+          {
+            error: `Maximum ${contest.maxSubmissions} submissions allowed`,
+          },
+          { status: 400 },
+        )
+      }
+
+      // Add submission
+      await contest.addSubmission(session.userId, artworkId)
+
+      return NextResponse.json({
+        message: "Artwork submitted to contest successfully",
+      })
     }
 
-    // Validate dates
-    const startDate = new Date(contestData.startDate)
-    const endDate = new Date(contestData.endDate)
-    const votingEndDate = new Date(contestData.votingEndDate)
-
-    if (startDate >= endDate) {
-      return NextResponse.json({ error: "End date must be after start date" }, { status: 400 })
-    }
-
-    if (endDate >= votingEndDate) {
-      return NextResponse.json({ error: "Voting end date must be after submission end date" }, { status: 400 })
-    }
-
-    const contest = new Contest({
-      ...contestData,
-      createdBy: user._id,
-      status: "active",
-    })
-
-    await contest.save()
-
-    // Populate creator info for response
-    await contest.populate("createdBy", "name email")
-
-    return NextResponse.json(contest, { status: 201 })
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 })
   } catch (error) {
-    console.error("Contest creation error:", error)
-    return NextResponse.json({ error: "Failed to create contest" }, { status: 500 })
+    console.error("Contest submission error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

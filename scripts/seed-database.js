@@ -1,28 +1,39 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
+import dotenv from "dotenv"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
 
-// Import models using require for Node.js compatibility
-const connectDB = require("../lib/database.js")
-const User = require("../models/User.js")
+// Load environment variables
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+dotenv.config({ path: join(__dirname, "../.env.local") })
+import connectDB from "../lib/database.js"
+import User from "../models/User.js"
 
 async function seedDatabase() {
   try {
     console.log("🔄 Starting database seeding...")
+    console.log("📍 MongoDB URI:", process.env.MONGODB_URI ? "✅ Found" : "❌ Missing")
 
     // Connect to database
     await connectDB()
     console.log("✅ Connected to MongoDB")
 
     // Clear existing users (optional - comment out in production)
-    await User.deleteMany({})
-    console.log("🧹 Cleared existing users")
+    const existingUsers = await User.countDocuments()
+    console.log(`📊 Found ${existingUsers} existing users`)
+
+    if (existingUsers > 0) {
+      console.log("🧹 Clearing existing users...")
+      await User.deleteMany({})
+      console.log("✅ Cleared existing users")
+    }
 
     // Create Admin User
-    const adminPassword = await bcrypt.hash("AdminPass123!", 12)
+    console.log("👑 Creating admin user...")
     const admin = new User({
       name: "Admin User",
       email: "admin@redeemedcreativearts.com",
-      password: adminPassword,
+      password: "AdminPass123!",
       userType: "admin",
       isVerified: true,
       isActive: true,
@@ -40,15 +51,16 @@ async function seedDatabase() {
         termsAcceptedDate: new Date(),
       },
     })
-    await admin.save()
-    console.log("👑 Created admin user")
+
+    const savedAdmin = await admin.save()
+    console.log("✅ Created admin user:", savedAdmin.email)
 
     // Create Test Artist
-    const artistPassword = await bcrypt.hash("Artist123!", 12)
+    console.log("🎨 Creating test artist...")
     const artist = new User({
       name: "Sarah Johnson",
       email: "artist@example.com",
-      password: artistPassword,
+      password: "Artist123!",
       userType: "artist",
       isVerified: true,
       isActive: true,
@@ -101,15 +113,15 @@ async function seedDatabase() {
         noAIConfirmationDate: new Date(),
       },
     })
-    await artist.save()
-    console.log("🎨 Created test artist")
+    const savedArtist = await artist.save()
+    console.log("✅ Created test artist:", savedArtist.email)
 
     // Create Test Patron
-    const patronPassword = await bcrypt.hash("Patron123!", 12)
+    console.log("💝 Creating test patron...")
     const patron = new User({
       name: "Michael Davis",
       email: "patron@example.com",
-      password: patronPassword,
+      password: "Patron123!",
       userType: "patron",
       isVerified: true,
       isActive: true,
@@ -148,15 +160,15 @@ async function seedDatabase() {
         helperAgreementDate: new Date(),
       },
     })
-    await patron.save()
-    console.log("💝 Created test patron")
+    const savedPatron = await patron.save()
+    console.log("✅ Created test patron:", savedPatron.email)
 
     // Create Test Church
-    const churchPassword = await bcrypt.hash("Church123!", 12)
+    console.log("⛪ Creating test church...")
     const church = new User({
       name: "Grace Community Church",
       email: "church@example.com",
-      password: churchPassword,
+      password: "Church123!",
       userType: "church",
       isVerified: true,
       isActive: true,
@@ -193,8 +205,12 @@ async function seedDatabase() {
         termsAcceptedDate: new Date(),
       },
     })
-    await church.save()
-    console.log("⛪ Created test church")
+    const savedChurch = await church.save()
+    console.log("✅ Created test church:", savedChurch.email)
+
+    // Verify all users were created
+    const totalUsers = await User.countDocuments()
+    console.log(`📊 Total users created: ${totalUsers}`)
 
     console.log("\n🎉 DATABASE SEEDING COMPLETED SUCCESSFULLY!")
     console.log("\n🔑 LOGIN CREDENTIALS:")
@@ -219,6 +235,7 @@ async function seedDatabase() {
     process.exit(0)
   } catch (error) {
     console.error("❌ SEEDING FAILED:", error)
+    console.error("Stack trace:", error.stack)
     process.exit(1)
   }
 }

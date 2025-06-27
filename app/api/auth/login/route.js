@@ -1,37 +1,49 @@
 import { NextResponse } from "next/server"
-import connectDB from "@/lib/database"
-import User from "@/models/User"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import connectDB from "@/lib/database"
+import User from "@/models/User"
 
 export async function POST(request) {
   try {
-    await connectDB()
+    console.log("🔐 Login attempt started")
 
-    const body = await request.json()
-    const { email, password } = body
+    const { email, password } = await request.json()
 
-    // Validation
     if (!email || !password) {
+      console.log("❌ Missing email or password")
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() })
+    // Connect to database
+    await connectDB()
+    console.log("✅ Database connected for login")
+
+    // Find user by email and include password field
+    const user = await User.findOne({ email: email.toLowerCase() }).select("+password")
+
     if (!user) {
+      console.log("❌ User not found:", email)
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
     }
 
-    // Check if account is active
+    console.log("👤 User found:", user.email, "Type:", user.userType)
+
+    // Check if user is active
     if (!user.isActive) {
-      return NextResponse.json({ error: "Account is deactivated" }, { status: 401 })
+      console.log("❌ User account is inactive")
+      return NextResponse.json({ error: "Account is inactive. Please contact support." }, { status: 401 })
     }
 
-    // Check password
+    // Compare password using bcrypt directly
     const isPasswordValid = await bcrypt.compare(password, user.password)
+
     if (!isPasswordValid) {
+      console.log("❌ Invalid password for user:", email)
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
     }
+
+    console.log("✅ Password validated successfully")
 
     // Update login tracking and award points
     const today = new Date().toDateString()
@@ -53,7 +65,7 @@ export async function POST(request) {
     user.loginCount = (user.loginCount || 0) + 1
     await user.save()
 
-    // Generate JWT token
+    // Create JWT token
     const token = jwt.sign(
       {
         userId: user._id,
@@ -61,27 +73,34 @@ export async function POST(request) {
         userType: user.userType,
         name: user.name,
       },
-      process.env.JWT_SECRET || "fallback-secret-key-change-in-production",
+      process.env.JWT_SECRET,
       { expiresIn: "7d" },
     )
 
-    // Remove password from response
-    const userResponse = {
+    // Prepare user data (exclude password)
+    const userData = {
       _id: user._id,
       name: user.name,
       email: user.email,
       userType: user.userType,
+      isVerified: user.isVerified,
+      isActive: user.isActive,
       points: user.points,
       membership: user.membership,
-      isVerified: user.isVerified,
+      bio: user.bio,
+      location: user.location,
       artistInfo: user.artistInfo,
       churchInfo: user.churchInfo,
       isHelper: user.isHelper,
+      helperInfo: user.helperInfo,
     }
 
+    console.log("🎉 Login successful for:", email)
+
+    // Create response with token in cookie
     const response = NextResponse.json({
       message: "Login successful",
-      user: userResponse,
+      user: userData,
       token,
     })
 
@@ -96,7 +115,13 @@ export async function POST(request) {
 
     return response
   } catch (error) {
-    console.error("Login error:", error)
-    return NextResponse.json({ error: "Login failed" }, { status: 500 })
+    console.error("❌ Login error:", error)
+    return NextResponse.json(
+      {
+        error: "Login failed",
+        details: error.message,
+      },
+      { status: 500 },
+    )
   }
 }

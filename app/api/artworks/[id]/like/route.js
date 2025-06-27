@@ -3,81 +3,92 @@ import connectDB from "@/lib/database"
 import Artwork from "@/models/Artwork"
 import Vote from "@/models/Vote"
 import User from "@/models/User"
-import { withAuth } from "@/lib/middleware"
+import Notification from "@/models/Notification"
+import { getServerSession } from "@/lib/auth"
 
-export const POST = withAuth(async (request, { params }) => {
+export async function POST(request, { params }) {
   try {
+    const session = await getServerSession()
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     await connectDB()
 
     const artworkId = params.id
-    const userId = request.user.userId
 
-    // Check if artwork exists
-    const artwork = await Artwork.findById(artworkId)
+    const artwork = await Artwork.findById(artworkId).populate("artist")
     if (!artwork) {
       return NextResponse.json({ error: "Artwork not found" }, { status: 404 })
     }
 
     // Check if user already liked this artwork
     const existingVote = await Vote.findOne({
-      voter: userId,
+      voter: session.userId,
       targetId: artworkId,
       voteType: "like",
     })
 
+    let liked = false
+    let message = ""
+
     if (existingVote) {
-      // Unlike - remove vote
-      await Vote.findByIdAndDelete(existingVote._id)
-      await Artwork.findByIdAndUpdate(artworkId, {
-        $inc: { "engagement.likes": -1 },
-      })
-
-      return NextResponse.json({
-        message: "Artwork unliked",
-        liked: false,
-        likes: artwork.engagement.likes - 1,
-      })
+      // Unlike
+      await Vote.deleteOne({ _id: existingVote._id })
+      await artwork.toggleLike(false)
+      message = "Artwork unliked"
     } else {
-      // Like - create vote
+      // Like
       const vote = new Vote({
-        voter: userId,
-        targetId: artworkId,
+        voter: session.userId,
         targetType: "artwork",
+        targetId: artworkId,
         voteType: "like",
-        ipAddress: request.headers.get("x-forwarded-for") || "unknown",
       })
-
       await vote.save()
+      await artwork.toggleLike(true)
+      liked = true
+      message = "Artwork liked"
 
-      // Update artwork likes count
-      const updatedArtwork = await Artwork.findByIdAndUpdate(
-        artworkId,
-        { $inc: { "engagement.likes": 1 } },
-        { new: true },
-      )
-
-      // Award points to artwork owner
-      const artist = await User.findById(artwork.artist)
-      if (artist) {
-        const pointsToAward = 5 // Points for receiving a like
-        artist.points.current += pointsToAward
-        artist.points.total += pointsToAward
-        await artist.save()
-
-        // Update artwork points
-        await Artwork.findByIdAndUpdate(artworkId, {
-          $inc: { "pointsEarned.engagement": pointsToAward, "pointsEarned.total": pointsToAward },
-        })
+      // Award points to voter
+      const voter = await User.findById(session.userId)
+      if (voter) {
+        voter.points.current += 1
+        voter.points.total += 1
+        await voter.save()
       }
 
-      return NextResponse.json({
-        message: "Artwork liked",
-        liked: true,
-        likes: updatedArtwork.engagement.likes,
-      })
+      // Award points to artist
+      const artist = await User.findById(artwork.artist._id)
+      if (artist) {
+        artist.points.current += 2
+        artist.points.total += 2
+        await artist.save()
+      }
+
+      // Create notification for artist (if not self-like)
+      if (session.userId !== artwork.artist._id.toString()) {
+        const notification = new Notification({
+          recipient: artwork.artist._id,
+          type: "artwork_liked",
+          title: "Your artwork was liked!",
+          message: `Someone liked your artwork "${artwork.title}"`,
+          relatedUser: session.userId,
+          relatedArtwork: artworkId,
+          priority: "low",
+        })
+        await notification.save()
+      }
     }
+
+    return NextResponse.json({
+      message,
+      liked,
+      likes: artwork.engagement.likes,
+    })
   } catch (error) {
-    console.error("Like artwork error:", error)
-    return NextResponse.json({ error: "Failed to like artwork" }, { status: 500 })
+    console.error("Artwork like error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-})
+}
