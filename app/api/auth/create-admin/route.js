@@ -1,64 +1,96 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
+import { hashPassword, isValidEmail, isValidPassword } from "@/lib/auth"
 
 export async function POST(request) {
   try {
-    const { email, password, name, secretKey } = await request.json()
+    console.log("🔐 Admin creation attempt started")
 
-    // Check secret key for security
-    if (secretKey !== "CREATE_ADMIN_SECRET_2024") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const { name, email, password, adminKey } = await request.json()
+
+    // Check admin key (you should set this in your environment variables)
+    if (adminKey !== process.env.ADMIN_CREATION_KEY) {
+      return NextResponse.json({ error: "Invalid admin key" }, { status: 403 })
     }
 
-    if (!email || !password || !name) {
-      return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
+    // Validation
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 })
     }
 
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 })
+    }
+
+    if (!isValidPassword(password)) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters with uppercase, lowercase, and number" },
+        { status: 400 },
+      )
+    }
+
+    // Connect to database
     await connectDB()
 
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: email.toLowerCase() })
-    if (existingAdmin) {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() })
+    if (existingUser) {
       return NextResponse.json({ error: "User with this email already exists" }, { status: 400 })
     }
 
+    // Hash password
+    const hashedPassword = await hashPassword(password)
+
     // Create admin user
-    const admin = new User({
-      name,
-      email: email.toLowerCase(),
-      password,
+    const adminUser = new User({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
       userType: "admin",
       isVerified: true,
       isActive: true,
       points: {
-        current: 10000,
-        total: 10000,
+        current: 1000,
+        total: 1000,
         level: "diamond",
       },
       membership: {
-        tier: "diamond",
+        tier: "premium",
         subscriptionStatus: "active",
       },
       agreements: {
         termsAccepted: true,
         termsAcceptedDate: new Date(),
+        privacyAccepted: true,
+        privacyAcceptedDate: new Date(),
       },
     })
 
-    await admin.save()
+    await adminUser.save()
 
-    return NextResponse.json({
-      message: "Admin user created successfully",
-      user: {
-        _id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        userType: admin.userType,
+    console.log("✅ Admin user created successfully:", adminUser.email)
+
+    return NextResponse.json(
+      {
+        message: "Admin user created successfully",
+        user: {
+          _id: adminUser._id,
+          name: adminUser.name,
+          email: adminUser.email,
+          userType: adminUser.userType,
+        },
       },
-    })
+      { status: 201 },
+    )
   } catch (error) {
-    console.error("Create admin error:", error)
-    return NextResponse.json({ error: "Failed to create admin user" }, { status: 500 })
+    console.error("❌ Admin creation error:", error)
+    return NextResponse.json(
+      {
+        error: "Admin creation failed",
+        details: process.env.NODE_ENV === "development" ? error.message : undefined,
+      },
+      { status: 500 },
+    )
   }
 }

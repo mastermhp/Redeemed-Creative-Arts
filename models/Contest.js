@@ -2,7 +2,6 @@ import mongoose from "mongoose"
 
 const ContestSchema = new mongoose.Schema(
   {
-    // Basic Information
     title: {
       type: String,
       required: true,
@@ -12,8 +11,11 @@ const ContestSchema = new mongoose.Schema(
       required: true,
     },
     theme: String,
-
-    // Dates
+    organizer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     startDate: {
       type: Date,
       required: true,
@@ -23,66 +25,86 @@ const ContestSchema = new mongoose.Schema(
       required: true,
     },
     votingEndDate: Date,
-
-    // Rules & Requirements
-    rules: [String],
-    eligibility: {
-      userTypes: [String],
-      membershipTiers: [String],
-      minPoints: Number,
-    },
-
-    // Prizes
-    prizes: [
-      {
-        rank: Number,
-        title: String,
-        description: String,
-        value: Number,
-        points: Number,
-      },
-    ],
-
-    // Submissions
-    submissions: [
-      {
-        artwork: { type: mongoose.Schema.Types.ObjectId, ref: "Artwork" },
-        artist: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        submissionDate: Date,
-        votes: { type: Number, default: 0 },
-        rank: Number,
-      },
-    ],
-
-    // Status
     status: {
       type: String,
-      enum: ["draft", "active", "voting", "completed", "cancelled"],
-      default: "draft",
+      enum: ["upcoming", "active", "voting", "completed", "cancelled"],
+      default: "upcoming",
     },
-
-    // Voting
-    votingEnabled: { type: Boolean, default: true },
-    maxVotesPerUser: { type: Number, default: 1 },
-
-    // Featured
-    isFeatured: { type: Boolean, default: false },
-
-    // Organizer
-    organizer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    maxSubmissions: {
+      type: Number,
+      default: 1,
     },
+    entryFee: {
+      type: Number,
+      default: 0,
+    },
+    prizes: [
+      {
+        position: Number,
+        amount: Number,
+        description: String,
+      },
+    ],
+    rules: [String],
+    categories: [String],
+    submissions: [
+      {
+        artist: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        artwork: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Artwork",
+        },
+        submissionDate: {
+          type: Date,
+          default: Date.now,
+        },
+        votes: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+    totalVotes: {
+      type: Number,
+      default: 0,
+    },
+    winners: [
+      {
+        position: Number,
+        artist: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        artwork: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Artwork",
+        },
+        votes: Number,
+      },
+    ],
   },
   {
     timestamps: true,
   },
 )
 
-// Indexes
-ContestSchema.index({ status: 1 })
-ContestSchema.index({ startDate: 1, endDate: 1 })
-ContestSchema.index({ isFeatured: 1 })
+// Update contest status based on dates
+ContestSchema.methods.updateStatus = function () {
+  const now = new Date()
+
+  if (now < this.startDate) {
+    this.status = "upcoming"
+  } else if (now >= this.startDate && now < this.endDate) {
+    this.status = "active"
+  } else if (this.votingEndDate && now >= this.endDate && now < this.votingEndDate) {
+    this.status = "voting"
+  } else {
+    this.status = "completed"
+  }
+}
 
 export default mongoose.models.Contest || mongoose.model("Contest", ContestSchema)

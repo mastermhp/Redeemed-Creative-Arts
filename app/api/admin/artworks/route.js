@@ -1,42 +1,37 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Artwork from "@/models/Artwork"
-import User from "@/models/User"
-import { getServerSession } from "@/lib/auth"
 
 export async function GET(request) {
   try {
-    const session = await getServerSession()
-
-    if (!session || session.userType !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
     const { searchParams } = new URL(request.url)
     const page = Number.parseInt(searchParams.get("page")) || 1
     const limit = Number.parseInt(searchParams.get("limit")) || 10
-    const status = searchParams.get("status")
-    const category = searchParams.get("category")
-    const search = searchParams.get("search")
-
-    // Build filter
-    const filter = {}
-    if (status && status !== "all") filter.status = status
-    if (category && category !== "all") filter.category = category
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $in: [new RegExp(search, "i")] } },
-      ]
-    }
+    const search = searchParams.get("search") || ""
+    const status = searchParams.get("status") || ""
+    const category = searchParams.get("category") || ""
 
     const skip = (page - 1) * limit
 
+    // Build filter query
+    const filter = {}
+
+    if (search) {
+      filter.$or = [{ title: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }]
+    }
+
+    if (status) {
+      filter.status = status
+    }
+
+    if (category) {
+      filter.category = category
+    }
+
     const artworks = await Artwork.find(filter)
-      .populate("artist", "name email userType")
+      .populate("artist", "name email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -53,67 +48,35 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error("Admin artworks API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error fetching artworks:", error)
+    return NextResponse.json({ error: "Failed to fetch artworks" }, { status: 500 })
   }
 }
 
-export async function PATCH(request) {
+export async function POST(request) {
   try {
-    const session = await getServerSession()
-
-    if (!session || session.userType !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
-    const { artworkId, action, data } = await request.json()
+    const body = await request.json()
+    const { title, description, category, imageUrl, artist, price, status = "pending" } = body
 
-    const artwork = await Artwork.findById(artworkId).populate("artist")
-    if (!artwork) {
-      return NextResponse.json({ error: "Artwork not found" }, { status: 404 })
-    }
-
-    switch (action) {
-      case "approve":
-        artwork.status = "approved"
-        // Award points to artist
-        const artist = await User.findById(artwork.artist._id)
-        if (artist) {
-          artist.points.current += 50 // Approval bonus
-          artist.points.total += 50
-          await artist.save()
-        }
-        break
-      case "reject":
-        artwork.status = "rejected"
-        break
-      case "feature":
-        artwork.isFeatured = true
-        artwork.pointsEarned.featured = 100
-        artwork.pointsEarned.total += 100
-        break
-      case "unfeature":
-        artwork.isFeatured = false
-        artwork.pointsEarned.featured = 0
-        artwork.pointsEarned.total -= 100
-        break
-      case "archive":
-        artwork.status = "archived"
-        break
-      default:
-        return NextResponse.json({ error: "Invalid action" }, { status: 400 })
-    }
+    const artwork = new Artwork({
+      title,
+      description,
+      category,
+      imageUrl,
+      artist,
+      price,
+      status,
+      createdAt: new Date(),
+    })
 
     await artwork.save()
+    await artwork.populate("artist", "name email")
 
-    return NextResponse.json({
-      message: "Artwork updated successfully",
-      artwork,
-    })
+    return NextResponse.json(artwork, { status: 201 })
   } catch (error) {
-    console.error("Admin artwork update error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error creating artwork:", error)
+    return NextResponse.json({ error: "Failed to create artwork" }, { status: 500 })
   }
 }

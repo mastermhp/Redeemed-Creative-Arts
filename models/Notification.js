@@ -1,34 +1,26 @@
 import mongoose from "mongoose"
 
-const NotificationSchema = new mongoose.Schema(
+const notificationSchema = new mongoose.Schema(
   {
-    // Recipient
     recipient: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String, // Changed from ObjectId to String to allow "admin"
       required: true,
     },
-
-    // Notification Details
     type: {
       type: String,
-      enum: [
-        "artwork_liked",
-        "artwork_commented",
-        "artwork_sold",
-        "contest_entry",
-        "contest_winner",
-        "points_earned",
-        "level_up",
-        "new_follower",
-        "commission_request",
-        "system_announcement",
-        "donation_received",
-        "commission_completed"
-      ],
       required: true,
+      enum: [
+        "artwork_submitted",
+        "artwork_approved",
+        "artwork_rejected",
+        "contest_entry",
+        "donation_received",
+        "event_created",
+        "course_created",
+        "product_created",
+        "general",
+      ],
     },
-
     title: {
       type: String,
       required: true,
@@ -37,40 +29,13 @@ const NotificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    // Related Data
-    relatedUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    data: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
-    relatedArtwork: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Artwork",
-    },
-    relatedContest: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Contest",
-    },
-
-    // Status
     isRead: {
       type: Boolean,
       default: false,
-    },
-    readAt: Date,
-
-    // Delivery
-    channels: {
-      inApp: { type: Boolean, default: true },
-      email: { type: Boolean, default: false },
-      push: { type: Boolean, default: false },
-    },
-
-    // Priority
-    priority: {
-      type: String,
-      enum: ["low", "medium", "high", "urgent"],
-      default: "medium",
     },
   },
   {
@@ -78,8 +43,8 @@ const NotificationSchema = new mongoose.Schema(
   },
 )
 
-// Indexes
-NotificationSchema.index({ recipient: 1, isRead: 1 })
-NotificationSchema.index({ createdAt: -1 })
+// Index for better query performance
+notificationSchema.index({ recipient: 1, isRead: 1 })
+notificationSchema.index({ createdAt: -1 })
 
-export default mongoose.models.Notification || mongoose.model("Notification", NotificationSchema)
+export default mongoose.models.Notification || mongoose.model("Notification", notificationSchema)

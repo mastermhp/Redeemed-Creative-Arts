@@ -1,37 +1,38 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
-import { getServerSession } from "@/lib/auth"
 
 export async function GET(request) {
   try {
-    const session = await getServerSession()
-
-    if (!session || session.userType !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
     const { searchParams } = new URL(request.url)
     const page = Number.parseInt(searchParams.get("page")) || 1
     const limit = Number.parseInt(searchParams.get("limit")) || 10
-    const userType = searchParams.get("userType")
-    const status = searchParams.get("status")
-    const search = searchParams.get("search")
+    const search = searchParams.get("search") || ""
+    const userType = searchParams.get("userType") || ""
+    const status = searchParams.get("status") || ""
 
-    // Build filter
+    const skip = (page - 1) * limit
+
+    // Build filter query
     const filter = {}
-    if (userType && userType !== "all") filter.userType = userType
-    if (status === "active") filter.isActive = true
-    if (status === "inactive") filter.isActive = false
-    if (status === "verified") filter.isVerified = true
-    if (status === "unverified") filter.isVerified = false
+
     if (search) {
       filter.$or = [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }]
     }
 
-    const skip = (page - 1) * limit
+    if (userType) {
+      filter.userType = userType
+    }
+
+    if (status) {
+      if (status === "active") {
+        filter.isActive = true
+      } else if (status === "banned") {
+        filter.isBanned = true
+      }
+    }
 
     const users = await User.find(filter).select("-password").sort({ createdAt: -1 }).skip(skip).limit(limit)
 
@@ -47,69 +48,42 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error("Admin users API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error fetching users:", error)
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 })
   }
 }
 
-export async function PATCH(request) {
+export async function POST(request) {
   try {
-    const session = await getServerSession()
-
-    if (!session || session.userType !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
-    const { userId, action, data } = await request.json()
+    const body = await request.json()
+    const { name, email, userType, password } = body
 
-    const user = await User.findById(userId)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    // Check if user already exists
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 400 })
     }
 
-    switch (action) {
-      case "activate":
-        user.isActive = true
-        break
-      case "deactivate":
-        user.isActive = false
-        break
-      case "verify":
-        user.isVerified = true
-        break
-      case "unverify":
-        user.isVerified = false
-        break
-      case "updateTier":
-        user.membership.tier = data.tier
-        break
-      case "addPoints":
-        user.points.current += data.points
-        user.points.total += data.points
-        break
-      default:
-        return NextResponse.json({ error: "Invalid action" }, { status: 400 })
-    }
+    const user = new User({
+      name,
+      email,
+      userType,
+      password, // Will be hashed by the model
+      isActive: true,
+      emailVerified: true,
+    })
 
     await user.save()
 
-    return NextResponse.json({
-      message: "User updated successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        userType: user.userType,
-        isActive: user.isActive,
-        isVerified: user.isVerified,
-        points: user.points,
-        membership: user.membership,
-      },
-    })
+    // Remove password from response
+    const userResponse = user.toObject()
+    delete userResponse.password
+
+    return NextResponse.json(userResponse, { status: 201 })
   } catch (error) {
-    console.error("Admin user update error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error creating user:", error)
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
   }
 }

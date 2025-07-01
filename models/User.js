@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
 const userSchema = new mongoose.Schema(
   {
@@ -28,6 +28,32 @@ const userSchema = new mongoose.Schema(
       required: [true, "User type is required"],
       enum: ["artist", "patron", "church", "admin"],
       default: "patron",
+    },
+    profile: {
+      bio: String,
+      avatar: String,
+      website: String,
+      socialLinks: {
+        instagram: String,
+        facebook: String,
+        twitter: String,
+        linkedin: String,
+      },
+    },
+    points: {
+      current: {
+        type: Number,
+        default: 0,
+      },
+      total: {
+        type: Number,
+        default: 0,
+      },
+      level: {
+        type: String,
+        enum: ["bronze", "silver", "gold", "platinum", "diamond"],
+        default: "bronze",
+      },
     },
     isVerified: {
       type: Boolean,
@@ -98,23 +124,6 @@ const userSchema = new mongoose.Schema(
       },
       pastor: String,
       artsMinistryContact: String,
-    },
-
-    // Points and gamification
-    points: {
-      current: {
-        type: Number,
-        default: 0,
-      },
-      total: {
-        type: Number,
-        default: 0,
-      },
-      level: {
-        type: String,
-        enum: ["bronze", "silver", "gold", "platinum", "diamond"],
-        default: "bronze",
-      },
     },
 
     // Membership and subscription
@@ -195,15 +204,6 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetExpires: Date,
 
-    // Social connections
-    socialLinks: {
-      website: String,
-      instagram: String,
-      facebook: String,
-      twitter: String,
-      linkedin: String,
-    },
-
     // Notifications preferences
     notifications: {
       email: {
@@ -238,40 +238,50 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 }, { unique: true })
 userSchema.index({ userType: 1 })
 userSchema.index({ isActive: 1 })
-userSchema.index({ "location.coordinates": "2dsphere" })
+userSchema.index({ emailVerificationToken: 1 })
+userSchema.index({ passwordResetToken: 1 })
 
-// DON'T hash password in pre-save middleware - we'll do it manually in registration
-// This was causing the double hashing issue
+// Method to generate email verification token
+userSchema.methods.generateEmailVerificationToken = function () {
+  const token = crypto.randomBytes(32).toString("hex")
+  this.emailVerificationToken = token
+  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+  return token
+}
 
-// Method to compare password
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  try {
-    console.log("🔍 comparePassword method called")
-    console.log("🔍 Candidate password:", candidatePassword)
-    console.log("🔍 Stored password hash:", this.password)
-
-    if (!this.password) {
-      console.log("❌ No stored password hash found")
-      return false
-    }
-
-    const isMatch = await bcrypt.compare(candidatePassword, this.password)
-    console.log("🔍 Password comparison result:", isMatch)
-    return isMatch
-  } catch (error) {
-    console.error("❌ Password comparison error:", error)
-    return false
-  }
+// Method to generate password reset token
+userSchema.methods.generatePasswordResetToken = function () {
+  const token = crypto.randomBytes(32).toString("hex")
+  this.passwordResetToken = token
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000 // 10 minutes
+  return token
 }
 
 // Method to update last login
 userSchema.methods.updateLastLogin = function () {
   this.lastLogin = new Date()
-  this.loginCount += 1
+  this.loginCount = (this.loginCount || 0) + 1
+
+  // Award daily login points
+  const today = new Date().toDateString()
+  const lastLoginDate = this.lastLogin ? new Date(this.lastLogin).toDateString() : null
+
+  if (lastLoginDate !== today) {
+    this.points.current += 5
+    this.points.total += 5
+
+    // Update level based on total points
+    if (this.points.total >= 5000) this.points.level = "diamond"
+    else if (this.points.total >= 2000) this.points.level = "platinum"
+    else if (this.points.total >= 1000) this.points.level = "gold"
+    else if (this.points.total >= 500) this.points.level = "silver"
+    else this.points.level = "bronze"
+  }
+
   return this.save()
 }
 
-// Virtual for full name (if needed)
+// Virtual for display name
 userSchema.virtual("displayName").get(function () {
   return this.name || this.email
 })

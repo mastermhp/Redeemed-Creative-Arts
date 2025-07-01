@@ -1,34 +1,37 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Artwork from "@/models/Artwork"
-import { withAuth } from "@/lib/middleware"
+import { getServerSession } from "@/lib/auth"
+import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary"
 
-// GET - Fetch single artwork
 export async function GET(request, { params }) {
   try {
     await connectDB()
 
-    const artwork = await Artwork.findById(params.id).populate("artist", "name profileImage bio location").lean()
+    const artwork = await Artwork.findById(params.id).populate("artist", "name email profileImage")
 
     if (!artwork) {
       return NextResponse.json({ error: "Artwork not found" }, { status: 404 })
     }
 
     // Increment view count
-    await Artwork.findByIdAndUpdate(params.id, {
-      $inc: { "engagement.views": 1 },
-    })
+    artwork.engagement.views += 1
+    await artwork.save()
 
     return NextResponse.json({ artwork })
   } catch (error) {
-    console.error("Fetch artwork error:", error)
-    return NextResponse.json({ error: "Failed to fetch artwork" }, { status: 500 })
+    console.error("Get artwork error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
-// PUT - Update artwork (artist only)
-export const PUT = withAuth(async (request, { params }) => {
+export async function PUT(request, { params }) {
   try {
+    const session = await getServerSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     await connectDB()
 
     const artwork = await Artwork.findById(params.id)
@@ -37,40 +40,81 @@ export const PUT = withAuth(async (request, { params }) => {
     }
 
     // Check if user owns this artwork
-    if (artwork.artist.toString() !== request.user.userId) {
+    if (artwork.artist.toString() !== session.userId) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    const updates = await request.json()
+    const formData = await request.formData()
+    const title = formData.get("title")
+    const description = formData.get("description")
+    const category = formData.get("category")
+    const medium = formData.get("medium")
+    const tags = formData.get("tags")
+    const isForSale = formData.get("isForSale") === "true"
+    const price = formData.get("price")
+    const removeImageIds = formData.get("removeImageIds")
 
-    // Update allowed fields
-    const allowedFields = ["title", "description", "tags", "pricing", "dimensions"]
-    const updateData = {}
+    const newImages = formData.getAll("newImages")
 
-    allowedFields.forEach((field) => {
-      if (updates[field] !== undefined) {
-        updateData[field] = updates[field]
+    // Remove specified images
+    if (removeImageIds) {
+      const idsToRemove = removeImageIds.split(",")
+      for (const publicId of idsToRemove) {
+        try {
+          await deleteFromCloudinary(publicId)
+        } catch (error) {
+          console.error("Failed to delete image:", error)
+        }
       }
-    })
+      artwork.images = artwork.images.filter((img) => !idsToRemove.includes(img.publicId))
+    }
 
-    const updatedArtwork = await Artwork.findByIdAndUpdate(params.id, updateData, { new: true }).populate(
-      "artist",
-      "name profileImage",
-    )
+    // Upload new images
+    if (newImages.length > 0) {
+      for (const image of newImages) {
+        try {
+          const result = await uploadToCloudinary(image, "artworks")
+          artwork.images.push({
+            url: result.secure_url,
+            publicId: result.public_id,
+            isPrimary: artwork.images.length === 0,
+          })
+        } catch (uploadError) {
+          console.error("Image upload error:", uploadError)
+        }
+      }
+    }
+
+    // Update artwork fields
+    artwork.title = title
+    artwork.description = description
+    artwork.category = category
+    artwork.medium = medium
+    artwork.tags = tags ? tags.split(",").map((tag) => tag.trim()) : []
+    artwork.pricing = {
+      isForSale,
+      price: isForSale ? Number.parseFloat(price) || 0 : 0,
+    }
+
+    await artwork.save()
 
     return NextResponse.json({
       message: "Artwork updated successfully",
-      artwork: updatedArtwork,
+      artwork,
     })
   } catch (error) {
     console.error("Update artwork error:", error)
-    return NextResponse.json({ error: "Failed to update artwork" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-})
+}
 
-// DELETE - Delete artwork (artist only)
-export const DELETE = withAuth(async (request, { params }) => {
+export async function DELETE(request, { params }) {
   try {
+    const session = await getServerSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     await connectDB()
 
     const artwork = await Artwork.findById(params.id)
@@ -79,21 +123,19 @@ export const DELETE = withAuth(async (request, { params }) => {
     }
 
     // Check if user owns this artwork
-    if (artwork.artist.toString() !== request.user.userId) {
+    if (artwork.artist.toString() !== session.userId) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
     // Delete images from Cloudinary
-    const { deleteImage } = await import("@/lib/cloudinary")
     for (const image of artwork.images) {
       try {
-        await deleteImage(image.publicId)
+        await deleteFromCloudinary(image.publicId)
       } catch (error) {
         console.error("Failed to delete image:", error)
       }
     }
 
-    // Delete artwork
     await Artwork.findByIdAndDelete(params.id)
 
     return NextResponse.json({
@@ -101,6 +143,6 @@ export const DELETE = withAuth(async (request, { params }) => {
     })
   } catch (error) {
     console.error("Delete artwork error:", error)
-    return NextResponse.json({ error: "Failed to delete artwork" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-})
+}
