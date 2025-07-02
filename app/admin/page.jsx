@@ -8,1541 +8,2173 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Progress } from "@/components/ui/progress"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Users,
+  Palette,
   DollarSign,
-  Trophy,
-  AlertCircle,
-  BarChart3,
+  TrendingUp,
+  Activity,
+  Shield,
   Settings,
-  Bell,
-  ImageIcon,
-  BookOpen,
-  Calendar,
-  ShoppingBag,
-  RefreshCw,
-  Eye,
+  AlertTriangle,
   CheckCircle,
   XCircle,
   Clock,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Star,
+  Search,
+  RefreshCw,
+  BarChart3,
+  PieChart,
+  LineChart,
   Database,
-  Activity,
+  Server,
   UserCheck,
-  Flag,
-  CreditCard,
-  Shield,
+  UserX,
+  UserPlus,
   Crown,
+  Church,
+  Brush,
+  HandHeart,
+  Ban,
+  CheckCheck,
+  Plus,
+  FileText,
+  ImageIcon,
+  Archive,
   Award,
-  Building,
-  Palette,
-  Target,
-  Heart,
-  TrendingUp,
-  AlertTriangle,
+  CalculatorIcon as Calc,
+  ArrowRight,
+  ArrowLeft,
+  RotateCcw,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 export default function AdminDashboard() {
-  const router = useRouter()
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalArtists: 0,
-    totalPatrons: 0,
-    totalChurches: 0,
-    totalAdmins: 0,
-    totalDonations: 0,
-    totalContests: 0,
-    pendingApprovals: 0,
-    activeHelpers: 0,
-    totalArtworks: 0,
-    totalCourses: 0,
-    totalEvents: 0,
-    totalProducts: 0,
-    usersByType: {},
-    topArtists: [],
-    recentUsers: [],
-    monthlyRevenue: 0,
-    activeUsers: 0,
+  const [activeTab, setActiveTab] = useState("overview")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+
+  // Dashboard data state
+  const [dashboardData, setDashboardData] = useState({
+    users: { total: 0, artists: 0, patrons: 0, churches: 0, admins: 0, active: 0, suspended: 0, banned: 0 },
+    content: { artworks: 0, events: 0, courses: 0, contests: 0, approved: 0, pending: 0, rejected: 0 },
+    financial: { totalDonations: 0, monthlyRevenue: 0, averagePerUser: 0, successRate: 0 },
+    system: { uptime: 0, performance: 0, storage: 0, apiCalls: 0 },
+    recent: { users: [], artworks: [], donations: [], activities: [] },
   })
 
-  const [recentActivity, setRecentActivity] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState(null)
+  // User management state
+  const [users, setUsers] = useState([])
+  const [selectedUsers, setSelectedUsers] = useState([])
+  const [userFilter, setUserFilter] = useState("all")
+  const [userSearch, setUserSearch] = useState("")
+  const [userSort, setUserSort] = useState("newest")
+  const [userPage, setUserPage] = useState(1)
+  const [userLimit] = useState(20)
+  const [totalUsers, setTotalUsers] = useState(0)
 
-  // Additional state for enhanced functionality
-  const [pendingApprovals, setPendingApprovals] = useState([])
-  const [systemMetrics, setSystemMetrics] = useState([
-    { name: "Server Uptime", value: "99.9%", status: "good" },
-    { name: "Database Performance", value: "Fast", status: "good" },
-    { name: "API Response Time", value: "120ms", status: "good" },
-    { name: "Storage Usage", value: "67%", status: "warning" },
-    { name: "Active Sessions", value: "234", status: "good" },
-    { name: "Error Rate", value: "0.1%", status: "good" },
-  ])
+  // Content management state
+  const [artworks, setArtworks] = useState([])
+  const [selectedArtworks, setSelectedArtworks] = useState([])
+  const [artworkFilter, setArtworkFilter] = useState("all")
+  const [artworkSearch, setArtworkSearch] = useState("")
+  const [artworkSort, setArtworkSort] = useState("newest")
+  const [artworkPage, setArtworkPage] = useState(1)
+  const [artworkLimit] = useState(20)
+  const [totalArtworks, setTotalArtworks] = useState(0)
 
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [userActionDialog, setUserActionDialog] = useState(false)
-  const [actionType, setActionType] = useState("")
+  // Financial management state
+  const [donations, setDonations] = useState([])
+  const [selectedDonations, setSelectedDonations] = useState([])
+  const [donationFilter, setDonationFilter] = useState("all")
+  const [donationSearch, setDonationSearch] = useState("")
+  const [donationSort, setDonationSort] = useState("newest")
+  const [donationPage, setDonationPage] = useState(1)
+  const [donationLimit] = useState(20)
+  const [totalDonations, setTotalDonations] = useState(0)
 
-  useEffect(() => {
-    fetchDashboardData()
-    fetchPendingApprovals()
-  }, [])
+  // System settings state
+  const [systemSettings, setSystemSettings] = useState({
+    maintenanceMode: false,
+    registrationEnabled: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    twoFactorRequired: false,
+    sessionTimeout: 30,
+    maxFileSize: 10,
+    allowedFileTypes: ["jpg", "jpeg", "png", "gif", "pdf"],
+    rateLimit: 100,
+    backupFrequency: "daily",
+    logLevel: "info",
+  })
 
+  // Analytics state
+  const [analytics, setAnalytics] = useState({
+    userGrowth: [],
+    contentGrowth: [],
+    revenueGrowth: [],
+    engagementMetrics: [],
+    topArtists: [],
+    topPatrons: [],
+    popularContent: [],
+    systemMetrics: [],
+  })
+
+  // Dialog states
+  const [showUserDialog, setShowUserDialog] = useState(false)
+  const [showArtworkDialog, setShowArtworkDialog] = useState(false)
+  const [showDonationDialog, setShowDonationDialog] = useState(false)
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
+  const [showBulkActionDialog, setShowBulkActionDialog] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [bulkAction, setBulkAction] = useState("")
+
+  // Form states
+  const [userForm, setUserForm] = useState({
+    name: "",
+    email: "",
+    userType: "artist",
+    status: "active",
+    bio: "",
+    location: "",
+    website: "",
+    socialMedia: { instagram: "", twitter: "", facebook: "" },
+  })
+
+  const [artworkForm, setArtworkForm] = useState({
+    title: "",
+    description: "",
+    category: "",
+    medium: "",
+    tags: "",
+    status: "pending",
+    featured: false,
+    price: 0,
+    forSale: false,
+  })
+
+  const [donationForm, setDonationForm] = useState({
+    amount: 0,
+    donor: "",
+    recipient: "",
+    campaign: "",
+    status: "completed",
+    anonymous: false,
+    message: "",
+  })
+
+  // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      setError(null)
-      console.log("Fetching dashboard data...")
+      const token = localStorage.getItem("token")
 
-      // Fetch from both endpoints to get comprehensive data
-      const [dashboardResponse, adminStatsResponse] = await Promise.all([
+      // Fetch from multiple endpoints and merge data
+      const [dashboardRes, statsRes] = await Promise.all([
         fetch("/api/admin/dashboard", {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch("/api/dashboard/admin/stats", {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${token}` },
         }),
       ])
 
-      console.log("Dashboard response status:", dashboardResponse.status)
-      console.log("Admin stats response status:", adminStatsResponse.status)
-
       let dashboardData = {}
-      let adminStatsData = {}
+      let statsData = {}
 
-      if (dashboardResponse.ok) {
-        dashboardData = await dashboardResponse.json()
-        console.log("Dashboard data:", dashboardData)
+      if (dashboardRes.ok) {
+        dashboardData = await dashboardRes.json()
       }
 
-      if (adminStatsResponse.ok) {
-        adminStatsData = await adminStatsResponse.json()
-        console.log("Admin stats data:", adminStatsData)
+      if (statsRes.ok) {
+        statsData = await statsRes.json()
       }
 
-      // Merge data from both sources
-      const mergedStats = {
-        totalUsers: dashboardData.stats?.totalUsers || adminStatsData.totalUsers || 0,
-        totalArtists: dashboardData.stats?.totalArtists || adminStatsData.usersByType?.artist || 0,
-        totalPatrons: dashboardData.stats?.totalPatrons || adminStatsData.usersByType?.patron || 0,
-        totalChurches: dashboardData.stats?.totalChurches || adminStatsData.usersByType?.church || 0,
-        totalAdmins: dashboardData.stats?.totalAdmins || adminStatsData.usersByType?.admin || 0,
-        totalDonations: dashboardData.stats?.totalDonations || adminStatsData.totalDonations || 0,
-        totalContests: dashboardData.stats?.totalContests || adminStatsData.totalContests || 0,
-        pendingApprovals: dashboardData.stats?.pendingApprovals || adminStatsData.pendingArtworks || 0,
-        activeHelpers: dashboardData.stats?.activeHelpers || 0,
-        totalArtworks: dashboardData.stats?.totalArtworks || adminStatsData.totalArtworks || 0,
-        totalCourses: dashboardData.stats?.totalCourses || 0,
-        totalEvents: dashboardData.stats?.totalEvents || adminStatsData.totalEvents || 0,
-        totalProducts: dashboardData.stats?.totalProducts || 0,
-        usersByType: adminStatsData.usersByType || {
-          artist: dashboardData.stats?.totalArtists || 0,
-          patron: dashboardData.stats?.totalPatrons || 0,
-          church: dashboardData.stats?.totalChurches || 0,
-          admin: dashboardData.stats?.totalAdmins || 0,
+      // Merge data with fallbacks
+      const mergedData = {
+        users: {
+          total: dashboardData.users?.total || statsData.users?.total || 0,
+          artists: dashboardData.users?.artists || statsData.users?.artists || 0,
+          patrons: dashboardData.users?.patrons || statsData.users?.patrons || 0,
+          churches: dashboardData.users?.churches || statsData.users?.churches || 0,
+          admins: dashboardData.users?.admins || statsData.users?.admins || 0,
+          active: dashboardData.users?.active || statsData.users?.active || 0,
+          suspended: dashboardData.users?.suspended || statsData.users?.suspended || 0,
+          banned: dashboardData.users?.banned || statsData.users?.banned || 0,
         },
-        topArtists: adminStatsData.topArtists || [],
-        recentUsers: adminStatsData.recentUsers || [],
-        monthlyRevenue: adminStatsData.monthlyRevenue || 0,
-        activeUsers: adminStatsData.activeUsers || 0,
+        content: {
+          artworks: dashboardData.content?.artworks || statsData.content?.artworks || 0,
+          events: dashboardData.content?.events || statsData.content?.events || 0,
+          courses: dashboardData.content?.courses || statsData.content?.courses || 0,
+          contests: dashboardData.content?.contests || statsData.content?.contests || 0,
+          approved: dashboardData.content?.approved || statsData.content?.approved || 0,
+          pending: dashboardData.content?.pending || statsData.content?.pending || 0,
+          rejected: dashboardData.content?.rejected || statsData.content?.rejected || 0,
+        },
+        financial: {
+          totalDonations: dashboardData.financial?.totalDonations || statsData.financial?.totalDonations || 0,
+          monthlyRevenue: dashboardData.financial?.monthlyRevenue || statsData.financial?.monthlyRevenue || 0,
+          averagePerUser: dashboardData.financial?.averagePerUser || statsData.financial?.averagePerUser || 0,
+          successRate: dashboardData.financial?.successRate || statsData.financial?.successRate || 0,
+        },
+        system: {
+          uptime: dashboardData.system?.uptime || statsData.system?.uptime || 99.9,
+          performance: dashboardData.system?.performance || statsData.system?.performance || 85,
+          storage: dashboardData.system?.storage || statsData.system?.storage || 45,
+          apiCalls: dashboardData.system?.apiCalls || statsData.system?.apiCalls || 12500,
+        },
+        recent: {
+          users: dashboardData.recent?.users || statsData.recent?.users || [],
+          artworks: dashboardData.recent?.artworks || statsData.recent?.artworks || [],
+          donations: dashboardData.recent?.donations || statsData.recent?.donations || [],
+          activities: dashboardData.recent?.activities || statsData.recent?.activities || [],
+        },
       }
 
-      setStats(mergedStats)
-      setRecentActivity(dashboardData.recentActivity || [])
-
-      if (!dashboardResponse.ok && !adminStatsResponse.ok) {
-        setError("Failed to fetch dashboard data from both sources")
-      }
+      setDashboardData(mergedData)
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
-      setError("Could not connect to the server")
+      setError("Failed to load dashboard data")
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchPendingApprovals = async () => {
+  // Fetch users
+  const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/admin/approvals", {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const token = localStorage.getItem("token")
+      const params = new URLSearchParams({
+        page: userPage.toString(),
+        limit: userLimit.toString(),
+        filter: userFilter,
+        search: userSearch,
+        sort: userSort,
+      })
+
+      const response = await fetch(`/api/admin/users?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
 
       if (response.ok) {
         const data = await response.json()
-        setPendingApprovals(data.approvals || [])
+        setUsers(data.users || [])
+        setTotalUsers(data.total || 0)
+      } else {
+        throw new Error("Failed to fetch users")
       }
     } catch (error) {
-      console.error("Error fetching pending approvals:", error)
+      console.error("Error fetching users:", error)
+      setError("Failed to load users")
     }
   }
 
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    await fetchDashboardData()
-    await fetchPendingApprovals()
-    setRefreshing(false)
-  }
-
-  const handleApprove = async (id, type) => {
+  // Fetch artworks
+  const fetchArtworks = async () => {
     try {
-      const response = await fetch(`/api/admin/approvals/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "approve" }),
+      const token = localStorage.getItem("token")
+      const params = new URLSearchParams({
+        page: artworkPage.toString(),
+        limit: artworkLimit.toString(),
+        filter: artworkFilter,
+        search: artworkSearch,
+        sort: artworkSort,
+      })
+
+      const response = await fetch(`/api/admin/artworks?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
 
       if (response.ok) {
-        setPendingApprovals((prev) => prev.filter((item) => item.id !== id))
-        await handleRefresh()
+        const data = await response.json()
+        setArtworks(data.artworks || [])
+        setTotalArtworks(data.total || 0)
+      } else {
+        throw new Error("Failed to fetch artworks")
       }
     } catch (error) {
-      console.error("Error approving item:", error)
+      console.error("Error fetching artworks:", error)
+      setError("Failed to load artworks")
     }
   }
 
-  const handleReject = async (id, type) => {
+  // Fetch donations
+  const fetchDonations = async () => {
     try {
-      const response = await fetch(`/api/admin/approvals/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reject" }),
+      const token = localStorage.getItem("token")
+      const params = new URLSearchParams({
+        page: donationPage.toString(),
+        limit: donationLimit.toString(),
+        filter: donationFilter,
+        search: donationSearch,
+        sort: donationSort,
+      })
+
+      const response = await fetch(`/api/admin/donations?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
 
       if (response.ok) {
-        setPendingApprovals((prev) => prev.filter((item) => item.id !== id))
-        await handleRefresh()
+        const data = await response.json()
+        setDonations(data.donations || [])
+        setTotalDonations(data.total || 0)
+      } else {
+        throw new Error("Failed to fetch donations")
       }
     } catch (error) {
-      console.error("Error rejecting item:", error)
+      console.error("Error fetching donations:", error)
+      setError("Failed to load donations")
     }
   }
 
-  const handleUserAction = (user, action) => {
-    setSelectedUser(user)
-    setActionType(action)
-    setUserActionDialog(true)
+  // User management functions
+  const handleUserAction = async (userId, action) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action }),
+      })
+
+      if (response.ok) {
+        setSuccess(`User ${action} successfully`)
+        fetchUsers()
+        fetchDashboardData()
+      } else {
+        throw new Error(`Failed to ${action} user`)
+      }
+    } catch (error) {
+      console.error(`Error ${action} user:`, error)
+      setError(`Failed to ${action} user`)
+    }
   }
 
-  const executeUserAction = async () => {
+  const handleBulkUserAction = async () => {
     try {
-      const response = await fetch(`/api/admin/users/${selectedUser._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+      const token = localStorage.getItem("token")
+      const response = await fetch("/api/admin/users/bulk", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          action: actionType,
-          isActive: actionType === "activate",
-          isBanned: actionType === "ban",
-          banReason: actionType === "ban" ? "Administrative action" : undefined,
+          userIds: selectedUsers,
+          action: bulkAction,
         }),
       })
 
       if (response.ok) {
-        await handleRefresh()
+        setSuccess(`Bulk ${bulkAction} completed successfully`)
+        setSelectedUsers([])
+        setShowBulkActionDialog(false)
+        fetchUsers()
+        fetchDashboardData()
+      } else {
+        throw new Error(`Failed to perform bulk ${bulkAction}`)
       }
     } catch (error) {
-      console.error(`Error ${actionType} user:`, error)
-    } finally {
-      setUserActionDialog(false)
-      setSelectedUser(null)
-      setActionType("")
+      console.error(`Error performing bulk ${bulkAction}:`, error)
+      setError(`Failed to perform bulk ${bulkAction}`)
     }
   }
 
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case "user_registration":
-        return <Users className="h-4 w-4 text-blue-500" />
-      case "artwork_submission":
-        return <ImageIcon className="h-4 w-4 text-purple-500" />
-      case "donation":
-        return <DollarSign className="h-4 w-4 text-green-500" />
-      case "contest":
-        return <Trophy className="h-4 w-4 text-yellow-500" />
-      case "course":
-        return <BookOpen className="h-4 w-4 text-cyan-500" />
-      case "event":
-        return <Calendar className="h-4 w-4 text-pink-500" />
-      case "product":
-        return <ShoppingBag className="h-4 w-4 text-orange-500" />
-      default:
-        return <Bell className="h-4 w-4 text-gray-500" />
+  // Artwork management functions
+  const handleArtworkAction = async (artworkId, action) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`/api/admin/artworks/${artworkId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action }),
+      })
+
+      if (response.ok) {
+        setSuccess(`Artwork ${action} successfully`)
+        fetchArtworks()
+        fetchDashboardData()
+      } else {
+        throw new Error(`Failed to ${action} artwork`)
+      }
+    } catch (error) {
+      console.error(`Error ${action} artwork:`, error)
+      setError(`Failed to ${action} artwork`)
     }
   }
 
-  const getStatusBadge = (status) => {
+  // System settings functions
+  const handleSettingsUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(systemSettings),
+      })
+
+      if (response.ok) {
+        setSuccess("Settings updated successfully")
+        setShowSettingsDialog(false)
+      } else {
+        throw new Error("Failed to update settings")
+      }
+    } catch (error) {
+      console.error("Error updating settings:", error)
+      setError("Failed to update settings")
+    }
+  }
+
+  // Export functions
+  const handleExportData = async (type) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`/api/admin/export/${type}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `${type}-export-${new Date().toISOString().split("T")[0]}.csv`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        setSuccess(`${type} data exported successfully`)
+      } else {
+        throw new Error(`Failed to export ${type} data`)
+      }
+    } catch (error) {
+      console.error(`Error exporting ${type} data:`, error)
+      setError(`Failed to export ${type} data`)
+    }
+  }
+
+  // Utility functions
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount)
+  }
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const formatDateTime = (date) => {
+    return new Date(date).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
+  const getStatusColor = (status) => {
     switch (status) {
-      case "pending":
-        return <Badge className="bg-yellow-500 text-white">Pending</Badge>
-      case "approved":
-        return <Badge className="bg-green-500 text-white">Approved</Badge>
-      case "rejected":
-        return <Badge className="bg-red-500 text-white">Rejected</Badge>
       case "active":
-        return <Badge className="bg-green-500 text-white">Active</Badge>
+      case "approved":
+      case "completed":
+        return "bg-green-100 text-green-800"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800"
       case "suspended":
-        return <Badge className="bg-yellow-500 text-white">Suspended</Badge>
+      case "rejected":
+        return "bg-red-100 text-red-800"
       case "banned":
-        return <Badge className="bg-red-500 text-white">Banned</Badge>
+        return "bg-gray-100 text-gray-800"
       default:
-        return <Badge variant="outline">Unknown</Badge>
+        return "bg-gray-100 text-gray-800"
     }
-  }
-
-  const getTierBadge = (tier) => {
-    return tier === "tier2" ? (
-      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-        <Crown className="h-3 w-3 mr-1" />
-        Pro
-      </Badge>
-    ) : (
-      <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
-        <Shield className="h-3 w-3 mr-1" />
-        Basic
-      </Badge>
-    )
   }
 
   const getUserTypeIcon = (userType) => {
     switch (userType) {
       case "artist":
-        return <Palette className="h-4 w-4" />
+        return <Brush className="h-4 w-4" />
       case "patron":
-        return <Heart className="h-4 w-4" />
+        return <HandHeart className="h-4 w-4" />
       case "church":
-        return <Building className="h-4 w-4" />
+        return <Church className="h-4 w-4" />
+      case "admin":
+        return <Crown className="h-4 w-4" />
       default:
         return <Users className="h-4 w-4" />
     }
   }
 
+  // Effects
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === "users") {
+      fetchUsers()
+    } else if (activeTab === "content") {
+      fetchArtworks()
+    } else if (activeTab === "financial") {
+      fetchDonations()
+    }
+  }, [
+    activeTab,
+    userPage,
+    userFilter,
+    userSearch,
+    userSort,
+    artworkPage,
+    artworkFilter,
+    artworkSearch,
+    artworkSort,
+    donationPage,
+    donationFilter,
+    donationSearch,
+    donationSort,
+  ])
+
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("")
+        setSuccess("")
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error, success])
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-6 my-32">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Dashboard</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchDashboardData}>Try Again</Button>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Loading admin dashboard...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 py-32">
-      <div className="max-w-7xl mx-auto">
-        {/* Enhanced Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800 via-gray-800 to-zinc-800 p-8 text-white mb-8">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10 flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-gray-300 text-lg">
-                Complete administrative control for Redeemed Creative Arts platform 🛡️
-              </p>
-              {error && (
-                <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
-                  Error: {error}
+    <div className="container mx-auto p-6 space-y-6 py-32">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage your platform from here</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button onClick={() => fetchDashboardData()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={() => setShowSettingsDialog(true)} variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Button>
+        </div>
+      </div>
+
+      {/* Alerts */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {success && (
+        <Alert>
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="financial">Financial</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.users.total.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">{dashboardData.users.active} active users</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Artworks</CardTitle>
+                <Palette className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.content.artworks.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">{dashboardData.content.pending} pending approval</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(dashboardData.financial.totalDonations)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(dashboardData.financial.monthlyRevenue)} this month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">System Health</CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.system.uptime}%</div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardData.system.apiCalls.toLocaleString()} API calls today
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* User Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Breakdown</CardTitle>
+                <CardDescription>Distribution of user types</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Brush className="h-4 w-4 text-blue-500" />
+                    <span>Artists</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{dashboardData.users.artists}</span>
+                    <Badge variant="secondary">
+                      {((dashboardData.users.artists / dashboardData.users.total) * 100).toFixed(1)}%
+                    </Badge>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center gap-4 mt-4">
-                <Badge className="bg-red-500/20 text-red-200 border-red-400">
-                  <Shield className="h-3 w-3 mr-1" />
-                  Super Admin
-                </Badge>
-                <Badge className="bg-white/20 text-white border-white/30">
-                  <Activity className="h-3 w-3 mr-1" />
-                  System Health: 98%
-                </Badge>
-              </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <HandHeart className="h-4 w-4 text-green-500" />
+                    <span>Patrons</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{dashboardData.users.patrons}</span>
+                    <Badge variant="secondary">
+                      {((dashboardData.users.patrons / dashboardData.users.total) * 100).toFixed(1)}%
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Church className="h-4 w-4 text-purple-500" />
+                    <span>Churches</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{dashboardData.users.churches}</span>
+                    <Badge variant="secondary">
+                      {((dashboardData.users.churches / dashboardData.users.total) * 100).toFixed(1)}%
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Crown className="h-4 w-4 text-yellow-500" />
+                    <span>Admins</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{dashboardData.users.admins}</span>
+                    <Badge variant="secondary">
+                      {((dashboardData.users.admins / dashboardData.users.total) * 100).toFixed(1)}%
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Health</CardTitle>
+                <CardDescription>Key performance indicators</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>System Uptime</span>
+                    <span className="font-medium">{dashboardData.system.uptime}%</span>
+                  </div>
+                  <Progress value={dashboardData.system.uptime} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>Performance Score</span>
+                    <span className="font-medium">{dashboardData.system.performance}%</span>
+                  </div>
+                  <Progress value={dashboardData.system.performance} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>Storage Usage</span>
+                    <span className="font-medium">{dashboardData.system.storage}%</span>
+                  </div>
+                  <Progress value={dashboardData.system.storage} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>User Engagement</span>
+                    <span className="font-medium">
+                      {((dashboardData.users.active / dashboardData.users.total) * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <Progress value={(dashboardData.users.active / dashboardData.users.total) * 100} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Users</CardTitle>
+                <CardDescription>Latest user registrations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {dashboardData.recent.users.length > 0 ? (
+                    dashboardData.recent.users.slice(0, 5).map((user, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {getUserTypeIcon(user.userType)}
+                          <div>
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
+                          <p className="text-xs text-muted-foreground mt-1">{formatDate(user.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No recent users</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Artworks</CardTitle>
+                <CardDescription>Latest artwork submissions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {dashboardData.recent.artworks.length > 0 ? (
+                    dashboardData.recent.artworks.slice(0, 5).map((artwork, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Palette className="h-4 w-4" />
+                          <div>
+                            <p className="font-medium">{artwork.title}</p>
+                            <p className="text-sm text-muted-foreground">by {artwork.artist?.name}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge className={getStatusColor(artwork.status)}>{artwork.status}</Badge>
+                          <p className="text-xs text-muted-foreground mt-1">{formatDate(artwork.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No recent artworks</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Users Tab */}
+        <TabsContent value="users" className="space-y-6">
+          {/* User Management Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">User Management</h2>
+              <p className="text-muted-foreground">Manage platform users and their permissions</p>
             </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={handleRefresh}
-                variant="secondary"
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
-                disabled={refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-                {refreshing ? "Refreshing..." : "Refresh Data"}
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => handleExportData("users")} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
               </Button>
-              <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
-                <Bell className="h-4 w-4 mr-2" />
-                Alerts ({stats.pendingApprovals})
-              </Button>
-              <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
-                <Settings className="h-4 w-4 mr-2" />
-                System Settings
+              <Button onClick={() => setShowUserDialog(true)} size="sm">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add User
               </Button>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
-        </div>
 
-        {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Users</p>
-                  <p className="text-3xl font-bold">{stats.totalUsers}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-1 text-xs text-blue-100">
-                        <span className="w-2 h-2 rounded-full bg-white/60"></span>
-                        Artists: {stats.totalArtists}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-blue-100">
-                        <span className="w-2 h-2 rounded-full bg-white/60"></span>
-                        Patrons: {stats.totalPatrons}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-white hover:bg-white/20"
-                      onClick={() => router.push("/admin/users")}
-                    >
-                      View All
-                    </Button>
+          {/* User Filters */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="user-search">Search Users</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="user-search"
+                      placeholder="Search by name or email..."
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
                 </div>
-                <Users className="h-8 w-8 text-blue-200" />
+                <div className="space-y-2">
+                  <Label htmlFor="user-filter">Filter by Type</Label>
+                  <Select value={userFilter} onValueChange={setUserFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Users" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Users</SelectItem>
+                      <SelectItem value="artist">Artists</SelectItem>
+                      <SelectItem value="patron">Patrons</SelectItem>
+                      <SelectItem value="church">Churches</SelectItem>
+                      <SelectItem value="admin">Admins</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-status">Filter by Status</Label>
+                  <Select value={userFilter} onValueChange={setUserFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
+                      <SelectItem value="banned">Banned</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-sort">Sort by</Label>
+                  <Select value={userSort} onValueChange={setUserSort}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Newest First" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="oldest">Oldest First</SelectItem>
+                      <SelectItem value="name">Name A-Z</SelectItem>
+                      <SelectItem value="name-desc">Name Z-A</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100 text-sm font-medium">Total Artworks</p>
-                  <p className="text-3xl font-bold">{stats.totalArtworks}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex items-center gap-1 text-xs text-purple-100">
-                      <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-                      Pending: {stats.pendingApprovals}
-                    </div>
+          {/* Bulk Actions */}
+          {selectedUsers.length > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {selectedUsers.length} user{selectedUsers.length > 1 ? "s" : ""} selected
+                  </p>
+                  <div className="flex items-center space-x-2">
                     <Button
-                      variant="ghost"
+                      onClick={() => {
+                        setBulkAction("activate")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="outline"
                       size="sm"
-                      className="text-xs text-white hover:bg-white/20"
-                      onClick={() => router.push("/admin/artworks")}
                     >
-                      View All
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Activate
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setBulkAction("suspend")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <UserX className="h-4 w-4 mr-2" />
+                      Suspend
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setBulkAction("ban")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Ban className="h-4 w-4 mr-2" />
+                      Ban
                     </Button>
                   </div>
-                </div>
-                <ImageIcon className="h-8 w-8 text-purple-200" />
-              </div>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-sm font-medium">Total Donations</p>
-                  <p className="text-3xl font-bold">${stats.totalDonations.toLocaleString()}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-green-100">Active campaigns: 3</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-white hover:bg-white/20"
-                      onClick={() => router.push("/admin/donations")}
-                    >
-                      View All
-                    </Button>
-                  </div>
-                </div>
-                <DollarSign className="h-8 w-8 text-green-200" />
-              </div>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-500 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-orange-100 text-sm font-medium">Pending Approvals</p>
-                  <p className="text-3xl font-bold">{stats.pendingApprovals}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-orange-100">Requires attention</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-white hover:bg-white/20"
-                      onClick={() => router.push("/admin/approvals")}
-                    >
-                      Review
-                    </Button>
-                  </div>
-                </div>
-                <AlertCircle className="h-8 w-8 text-orange-200" />
-              </div>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Second Row Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-              <BookOpen className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalCourses}</div>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-muted-foreground">Coming soon</p>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push("/admin/courses")}>
-                  View All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-              <Calendar className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalEvents}</div>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-muted-foreground">Platform events</p>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push("/admin/events")}>
-                  View All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-              <ShoppingBag className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalProducts}</div>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-muted-foreground">Coming soon</p>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push("/admin/products")}>
-                  View All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Contests</CardTitle>
-              <Trophy className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalContests}</div>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-muted-foreground">Platform contests</p>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push("/admin/contests")}>
-                  View All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-1">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="donations">Donations</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* User Breakdown */}
-              <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-                    User Distribution
-                  </CardTitle>
-                  <CardDescription>Distribution of user types</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {Object.entries(stats.usersByType).map(([type, count]) => (
-                      <div key={type} className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            {type === "artist" && <Palette className="h-4 w-4 text-blue-500" />}
-                            {type === "patron" && <Heart className="h-4 w-4 text-green-500" />}
-                            {type === "church" && <Building className="h-4 w-4 text-purple-500" />}
-                            {type === "admin" && <Shield className="h-4 w-4 text-red-500" />}
-                            <span className="text-sm capitalize">{type}s</span>
-                          </div>
-                          <span className="text-sm font-medium">{count}</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              type === "artist"
-                                ? "bg-gradient-to-r from-blue-500 to-indigo-500"
-                                : type === "patron"
-                                  ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                                  : type === "church"
-                                    ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                                    : "bg-gradient-to-r from-red-500 to-orange-500"
-                            }`}
-                            style={{
-                              width: stats.totalUsers ? `${(count / stats.totalUsers) * 100}%` : "0%",
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center">
-                      <Activity className="h-5 w-5 mr-2 text-green-600" />
-                      Recent Activity
-                    </CardTitle>
-                    <CardDescription>Latest platform activities</CardDescription>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={handleRefresh}>
-                    <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                    {recentActivity.length > 0 ? (
-                      recentActivity.map((activity, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                          {getActivityIcon(activity.type)}
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm">{activity.description}</p>
-                              {activity.status && getStatusBadge(activity.status)}
-                            </div>
-                            <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8">
-                        <Bell className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-sm text-gray-500">No recent activity</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Activity will appear here as users interact with the platform
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Top Artists */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Crown className="h-5 w-5 mr-2 text-yellow-600" />
-                  Top Artists
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {stats.topArtists?.length > 0 ? (
-                    stats.topArtists.map((artist, index) => (
-                      <div key={artist._id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                          {index === 0 ? (
-                            <Crown className="h-5 w-5 text-yellow-500" />
-                          ) : (
-                            <span className="text-sm font-bold text-primary">{index + 1}</span>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{artist.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {artist.points?.total || 0} points • {artist.points?.level || "bronze"} level
-                          </p>
-                        </div>
-                        <Badge variant="outline">{artist.artistInfo?.specialties?.[0] || "Artist"}</Badge>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No artist data available</p>
-                  )}
                 </div>
               </CardContent>
             </Card>
+          )}
 
-            {/* Quick Actions */}
-            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Frequently used administrative actions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    onClick={() => router.push("/admin/users/create")}
-                    className="bg-amber-500 hover:bg-amber-600"
-                  >
-                    Add New User
-                  </Button>
-                  <Button onClick={() => router.push("/admin/approvals")} variant="outline">
-                    Review Approvals ({stats.pendingApprovals})
-                  </Button>
-                  <Button onClick={() => router.push("/admin/reports")} variant="outline">
-                    View Reports
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings")} variant="outline">
-                    System Settings
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                User Management
-              </h2>
-              <div className="flex gap-3">
-                <Button variant="outline" className="bg-transparent">
-                  <Users className="h-4 w-4 mr-2" />
-                  Export Users
-                </Button>
-                <Button>
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  Bulk Actions
-                </Button>
-              </div>
-            </div>
-
-            {/* User Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
-                <CardContent className="p-6 text-center">
-                  <Palette className="h-12 w-12 mx-auto text-blue-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-blue-600">{stats.usersByType?.artist || 0}</h3>
-                  <p className="text-blue-600 font-medium">Artists</p>
-                  <p className="text-sm text-gray-600 mt-2">Creative professionals</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-                <CardContent className="p-6 text-center">
-                  <Heart className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-green-600">{stats.usersByType?.patron || 0}</h3>
-                  <p className="text-green-600 font-medium">Patrons</p>
-                  <p className="text-sm text-gray-600 mt-2">Art supporters</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
-                <CardContent className="p-6 text-center">
-                  <Building className="h-12 w-12 mx-auto text-purple-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-purple-600">{stats.usersByType?.church || 0}</h3>
-                  <p className="text-purple-600 font-medium">Churches</p>
-                  <p className="text-sm text-gray-600 mt-2">Ministry organizations</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-orange-50">
-                <CardContent className="p-6 text-center">
-                  <Shield className="h-12 w-12 mx-auto text-red-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-red-600">{stats.usersByType?.admin || 0}</h3>
-                  <p className="text-red-600 font-medium">Admins</p>
-                  <p className="text-sm text-gray-600 mt-2">System administrators</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Users */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Recent Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {stats.recentUsers?.length > 0 ? (
-                    stats.recentUsers.map((user) => (
-                      <div key={user._id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+          {/* Users Table */}
+          <Card>
+            <CardContent className="pt-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedUsers.length === users.length && users.length > 0}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedUsers(users.map((user) => user._id))
+                          } else {
+                            setSelectedUsers([])
+                          }
+                        }}
+                      />
+                    </TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead>Last Active</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user._id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUsers.includes(user._id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedUsers([...selectedUsers, user._id])
+                            } else {
+                              setSelectedUsers(selectedUsers.filter((id) => id !== user._id))
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                             {getUserTypeIcon(user.userType)}
                           </div>
                           <div>
-                            <h4 className="font-medium">{user.name}</h4>
+                            <p className="font-medium">{user.name}</p>
                             <p className="text-sm text-muted-foreground">{user.email}</p>
-                            <p className="text-xs text-muted-foreground">
-                              Joined {new Date(user.createdAt).toLocaleDateString()}
-                            </p>
                           </div>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{user.userType}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
+                      </TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                      <TableCell>{formatDate(user.lastActive || user.updatedAt)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button
+                            onClick={() => {
+                              setSelectedItem(user)
+                              setShowUserDialog(true)
+                            }}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setSelectedItem(user)
+                              setUserForm({
+                                name: user.name,
+                                email: user.email,
+                                userType: user.userType,
+                                status: user.status,
+                                bio: user.bio || "",
+                                location: user.location || "",
+                                website: user.website || "",
+                                socialMedia: user.socialMedia || { instagram: "", twitter: "", facebook: "" },
+                              })
+                              setShowUserDialog(true)
+                            }}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {user.status === "active" ? (
+                            <Button onClick={() => handleUserAction(user._id, "suspend")} variant="ghost" size="sm">
+                              <UserX className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button onClick={() => handleUserAction(user._id, "activate")} variant="ghost" size="sm">
+                              <UserCheck className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button onClick={() => handleUserAction(user._id, "ban")} variant="ghost" size="sm">
+                            <Ban className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(userPage - 1) * userLimit + 1} to {Math.min(userPage * userLimit, totalUsers)} of{" "}
+                  {totalUsers} users
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => setUserPage(Math.max(1, userPage - 1))}
+                    disabled={userPage === 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm">
+                    Page {userPage} of {Math.ceil(totalUsers / userLimit)}
+                  </span>
+                  <Button
+                    onClick={() => setUserPage(Math.min(Math.ceil(totalUsers / userLimit), userPage + 1))}
+                    disabled={userPage >= Math.ceil(totalUsers / userLimit)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Content Tab */}
+        <TabsContent value="content" className="space-y-6">
+          {/* Content Management Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Content Management</h2>
+              <p className="text-muted-foreground">Manage artworks, events, and other content</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => handleExportData("artworks")} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              <Button onClick={() => setShowArtworkDialog(true)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Content
+              </Button>
+            </div>
+          </div>
+
+          {/* Content Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Artworks</CardTitle>
+                <Palette className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.content.artworks}</div>
+                <p className="text-xs text-muted-foreground">+12% from last month</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.content.pending}</div>
+                <p className="text-xs text-muted-foreground">Requires review</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Featured Content</CardTitle>
+                <Star className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">24</div>
+                <p className="text-xs text-muted-foreground">Currently featured</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">45.2K</div>
+                <p className="text-xs text-muted-foreground">+8% from last week</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Content Filters */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="artwork-search">Search Content</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="artwork-search"
+                      placeholder="Search by title or artist..."
+                      value={artworkSearch}
+                      onChange={(e) => setArtworkSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="artwork-filter">Filter by Status</Label>
+                  <Select value={artworkFilter} onValueChange={setArtworkFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Content" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Content</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="featured">Featured</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="artwork-category">Filter by Category</Label>
+                  <Select value={artworkFilter} onValueChange={setArtworkFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="painting">Painting</SelectItem>
+                      <SelectItem value="sculpture">Sculpture</SelectItem>
+                      <SelectItem value="photography">Photography</SelectItem>
+                      <SelectItem value="digital">Digital Art</SelectItem>
+                      <SelectItem value="mixed-media">Mixed Media</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="artwork-sort">Sort by</Label>
+                  <Select value={artworkSort} onValueChange={setArtworkSort}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Newest First" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="oldest">Oldest First</SelectItem>
+                      <SelectItem value="title">Title A-Z</SelectItem>
+                      <SelectItem value="title-desc">Title Z-A</SelectItem>
+                      <SelectItem value="views">Most Viewed</SelectItem>
+                      <SelectItem value="likes">Most Liked</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bulk Actions */}
+          {selectedArtworks.length > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {selectedArtworks.length} artwork{selectedArtworks.length > 1 ? "s" : ""} selected
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      onClick={() => {
+                        setBulkAction("approve")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <CheckCheck className="h-4 w-4 mr-2" />
+                      Approve
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setBulkAction("reject")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Reject
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setBulkAction("feature")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Star className="h-4 w-4 mr-2" />
+                      Feature
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setBulkAction("delete")
+                        setShowBulkActionDialog(true)
+                      }}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Artworks Table */}
+          <Card>
+            <CardContent className="pt-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedArtworks.length === artworks.length && artworks.length > 0}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedArtworks(artworks.map((artwork) => artwork._id))
+                          } else {
+                            setSelectedArtworks([])
+                          }
+                        }}
+                      />
+                    </TableHead>
+                    <TableHead>Artwork</TableHead>
+                    <TableHead>Artist</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Views</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {artworks.map((artwork) => (
+                    <TableRow key={artwork._id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedArtworks.includes(artwork._id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedArtworks([...selectedArtworks, artwork._id])
+                            } else {
+                              setSelectedArtworks(selectedArtworks.filter((id) => id !== artwork._id))
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                            {artwork.images && artwork.images.length > 0 ? (
+                              <img
+                                src={artwork.images[0].url || "/placeholder.svg"}
+                                alt={artwork.title}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            ) : (
+                              <ImageIcon className="h-6 w-6 text-gray-400" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{artwork.title}</p>
+                            <p className="text-sm text-muted-foreground">{artwork.description?.substring(0, 50)}...</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Badge variant={user.userType === "admin" ? "default" : "secondary"}>{user.userType}</Badge>
-                          <Badge variant={user.isActive ? "default" : "destructive"}>
-                            {user.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUserAction(user, user.isActive ? "suspend" : "activate")}
-                            >
-                              {user.isActive ? "Suspend" : "Activate"}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleUserAction(user, "ban")}>
-                              Ban
-                            </Button>
-                          </div>
+                          <Brush className="h-4 w-4" />
+                          <span>{artwork.artist?.name || "Unknown Artist"}</span>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No recent users to display</p>
-                  )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{artwork.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(artwork.status)}>{artwork.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Eye className="h-4 w-4" />
+                          <span>{artwork.engagement?.views || 0}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDate(artwork.createdAt)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button
+                            onClick={() => {
+                              setSelectedItem(artwork)
+                              setShowArtworkDialog(true)
+                            }}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleArtworkAction(artwork._id, "approve")}
+                            variant="ghost"
+                            size="sm"
+                            disabled={artwork.status === "approved"}
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleArtworkAction(artwork._id, "reject")}
+                            variant="ghost"
+                            size="sm"
+                            disabled={artwork.status === "rejected"}
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                          <Button onClick={() => handleArtworkAction(artwork._id, "feature")} variant="ghost" size="sm">
+                            <Star className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(artworkPage - 1) * artworkLimit + 1} to{" "}
+                  {Math.min(artworkPage * artworkLimit, totalArtworks)} of {totalArtworks} artworks
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => setArtworkPage(Math.max(1, artworkPage - 1))}
+                    disabled={artworkPage === 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm">
+                    Page {artworkPage} of {Math.ceil(totalArtworks / artworkLimit)}
+                  </span>
+                  <Button
+                    onClick={() => setArtworkPage(Math.min(Math.ceil(totalArtworks / artworkLimit), artworkPage + 1))}
+                    disabled={artworkPage >= Math.ceil(totalArtworks / artworkLimit)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Financial Tab */}
+        <TabsContent value="financial" className="space-y-6">
+          {/* Financial Management Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Financial Management</h2>
+              <p className="text-muted-foreground">Monitor donations, transactions, and revenue</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => handleExportData("donations")} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              <Button onClick={() => setShowDonationDialog(true)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Transaction
+              </Button>
+            </div>
+          </div>
+
+          {/* Financial Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(dashboardData.financial.totalDonations)}</div>
+                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(dashboardData.financial.monthlyRevenue)}</div>
+                <p className="text-xs text-muted-foreground">Current month</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Average Donation</CardTitle>
+                <Calc className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(dashboardData.financial.averagePerUser)}</div>
+                <p className="text-xs text-muted-foreground">Per transaction</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.financial.successRate}%</div>
+                <p className="text-xs text-muted-foreground">Payment success</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Donation Filters */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="donation-search">Search Donations</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="donation-search"
+                      placeholder="Search by donor or recipient..."
+                      value={donationSearch}
+                      onChange={(e) => setDonationSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="donation-filter">Filter by Status</Label>
+                  <Select value={donationFilter} onValueChange={setDonationFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Donations" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Donations</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="refunded">Refunded</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="donation-amount">Filter by Amount</Label>
+                  <Select value={donationFilter} onValueChange={setDonationFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Amounts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Amounts</SelectItem>
+                      <SelectItem value="small">Under $50</SelectItem>
+                      <SelectItem value="medium">$50 - $200</SelectItem>
+                      <SelectItem value="large">$200 - $500</SelectItem>
+                      <SelectItem value="major">Over $500</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="donation-sort">Sort by</Label>
+                  <Select value={donationSort} onValueChange={setDonationSort}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Newest First" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="oldest">Oldest First</SelectItem>
+                      <SelectItem value="amount-high">Highest Amount</SelectItem>
+                      <SelectItem value="amount-low">Lowest Amount</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Donations Table */}
+          <Card>
+            <CardContent className="pt-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Transaction ID</TableHead>
+                    <TableHead>Donor</TableHead>
+                    <TableHead>Recipient</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {donations.map((donation) => (
+                    <TableRow key={donation._id}>
+                      <TableCell className="font-mono text-sm">{donation._id.substring(0, 8)}...</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <HandHeart className="h-4 w-4" />
+                          <span>{donation.donor?.name || "Anonymous"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Brush className="h-4 w-4" />
+                          <span>{donation.recipient?.name || "General Fund"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{formatCurrency(donation.amount)}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(donation.status)}>{donation.status}</Badge>
+                      </TableCell>
+                      <TableCell>{formatDateTime(donation.createdAt)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button
+                            onClick={() => {
+                              setSelectedItem(donation)
+                              setShowDonationDialog(true)
+                            }}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              // Handle refund
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            disabled={donation.status !== "completed"}
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(donationPage - 1) * donationLimit + 1} to{" "}
+                  {Math.min(donationPage * donationLimit, totalDonations)} of {totalDonations} donations
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => setDonationPage(Math.max(1, donationPage - 1))}
+                    disabled={donationPage === 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm">
+                    Page {donationPage} of {Math.ceil(totalDonations / donationLimit)}
+                  </span>
+                  <Button
+                    onClick={() =>
+                      setDonationPage(Math.min(Math.ceil(totalDonations / donationLimit), donationPage + 1))
+                    }
+                    disabled={donationPage >= Math.ceil(totalDonations / donationLimit)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Analytics & Reports</h2>
+              <p className="text-muted-foreground">Detailed insights and performance metrics</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => handleExportData("analytics")} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+          </div>
+
+          {/* Analytics Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Growth</CardTitle>
+                <CardDescription>New user registrations over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  <BarChart3 className="h-8 w-8 mr-2" />
+                  Chart placeholder - User growth data
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+            <Card>
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Manage platform users and their permissions</CardDescription>
+                <CardTitle>Revenue Trends</CardTitle>
+                <CardDescription>Monthly revenue and donation patterns</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  <LineChart className="h-8 w-8 mr-2" />
+                  Chart placeholder - Revenue trends
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Engagement</CardTitle>
+                <CardDescription>Views, likes, and shares distribution</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  <PieChart className="h-8 w-8 mr-2" />
+                  Chart placeholder - Content engagement
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Performers</CardTitle>
+                <CardDescription>Most successful artists and content</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Button onClick={() => router.push("/admin/users")} className="bg-amber-500 hover:bg-amber-600">
-                      View All Users
-                    </Button>
-                    <Button onClick={() => router.push("/admin/users/create")} variant="outline">
-                      Create User
-                    </Button>
-                    <Button onClick={() => router.push("/admin/users/export")} variant="outline">
-                      Export Users
-                    </Button>
-                    <Button onClick={() => router.push("/admin/users/permissions")} variant="outline">
-                      Manage Permissions
-                    </Button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Award className="h-4 w-4 text-yellow-500" />
+                      <span>Top Artist</span>
+                    </div>
+                    <span className="font-medium">Sarah Johnson</span>
                   </div>
-
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium mb-3">User Management Features</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-amber-500" />
-                        <span>Ban or suspend user accounts</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-amber-500" />
-                        <span>Reset user passwords</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-amber-500" />
-                        <span>Modify user roles and permissions</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-amber-500" />
-                        <span>View user activity logs</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-amber-500" />
-                        <span>Manage verification status</span>
-                      </li>
-                    </ul>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>Most Liked</span>
+                    </div>
+                    <span className="font-medium">"Divine Light" - 1.2K likes</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Eye className="h-4 w-4 text-blue-500" />
+                      <span>Most Viewed</span>
+                    </div>
+                    <span className="font-medium">"Sacred Geometry" - 5.8K views</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="h-4 w-4 text-green-500" />
+                      <span>Top Donor</span>
+                    </div>
+                    <span className="font-medium">Grace Community Church</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
+        </TabsContent>
 
-          <TabsContent value="content" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Content Moderation
-              </h2>
-              <div className="flex gap-3">
-                <Button variant="outline" className="bg-transparent">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Review Queue
+        {/* System Tab */}
+        <TabsContent value="system" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">System Administration</h2>
+              <p className="text-muted-foreground">System settings, security, and maintenance</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => setShowSettingsDialog(true)} variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Configure
+              </Button>
+            </div>
+          </div>
+
+          {/* System Health */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Server Status</CardTitle>
+                <Server className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">Online</div>
+                <p className="text-xs text-muted-foreground">Uptime: {dashboardData.system.uptime}%</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Database</CardTitle>
+                <Database className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">Healthy</div>
+                <p className="text-xs text-muted-foreground">Response time: 45ms</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Storage</CardTitle>
+                <Archive className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.system.storage}%</div>
+                <p className="text-xs text-muted-foreground">Used of 1TB capacity</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* System Settings */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Security Settings</CardTitle>
+                <CardDescription>Configure security and access controls</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Two-Factor Authentication</Label>
+                    <p className="text-sm text-muted-foreground">Require 2FA for admin accounts</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.twoFactorRequired}
+                    onCheckedChange={(checked) => setSystemSettings({ ...systemSettings, twoFactorRequired: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Registration</Label>
+                    <p className="text-sm text-muted-foreground">Allow new user registrations</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.registrationEnabled}
+                    onCheckedChange={(checked) =>
+                      setSystemSettings({ ...systemSettings, registrationEnabled: checked })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Session Timeout (minutes)</Label>
+                  <Input
+                    type="number"
+                    value={systemSettings.sessionTimeout}
+                    onChange={(e) =>
+                      setSystemSettings({ ...systemSettings, sessionTimeout: Number.parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Rate Limit (requests/minute)</Label>
+                  <Input
+                    type="number"
+                    value={systemSettings.rateLimit}
+                    onChange={(e) =>
+                      setSystemSettings({ ...systemSettings, rateLimit: Number.parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>System Configuration</CardTitle>
+                <CardDescription>General system settings and preferences</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Maintenance Mode</Label>
+                    <p className="text-sm text-muted-foreground">Put system in maintenance mode</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.maintenanceMode}
+                    onCheckedChange={(checked) => setSystemSettings({ ...systemSettings, maintenanceMode: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Send system email notifications</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.emailNotifications}
+                    onCheckedChange={(checked) => setSystemSettings({ ...systemSettings, emailNotifications: checked })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max File Size (MB)</Label>
+                  <Input
+                    type="number"
+                    value={systemSettings.maxFileSize}
+                    onChange={(e) =>
+                      setSystemSettings({ ...systemSettings, maxFileSize: Number.parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Backup Frequency</Label>
+                  <Select
+                    value={systemSettings.backupFrequency}
+                    onValueChange={(value) => setSystemSettings({ ...systemSettings, backupFrequency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hourly">Hourly</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* System Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>System Actions</CardTitle>
+              <CardDescription>Perform system maintenance and administrative tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <Database className="h-6 w-6 mb-2" />
+                  Backup Database
                 </Button>
-                <Button>
-                  <Flag className="h-4 w-4 mr-2" />
-                  Flagged Content
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <RefreshCw className="h-6 w-6 mb-2" />
+                  Clear Cache
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <FileText className="h-6 w-6 mb-2" />
+                  View Logs
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <Shield className="h-6 w-6 mb-2" />
+                  Security Scan
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <Activity className="h-6 w-6 mb-2" />
+                  Performance Test
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center bg-transparent">
+                  <Archive className="h-6 w-6 mb-2" />
+                  Archive Old Data
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialogs */}
+
+      {/* User Dialog */}
+      <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedItem ? "User Details" : "Add New User"}</DialogTitle>
+            <DialogDescription>
+              {selectedItem ? "View and edit user information" : "Create a new user account"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-name">Name</Label>
+              <Input
+                id="user-name"
+                value={userForm.name}
+                onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                placeholder="Enter full name"
+              />
             </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button onClick={() => router.push("/admin/artworks")} className="bg-amber-500 hover:bg-amber-600">
-                Manage Artworks
-              </Button>
-              <Button onClick={() => router.push("/admin/courses")} variant="outline">
-                Manage Courses
-              </Button>
-              <Button onClick={() => router.push("/admin/events")} variant="outline">
-                Manage Events
-              </Button>
-              <Button onClick={() => router.push("/admin/products")} variant="outline">
-                Manage Products
-              </Button>
-              <Button onClick={() => router.push("/admin/contests")} variant="outline">
-                Manage Contests
-              </Button>
-              <Button onClick={() => router.push("/admin/featured")} variant="outline">
-                Featured Content
-              </Button>
-              <Button onClick={() => router.push("/admin/resources")} variant="outline">
-                Resources
-              </Button>
-              <Button onClick={() => router.push("/admin/content/bulk")} variant="outline">
-                Bulk Actions
-              </Button>
+            <div className="space-y-2">
+              <Label htmlFor="user-email">Email</Label>
+              <Input
+                id="user-email"
+                type="email"
+                value={userForm.email}
+                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                placeholder="Enter email address"
+              />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
-                    Content Statistics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Total Artworks</span>
-                    <span className="font-medium">{stats.totalArtworks}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Pending Review</span>
-                    <span className="font-medium text-yellow-600">{stats.pendingApprovals}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Events</span>
-                    <span className="font-medium">{stats.totalEvents}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Active Users</span>
-                    <span className="font-medium">{stats.activeUsers}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Flag className="h-5 w-5 mr-2 text-red-600" />
-                    Platform Health
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">User Engagement</span>
-                    <span className="font-medium">94%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: "94%" }}></div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Content Quality</span>
-                    <span className="font-medium">87%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "87%" }}></div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Platform Stability</span>
-                    <span className="font-medium">99%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: "99%" }}></div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-2">
+              <Label htmlFor="user-type">User Type</Label>
+              <Select
+                value={userForm.userType}
+                onValueChange={(value) => setUserForm({ ...userForm, userType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="artist">Artist</SelectItem>
+                  <SelectItem value="patron">Patron</SelectItem>
+                  <SelectItem value="church">Church</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="mt-6">
-              <h3 className="text-sm font-medium mb-3">Content Moderation Tools</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-amber-500" />
-                  <span>Review and approve new content</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-amber-500" />
-                  <span>Flag inappropriate content</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-amber-500" />
-                  <span>Feature high-quality content</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-amber-500" />
-                  <span>Bulk edit or delete content</span>
-                </li>
-              </ul>
+            <div className="space-y-2">
+              <Label htmlFor="user-status">Status</Label>
+              <Select value={userForm.status} onValueChange={(value) => setUserForm({ ...userForm, status: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="banned">Banned</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
-
-          <TabsContent value="donations" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                Donation Management
-              </h2>
-              <div className="flex gap-3">
-                <Button variant="outline" className="bg-transparent">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Export Report
-                </Button>
-                <Button>
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Analytics
-                </Button>
-              </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="user-bio">Bio</Label>
+              <Textarea
+                id="user-bio"
+                value={userForm.bio}
+                onChange={(e) => setUserForm({ ...userForm, bio: e.target.value })}
+                placeholder="Enter user bio"
+                rows={3}
+              />
             </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowUserDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                // Handle user save
+                setShowUserDialog(false)
+              }}
+            >
+              {selectedItem ? "Update User" : "Create User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-                <CardContent className="p-6 text-center">
-                  <DollarSign className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-green-600">${stats.totalDonations}</h3>
-                  <p className="text-green-600 font-medium">Total Donations</p>
-                  <p className="text-sm text-gray-600 mt-2">All-time platform donations</p>
-                </CardContent>
-              </Card>
+      {/* Bulk Action Dialog */}
+      <Dialog open={showBulkActionDialog} onOpenChange={setShowBulkActionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Bulk Action</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to {bulkAction} the selected items? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkActionDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkUserAction}
+              variant={bulkAction === "delete" || bulkAction === "ban" ? "destructive" : "default"}
+            >
+              Confirm {bulkAction}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
-                <CardContent className="p-6 text-center">
-                  <TrendingUp className="h-12 w-12 mx-auto text-blue-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-blue-600">${stats.monthlyRevenue}</h3>
-                  <p className="text-blue-600 font-medium">This Month</p>
-                  <p className="text-sm text-gray-600 mt-2">Current month revenue</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
-                <CardContent className="p-6 text-center">
-                  <Target className="h-12 w-12 mx-auto text-purple-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-purple-600">{stats.totalEvents}</h3>
-                  <p className="text-purple-600 font-medium">Active Events</p>
-                  <p className="text-sm text-gray-600 mt-2">Platform-wide events</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-                <CardContent className="p-6 text-center">
-                  <Award className="h-12 w-12 mx-auto text-orange-500 mb-4" />
-                  <h3 className="text-2xl font-bold text-orange-600">
-                    $
-                    {stats.totalDonations && stats.totalUsers ? Math.round(stats.totalDonations / stats.totalUsers) : 0}
-                  </h3>
-                  <p className="text-orange-600 font-medium">Avg per User</p>
-                  <p className="text-sm text-gray-600 mt-2">Average donation amount</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="border-0 shadow-lg hover:shadow-lg transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Donation Management</CardTitle>
-                <DollarSign className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button onClick={() => router.push("/admin/donations")} className="bg-amber-500 hover:bg-amber-600">
-                    View All Donations
-                  </Button>
-                  <Button onClick={() => router.push("/admin/campaigns/create")} variant="outline">
-                    Create Campaign
-                  </Button>
-                  <Button onClick={() => router.push("/admin/matching-funds")} variant="outline">
-                    Matching Funds
-                  </Button>
-                  <Button onClick={() => router.push("/admin/donations/reports")} variant="outline">
-                    Donation Reports
-                  </Button>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium mb-3">Financial Management Tools</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-amber-500" />
-                      <span>Process refunds and adjustments</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-amber-500" />
-                      <span>Generate financial reports</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-amber-500" />
-                      <span>Manage payment methods</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-amber-500" />
-                      <span>Set up recurring donations</span>
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <CreditCard className="h-5 w-5 mr-2 text-green-600" />
-                  Payment Processing
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 border rounded-lg bg-green-50">
-                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                    <p className="font-medium">Successful</p>
-                    <p className="text-2xl font-bold text-green-600">98.7%</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg bg-red-50">
-                    <XCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                    <p className="font-medium">Failed</p>
-                    <p className="text-2xl font-bold text-red-600">1.3%</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg bg-yellow-50">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
-                    <p className="font-medium">Pending</p>
-                    <p className="text-2xl font-bold text-yellow-600">3</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg bg-blue-50">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                    <p className="font-medium">Growth</p>
-                    <p className="text-2xl font-bold text-blue-600">+18%</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Platform Analytics</CardTitle>
-                <BarChart3 className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    onClick={() => router.push("/admin/analytics/users")}
-                    className="bg-amber-500 hover:bg-amber-600"
-                  >
-                    User Analytics
-                  </Button>
-                  <Button onClick={() => router.push("/admin/analytics/content")} variant="outline">
-                    Content Analytics
-                  </Button>
-                  <Button onClick={() => router.push("/admin/analytics/financial")} variant="outline">
-                    Financial Analytics
-                  </Button>
-                  <Button onClick={() => router.push("/admin/analytics/performance")} variant="outline">
-                    Performance Metrics
-                  </Button>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium mb-3">Analytics Dashboard</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-center text-sm text-gray-500">
-                      <BarChart3 className="h-16 w-16 mx-auto text-amber-500 opacity-50 mb-2" />
-                      <p>Interactive analytics dashboard will be displayed here</p>
-                      <p className="mt-2">
-                        <Button variant="link" size="sm" className="text-amber-500">
-                          View Full Analytics
-                        </Button>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-6">
-            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Notifications</CardTitle>
-                <Bell className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    onClick={() => router.push("/admin/notifications")}
-                    className="bg-amber-500 hover:bg-amber-600"
-                  >
-                    View All Notifications
-                  </Button>
-                  <Button onClick={() => router.push("/admin/notifications/create")} variant="outline">
-                    Send Notification
-                  </Button>
-                  <Button onClick={() => router.push("/admin/notifications/templates")} variant="outline">
-                    Notification Templates
-                  </Button>
-                  <Button onClick={() => router.push("/admin/notifications/settings")} variant="outline">
-                    Notification Settings
-                  </Button>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium mb-3">Recent System Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <Bell className="h-4 w-4 text-amber-500" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">System Maintenance</p>
-                        <p className="text-xs text-gray-500">Scheduled maintenance completed successfully</p>
-                      </div>
-                      <p className="text-xs text-gray-500">2 hours ago</p>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <Bell className="h-4 w-4 text-amber-500" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">New Feature Deployed</p>
-                        <p className="text-xs text-gray-500">Enhanced artwork upload functionality</p>
-                      </div>
-                      <p className="text-xs text-gray-500">1 day ago</p>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <Bell className="h-4 w-4 text-amber-500" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Security Alert</p>
-                        <p className="text-xs text-gray-500">Multiple failed login attempts detected</p>
-                      </div>
-                      <p className="text-xs text-gray-500">2 days ago</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Platform Settings
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>General Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="platformName">Platform Name</Label>
-                      <Input id="platformName" defaultValue="Redeemed Creative Arts" />
-                    </div>
-                    <div>
-                      <Label htmlFor="supportEmail">Support Email</Label>
-                      <Input id="supportEmail" defaultValue="support@redeemedcreativearts.com" />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">User Registration</p>
-                      <p className="text-sm text-gray-500">Allow new user registrations</p>
-                    </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Content Moderation</p>
-                      <p className="text-sm text-gray-500">Require approval for new content</p>
-                    </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Maintenance Mode</p>
-                      <p className="text-sm text-gray-500">Put platform in maintenance mode</p>
-                    </div>
-                    <input type="checkbox" className="toggle" />
-                  </div>
-
-                  <Button className="w-full">Save General Settings</Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Two-Factor Authentication</p>
-                      <p className="text-sm text-gray-500">Require 2FA for admin accounts</p>
-                    </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Session Timeout</p>
-                      <p className="text-sm text-gray-500">Auto-logout inactive users</p>
-                    </div>
-                    <Select defaultValue="30">
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="15">15 minutes</SelectItem>
-                        <SelectItem value="30">30 minutes</SelectItem>
-                        <SelectItem value="60">1 hour</SelectItem>
-                        <SelectItem value="120">2 hours</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Rate Limiting</p>
-                      <p className="text-sm text-gray-500">Enable API rate limiting</p>
-                    </div>
-                    <input type="checkbox" defaultChecked className="toggle" />
-                  </div>
-
-                  <Button className="w-full">Save Security Settings</Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Settings</CardTitle>
-                <Settings className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    onClick={() => router.push("/admin/settings/general")}
-                    className="bg-amber-500 hover:bg-amber-600"
-                  >
-                    General Settings
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/email")} variant="outline">
-                    Email Templates
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/payment")} variant="outline">
-                    Payment Settings
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/security")} variant="outline">
-                    Security Settings
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/integrations")} variant="outline">
-                    Integrations
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/appearance")} variant="outline">
-                    Appearance
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/backup")} variant="outline">
-                    Backup & Restore
-                  </Button>
-                  <Button onClick={() => router.push("/admin/settings/logs")} variant="outline">
-                    System Logs
-                  </Button>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium mb-3">Advanced Settings</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Settings className="h-4 w-4 text-amber-500" />
-                        <span>Maintenance Mode</span>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Configure
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Settings className="h-4 w-4 text-amber-500" />
-                        <span>API Access</span>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Configure
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Settings className="h-4 w-4 text-amber-500" />
-                        <span>Database Management</span>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Configure
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* System Metrics */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Database className="h-5 w-5 mr-2 text-blue-600" />
-                  System Health
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {systemMetrics.map((metric, index) => (
-                    <Card key={index} className="border-0 shadow-lg">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">{metric.name}</p>
-                            <p className="text-2xl font-bold">{metric.value}</p>
-                          </div>
-                          <div
-                            className={`w-3 h-3 rounded-full ${
-                              metric.status === "good"
-                                ? "bg-green-500"
-                                : metric.status === "warning"
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                            }`}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium mb-3">Database Status</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>Connection Status</span>
-                      <Badge className="bg-green-500">Connected</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Response Time</span>
-                      <span className="font-medium">45ms</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Active Connections</span>
-                      <span className="font-medium">12/100</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Storage Used</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">2.3GB / 10GB</span>
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div className="bg-blue-500 h-2 rounded-full" style={{ width: "23%" }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* User Action Dialog */}
-        <Dialog open={userActionDialog} onOpenChange={setUserActionDialog}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center">
-                <AlertTriangle className="h-5 w-5 mr-2 text-orange-500" />
-                Confirm User Action
-              </DialogTitle>
-              <DialogDescription>
-                Are you sure you want to {actionType} {selectedUser?.name}?
-              </DialogDescription>
-            </DialogHeader>
+      {/* Settings Dialog */}
+      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>System Settings</DialogTitle>
+            <DialogDescription>Configure system-wide settings and preferences</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <p className="text-sm text-orange-800">
-                  This action will {actionType} the user account.{" "}
-                  {actionType === "ban" && "This action is permanent and cannot be undone."}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={executeUserAction}
-                  className={`flex-1 ${
-                    actionType === "ban"
-                      ? "bg-red-500 hover:bg-red-600"
-                      : actionType === "suspend"
-                        ? "bg-yellow-500 hover:bg-yellow-600"
-                        : "bg-green-500 hover:bg-green-600"
-                  }`}
-                >
-                  Confirm {actionType}
-                </Button>
-                <Button variant="outline" onClick={() => setUserActionDialog(false)} className="flex-1">
-                  Cancel
-                </Button>
+              <h3 className="text-lg font-semibold">Security</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Two-Factor Authentication</Label>
+                    <p className="text-sm text-muted-foreground">Require 2FA for admin accounts</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.twoFactorRequired}
+                    onCheckedChange={(checked) => setSystemSettings({ ...systemSettings, twoFactorRequired: checked })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Session Timeout (minutes)</Label>
+                  <Input
+                    type="number"
+                    value={systemSettings.sessionTimeout}
+                    onChange={(e) =>
+                      setSystemSettings({ ...systemSettings, sessionTimeout: Number.parseInt(e.target.value) })
+                    }
+                  />
+                </div>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">General</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Maintenance Mode</Label>
+                    <p className="text-sm text-muted-foreground">Put system in maintenance mode</p>
+                  </div>
+                  <Checkbox
+                    checked={systemSettings.maintenanceMode}
+                    onCheckedChange={(checked) => setSystemSettings({ ...systemSettings, maintenanceMode: checked })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max File Size (MB)</Label>
+                  <Input
+                    type="number"
+                    value={systemSettings.maxFileSize}
+                    onChange={(e) =>
+                      setSystemSettings({ ...systemSettings, maxFileSize: Number.parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSettingsUpdate}>Save Settings</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
