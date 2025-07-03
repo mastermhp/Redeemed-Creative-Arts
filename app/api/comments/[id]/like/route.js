@@ -1,66 +1,48 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
+import { authenticateRequest } from "@/lib/auth"
 import Comment from "@/models/Comment"
-import User from "@/models/User"
-import EngagementReward from "@/models/EngagementReward"
-import { getServerSession } from "@/lib/auth"
 
 export async function POST(request, { params }) {
   try {
-    const session = await getServerSession()
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
-    const commentId = params.id
-    const comment = await Comment.findById(commentId)
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
 
+    const commentId = params.id
+    const userId = authResult.user._id
+
+    const comment = await Comment.findById(commentId)
     if (!comment) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    const userId = session.userId
-    const hasLiked = comment.likes.includes(userId)
+    const existingLike = comment.likes.find((like) => like.user.toString() === userId.toString())
 
-    if (hasLiked) {
+    if (existingLike) {
       // Unlike
-      comment.likes = comment.likes.filter((id) => id.toString() !== userId.toString())
+      comment.likes = comment.likes.filter((like) => like.user.toString() !== userId.toString())
+      await comment.save()
+
+      return NextResponse.json({
+        message: "Comment unliked",
+        liked: false,
+        likeCount: comment.likes.length,
+      })
     } else {
       // Like
-      comment.likes.push(userId)
+      comment.likes.push({ user: userId })
+      await comment.save()
 
-      // Award engagement points for liking
-      const engagementReward = new EngagementReward({
-        user: userId,
-        action: "like",
-        points: 2,
-        relatedEntity: {
-          entityType: "comment",
-          entityId: commentId,
-        },
-        description: "Liked a comment",
-      })
-
-      await engagementReward.save()
-
-      // Update user points
-      await User.findByIdAndUpdate(userId, {
-        $inc: {
-          "points.current": 2,
-          "points.total": 2,
-        },
+      return NextResponse.json({
+        message: "Comment liked",
+        liked: true,
+        likeCount: comment.likes.length,
       })
     }
-
-    await comment.save()
-
-    return NextResponse.json({
-      message: hasLiked ? "Comment unliked" : "Comment liked",
-      liked: !hasLiked,
-      likesCount: comment.likes.length,
-    })
   } catch (error) {
     console.error("Like comment error:", error)
     return NextResponse.json({ error: "Failed to like comment" }, { status: 500 })

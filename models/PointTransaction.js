@@ -25,13 +25,14 @@ const pointTransactionSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+      trim: true,
     },
-    relatedEntity: {
-      entityType: {
+    relatedItem: {
+      itemType: {
         type: String,
-        enum: ["artwork", "event", "donation", "contest", "comment"],
+        enum: ["artwork", "course", "product", "event", "contest"],
       },
-      entityId: {
+      itemId: {
         type: mongoose.Schema.Types.ObjectId,
       },
     },
@@ -41,8 +42,8 @@ const pointTransactionSchema = new mongoose.Schema(
       default: "completed",
     },
     metadata: {
-      type: Map,
-      of: String,
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
   },
   {
@@ -50,10 +51,10 @@ const pointTransactionSchema = new mongoose.Schema(
   },
 )
 
-// Indexes
+// Indexes for efficient queries
 pointTransactionSchema.index({ from: 1, createdAt: -1 })
 pointTransactionSchema.index({ to: 1, createdAt: -1 })
-pointTransactionSchema.index({ type: 1 })
+pointTransactionSchema.index({ type: 1, createdAt: -1 })
 pointTransactionSchema.index({ status: 1 })
 
 export default mongoose.models.PointTransaction || mongoose.model("PointTransaction", pointTransactionSchema)

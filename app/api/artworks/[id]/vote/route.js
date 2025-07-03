@@ -1,118 +1,107 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
-import Vote from "@/models/Vote"
+import { authenticateRequest } from "@/lib/auth"
 import Artwork from "@/models/Artwork"
+import Vote from "@/models/Vote"
 import User from "@/models/User"
-import EngagementReward from "@/models/EngagementReward"
-import { getServerSession } from "@/lib/auth"
+import Notification from "@/models/Notification"
 
 export async function POST(request, { params }) {
   try {
-    const session = await getServerSession()
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     await connectDB()
 
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
+
     const artworkId = params.id
-    const { voteType = "like" } = await request.json()
+    const { rating } = await request.json()
+
+    if (!rating || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 })
+    }
 
     // Check if artwork exists
-    const artwork = await Artwork.findById(artworkId)
+    const artwork = await Artwork.findById(artworkId).populate("artist", "name")
     if (!artwork) {
       return NextResponse.json({ error: "Artwork not found" }, { status: 404 })
     }
 
     // Check if user already voted
     const existingVote = await Vote.findOne({
-      voter: session.userId,
-      targetId: artworkId,
-      voteType,
+      user: authResult.user._id,
+      artwork: artworkId,
     })
 
     if (existingVote) {
-      // Remove vote (unlike)
-      await Vote.deleteOne({ _id: existingVote._id })
+      // Update existing vote
+      existingVote.rating = rating
+      await existingVote.save()
 
       return NextResponse.json({
-        message: "Vote removed",
-        voted: false,
+        message: "Vote updated successfully",
+        vote: {
+          rating: existingVote.rating,
+          createdAt: existingVote.createdAt,
+          updatedAt: existingVote.updatedAt,
+        },
       })
     } else {
-      // Add vote (like)
+      // Create new vote
       const vote = new Vote({
-        voter: session.userId,
-        targetType: "artwork",
-        targetId: artworkId,
-        voteType,
+        user: authResult.user._id,
+        artwork: artworkId,
+        rating,
       })
 
       await vote.save()
 
-      // Award engagement points
-      const engagementReward = new EngagementReward({
-        user: session.userId,
-        action: "vote",
-        points: 5,
-        relatedEntity: {
-          entityType: "artwork",
-          entityId: artworkId,
-        },
-        description: "Voted on artwork",
+      // Update artwork rating
+      const votes = await Vote.find({ artwork: artworkId })
+      const averageRating = votes.reduce((sum, v) => sum + v.rating, 0) / votes.length
+
+      await Artwork.findByIdAndUpdate(artworkId, {
+        "engagement.rating": averageRating,
+        "engagement.votes": votes.length,
       })
 
-      await engagementReward.save()
-
-      // Update user points
-      await User.findByIdAndUpdate(session.userId, {
+      // Award points to voter
+      await User.findByIdAndUpdate(authResult.user._id, {
         $inc: {
-          "points.current": 5,
-          "points.total": 5,
+          "points.current": 1,
+          "points.total": 1,
         },
       })
 
-      return NextResponse.json({
-        message: "Vote added",
-        voted: true,
-      })
+      // Create notification for artist (if not voting on own artwork)
+      if (artwork.artist._id.toString() !== authResult.user._id.toString()) {
+        await Notification.create({
+          recipient: artwork.artist._id,
+          type: "artwork_rated",
+          title: "Artwork Rated",
+          message: `${authResult.user.name} rated your artwork "${artwork.title}" ${rating} stars`,
+          data: {
+            artworkId: artwork._id,
+            rating,
+            voterName: authResult.user.name,
+          },
+        })
+      }
+
+      return NextResponse.json(
+        {
+          message: "Vote submitted successfully",
+          vote: {
+            rating: vote.rating,
+            createdAt: vote.createdAt,
+          },
+        },
+        { status: 201 },
+      )
     }
   } catch (error) {
     console.error("Vote artwork error:", error)
-    return NextResponse.json({ error: "Failed to vote on artwork" }, { status: 500 })
-  }
-}
-
-export async function GET(request, { params }) {
-  try {
-    const session = await getServerSession()
-    await connectDB()
-
-    const artworkId = params.id
-
-    // Get vote count
-    const voteCount = await Vote.countDocuments({
-      targetId: artworkId,
-      voteType: "like",
-    })
-
-    // Check if current user voted (if logged in)
-    let userVoted = false
-    if (session) {
-      const userVote = await Vote.findOne({
-        voter: session.userId,
-        targetId: artworkId,
-        voteType: "like",
-      })
-      userVoted = !!userVote
-    }
-
-    return NextResponse.json({
-      voteCount,
-      userVoted,
-    })
-  } catch (error) {
-    console.error("Get artwork votes error:", error)
-    return NextResponse.json({ error: "Failed to get votes" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to submit vote" }, { status: 500 })
   }
 }

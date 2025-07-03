@@ -7,9 +7,17 @@ const engagementRewardSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    action: {
+    type: {
       type: String,
-      enum: ["like", "comment", "share", "vote", "donate", "attend_event", "complete_profile", "daily_login"],
+      enum: [
+        "daily_login",
+        "artwork_like",
+        "comment_posted",
+        "donation_made",
+        "event_attended",
+        "course_completed",
+        "milestone_reached",
+      ],
       required: true,
     },
     points: {
@@ -17,26 +25,45 @@ const engagementRewardSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    relatedEntity: {
-      entityType: {
+    description: {
+      type: String,
+      required: true,
+    },
+    relatedItem: {
+      itemType: {
         type: String,
-        enum: ["artwork", "event", "donation", "contest", "comment", "user"],
+        enum: ["artwork", "course", "product", "event", "contest", "donation"],
       },
-      entityId: {
+      itemId: {
         type: mongoose.Schema.Types.ObjectId,
       },
     },
-    multiplier: {
-      type: Number,
-      default: 1,
-      min: 1,
+    milestone: {
+      name: String,
+      level: Number,
+      requirement: Number,
+      achieved: {
+        type: Boolean,
+        default: false,
+      },
     },
-    description: String,
-    isProcessed: {
+    streak: {
+      current: {
+        type: Number,
+        default: 0,
+      },
+      best: {
+        type: Number,
+        default: 0,
+      },
+    },
+    claimed: {
       type: Boolean,
       default: false,
     },
-    processedAt: Date,
+    claimedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -45,7 +72,7 @@ const engagementRewardSchema = new mongoose.Schema(
 
 // Indexes
 engagementRewardSchema.index({ user: 1, createdAt: -1 })
-engagementRewardSchema.index({ action: 1 })
-engagementRewardSchema.index({ isProcessed: 1 })
+engagementRewardSchema.index({ type: 1, createdAt: -1 })
+engagementRewardSchema.index({ claimed: 1 })
 
 export default mongoose.models.EngagementReward || mongoose.model("EngagementReward", engagementRewardSchema)

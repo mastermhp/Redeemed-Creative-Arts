@@ -9,31 +9,27 @@ const communityImpactSchema = new mongoose.Schema(
     },
     period: {
       type: String,
-      enum: ["daily", "weekly", "monthly", "yearly"],
+      enum: ["daily", "weekly", "monthly", "quarterly", "yearly"],
       required: true,
     },
-    date: {
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
       type: Date,
       required: true,
     },
     metrics: {
-      eventsHosted: {
-        type: Number,
-        default: 0,
-      },
-      attendeesReached: {
-        type: Number,
-        default: 0,
-      },
       artistsSupported: {
         type: Number,
         default: 0,
       },
-      donationsReceived: {
+      totalDonations: {
         type: Number,
         default: 0,
       },
-      totalDonationAmount: {
+      eventsHosted: {
         type: Number,
         default: 0,
       },
@@ -41,41 +37,49 @@ const communityImpactSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
-      campaignsCreated: {
-        type: Number,
-        default: 0,
-      },
       communityEngagement: {
         type: Number,
         default: 0,
       },
-      artworksCommissioned: {
+      artworksPromoted: {
         type: Number,
         default: 0,
       },
-      volunteerHours: {
+      coursesSponsored: {
         type: Number,
         default: 0,
       },
     },
     goals: {
-      eventsHosted: Number,
-      attendeesReached: Number,
-      artistsSupported: Number,
-      donationsReceived: Number,
-      totalDonationAmount: Number,
+      artistsSupported: {
+        target: { type: Number, default: 0 },
+        achieved: { type: Number, default: 0 },
+      },
+      totalDonations: {
+        target: { type: Number, default: 0 },
+        achieved: { type: Number, default: 0 },
+      },
+      eventsHosted: {
+        target: { type: Number, default: 0 },
+        achieved: { type: Number, default: 0 },
+      },
+      helpersBooked: {
+        target: { type: Number, default: 0 },
+        achieved: { type: Number, default: 0 },
+      },
     },
     achievements: [
       {
-        title: String,
+        name: String,
         description: String,
-        achievedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        icon: String,
+        achievedAt: Date,
+        points: Number,
       },
     ],
+    notes: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,
@@ -83,7 +87,7 @@ const communityImpactSchema = new mongoose.Schema(
 )
 
 // Indexes
-communityImpactSchema.index({ church: 1, period: 1, date: -1 })
-communityImpactSchema.index({ period: 1, date: -1 })
+communityImpactSchema.index({ church: 1, period: 1, startDate: -1 })
+communityImpactSchema.index({ startDate: 1, endDate: 1 })
 
 export default mongoose.models.CommunityImpact || mongoose.model("CommunityImpact", communityImpactSchema)
