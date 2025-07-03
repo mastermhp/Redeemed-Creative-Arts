@@ -33,6 +33,10 @@ import {
   Building,
   Heart,
   ShoppingCart,
+  MessageCircle,
+  ThumbsUp,
+  Share,
+  Eye,
 } from "lucide-react"
 
 export default function ChurchDashboard() {
@@ -482,6 +486,40 @@ export default function ChurchDashboard() {
                 {campaigns.length === 0 && <p className="text-gray-500 text-center py-4">No active campaigns</p>}
               </CardContent>
             </Card>
+
+            {/* Community Impact Overview */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center text-indigo-700">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Community Impact This Month
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <Calendar className="h-6 w-6 mx-auto text-blue-600 mb-2" />
+                    <p className="text-sm text-gray-600">Events Hosted</p>
+                    <p className="text-lg font-bold text-blue-600">{stats.eventsThisMonth}</p>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <Users className="h-6 w-6 mx-auto text-green-600 mb-2" />
+                    <p className="text-sm text-gray-600">Helpers Booked</p>
+                    <p className="text-lg font-bold text-green-600">{stats.helpersBooked}</p>
+                  </div>
+                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                    <Heart className="h-6 w-6 mx-auto text-purple-600 mb-2" />
+                    <p className="text-sm text-gray-600">Community Reach</p>
+                    <p className="text-lg font-bold text-purple-600">{stats.communityReach}</p>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <Award className="h-6 w-6 mx-auto text-orange-600 mb-2" />
+                    <p className="text-sm text-gray-600">Artworks Commissioned</p>
+                    <p className="text-lg font-bold text-orange-600">{stats.artworksCommissioned}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Events Tab */}
@@ -806,10 +844,15 @@ export default function ChurchDashboard() {
           <TabsContent value="community" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                Community Impact
+                Community Impact Dashboard
               </h2>
+              <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 bg-transparent">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                View Detailed Analytics
+              </Button>
             </div>
 
+            {/* Impact Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
                 <CardContent className="p-6 text-center">
@@ -817,6 +860,7 @@ export default function ChurchDashboard() {
                   <h3 className="text-2xl font-bold text-red-600">{stats.communityReach}</h3>
                   <p className="text-red-600 font-medium">People Reached</p>
                   <p className="text-sm text-gray-600 mt-2">Through our art programs and events</p>
+                  <div className="mt-3 text-xs text-green-600">+18% from last month</div>
                 </CardContent>
               </Card>
 
@@ -826,6 +870,7 @@ export default function ChurchDashboard() {
                   <h3 className="text-2xl font-bold text-blue-600">{stats.artworksCommissioned}</h3>
                   <p className="text-blue-600 font-medium">Artworks Commissioned</p>
                   <p className="text-sm text-gray-600 mt-2">Beautiful pieces for our community</p>
+                  <div className="mt-3 text-xs text-green-600">+2 this month</div>
                 </CardContent>
               </Card>
 
@@ -835,19 +880,104 @@ export default function ChurchDashboard() {
                   <h3 className="text-2xl font-bold text-green-600">{stats.eventsThisMonth}</h3>
                   <p className="text-green-600 font-medium">Events This Month</p>
                   <p className="text-sm text-gray-600 mt-2">Bringing art and faith together</p>
+                  <div className="mt-3 text-xs text-green-600">On track with goals</div>
                 </CardContent>
               </Card>
             </div>
 
+            {/* Engagement Monitoring */}
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="flex items-center">
+                  <Eye className="h-5 w-5 mr-2 text-purple-600" />
+                  Engagement Monitoring
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <MessageCircle className="h-8 w-8 mx-auto text-purple-600 mb-2" />
+                    <p className="text-lg font-bold text-purple-600">156</p>
+                    <p className="text-sm text-gray-600">Comments on Events</p>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <ThumbsUp className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+                    <p className="text-lg font-bold text-blue-600">89</p>
+                    <p className="text-sm text-gray-600">Event Likes</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <Share className="h-8 w-8 mx-auto text-green-600 mb-2" />
+                    <p className="text-lg font-bold text-green-600">34</p>
+                    <p className="text-sm text-gray-600">Social Shares</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <Star className="h-8 w-8 mx-auto text-orange-600 mb-2" />
+                    <p className="text-lg font-bold text-orange-600">4.8</p>
+                    <p className="text-sm text-gray-600">Average Rating</p>
+                  </div>
+                </div>
+
+                {/* Goals Progress */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-800">Monthly Goals Progress</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Events Hosted</span>
+                        <span>{stats.eventsThisMonth}/8</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full"
+                          style={{ width: `${(stats.eventsThisMonth / 8) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Community Reach</span>
+                        <span>{stats.communityReach}/500</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
+                          style={{ width: `${(stats.communityReach / 500) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Helpers Engaged</span>
+                        <span>{stats.helpersBooked}/15</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                          style={{ width: `${(stats.helpersBooked / 15) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle>Recent Community Activity</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {recentActivity.map((activity, index) => (
-                  <div key={index} className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm mb-2">{activity.description}</p>
-                    <p className="text-xs text-gray-600">{activity.timestamp}</p>
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                    <div className="flex-1">
+                      <p className="text-sm mb-1">{activity.description}</p>
+                      <p className="text-xs text-gray-600">{activity.timestamp}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {activity.type}
+                    </Badge>
                   </div>
                 ))}
                 {recentActivity.length === 0 && <p className="text-gray-500 text-center py-4">No recent activity</p>}

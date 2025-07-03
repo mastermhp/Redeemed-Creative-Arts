@@ -32,7 +32,9 @@ import {
   ShoppingCart,
   Loader2,
   AlertTriangle,
+  MessageCircle,
 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function PatronDashboard() {
   const { user: authUser, loading: authLoading } = useAuth()
@@ -313,6 +315,40 @@ export default function PatronDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Engagement Activities */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center text-purple-700">
+                  <ThumbsUp className="h-5 w-5 mr-2" />
+                  Recent Engagement Activities
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <ThumbsUp className="h-6 w-6 mx-auto text-blue-600 mb-2" />
+                    <p className="text-sm text-gray-600">Artworks Liked</p>
+                    <p className="text-lg font-bold text-blue-600">{stats.artworksLiked || 0}</p>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <MessageCircle className="h-6 w-6 mx-auto text-green-600 mb-2" />
+                    <p className="text-sm text-gray-600">Comments Posted</p>
+                    <p className="text-lg font-bold text-green-600">{stats.commentsPosted || 0}</p>
+                  </div>
+                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                    <Gift className="h-6 w-6 mx-auto text-purple-600 mb-2" />
+                    <p className="text-sm text-gray-600">Points Gifted</p>
+                    <p className="text-lg font-bold text-purple-600">{stats.pointsGifted || 0}</p>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <Star className="h-6 w-6 mx-auto text-orange-600 mb-2" />
+                    <p className="text-sm text-gray-600">Votes Cast</p>
+                    <p className="text-lg font-bold text-orange-600">{stats.votescast || 0}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Donations Tab */}
@@ -479,11 +515,101 @@ export default function PatronDashboard() {
 
           {/* Other tabs with placeholder content */}
           <TabsContent value="voting" className="space-y-6">
-            <div className="text-center py-12">
-              <ThumbsUp className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-2xl font-bold text-gray-600 mb-2">No Active Contests</h3>
-              <p className="text-gray-500">Check back later for artwork voting opportunities!</p>
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Vote & Comment on Artworks
+              </h2>
+              <Button variant="outline" className="border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent">
+                <Eye className="h-4 w-4 mr-2" />
+                Browse Gallery
+              </Button>
             </div>
+
+            {/* Recent Artworks to Vote On */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* This would be populated with actual artwork data */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-0">
+                  <img
+                    src="/placeholder.svg?height=200&width=300"
+                    alt="Artwork"
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                  <div className="p-4">
+                    <h3 className="font-bold mb-2">Beautiful Landscape</h3>
+                    <p className="text-sm text-gray-600 mb-3">by Artist Name</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="outline" className="bg-transparent">
+                          <ThumbsUp className="h-4 w-4 mr-1" />
+                          Like (24)
+                        </Button>
+                        <Button size="sm" variant="outline" className="bg-transparent">
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          Comment
+                        </Button>
+                      </div>
+                      <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500">
+                        <Gift className="h-4 w-4 mr-1" />
+                        Gift Points
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Helper Availability Management */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-blue-600" />
+                  Helper Availability Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="availability">Availability Status</Label>
+                    <Select defaultValue="available">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="busy">Busy</SelectItem>
+                        <SelectItem value="unavailable">Unavailable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                    <Input id="hourlyRate" type="number" placeholder="25" />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="skills">Skills & Specializations</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                    {[
+                      "Event Setup",
+                      "Photography",
+                      "Art Instruction",
+                      "Youth Ministry",
+                      "Music",
+                      "Technical Support",
+                    ].map((skill) => (
+                      <div key={skill} className="flex items-center space-x-2">
+                        <Checkbox id={skill} />
+                        <Label htmlFor={skill} className="text-sm">
+                          {skill}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-indigo-500">Update Helper Profile</Button>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="campaigns" className="space-y-6">
