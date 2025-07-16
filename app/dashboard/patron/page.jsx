@@ -17,7 +17,6 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { useRouter } from "next/navigation"
@@ -184,6 +183,15 @@ export default function PatronDashboard() {
           })
         }
       }
+
+      // Fetch all artists for donation dropdown
+      const allArtistsResponse = await fetch("/api/users?userType=artist", {
+        credentials: "include",
+      })
+      if (allArtistsResponse.ok) {
+        const allArtistsData = await allArtistsResponse.json()
+        setSupportedArtists(allArtistsData.users || [])
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       toast({
@@ -240,7 +248,12 @@ export default function PatronDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(donationForm),
+        body: JSON.stringify({
+          recipientId: donationForm.artistId,
+          amount: Number.parseFloat(donationForm.amount),
+          message: donationForm.message,
+          isAnonymous: donationForm.isAnonymous,
+        }),
       })
 
       if (response.ok) {
@@ -391,7 +404,7 @@ export default function PatronDashboard() {
                       </SelectTrigger>
                       <SelectContent>
                         {supportedArtists.map((artist) => (
-                          <SelectItem key={artist.id} value={artist.id}>
+                          <SelectItem key={artist._id} value={artist._id}>
                             {artist.name}
                           </SelectItem>
                         ))}
@@ -572,616 +585,683 @@ export default function PatronDashboard() {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white/50 backdrop-blur-sm border border-white/20 shadow-lg">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="donations" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Heart className="w-4 h-4 mr-2" />
-              Donations
-            </TabsTrigger>
-            <TabsTrigger value="engagement" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Engagement
-            </TabsTrigger>
-            <TabsTrigger value="rewards" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Award className="w-4 h-4 mr-2" />
-              Rewards
-            </TabsTrigger>
-            <TabsTrigger value="artists" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Users className="w-4 h-4 mr-2" />
-              Artists
-            </TabsTrigger>
-            <TabsTrigger value="helper" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Settings className="w-4 h-4 mr-2" />
-              Helper
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <div className="w-64 bg-white/70 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl p-6 h-fit sticky top-8">
+            <nav className="space-y-2">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "overview"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-medium">Overview</span>
+              </button>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Monthly Impact</CardTitle>
-                  <CardDescription>Your contribution this month</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Donations</span>
-                      <span>${stats.engagement?.monthlyDonations || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyDonations || 0) / 500) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Comments</span>
-                      <span>{stats.engagement?.monthlyComments || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyComments || 0) / 50) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Votes</span>
-                      <span>{stats.engagement?.monthlyVotes || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyVotes || 0) / 100) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <button
+                onClick={() => setActiveTab("donations")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "donations"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Heart className="w-5 h-5" />
+                <span className="font-medium">Donations</span>
+              </button>
 
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Engagement Score</CardTitle>
-                  <CardDescription>Your community involvement level</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-purple-600 mb-2">
-                      {stats.engagement?.engagementScore || 0}
-                    </div>
-                    <p className="text-gray-600 mb-4">Community Impact Score</p>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Reward Streak</span>
-                        <span>{stats.engagement?.rewardStreak || 0} days</span>
-                      </div>
-                      <Progress
-                        value={Math.min(((stats.engagement?.rewardStreak || 0) / 30) * 100, 100)}
-                        className="h-2"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              <button
+                onClick={() => setActiveTab("engagement")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "engagement"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span className="font-medium">Engagement</span>
+              </button>
 
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
-                <CardDescription>Your latest contributions and interactions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {donations.slice(0, 5).map((donation, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-3 bg-white/50 rounded-lg">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full flex items-center justify-center">
-                        <Heart className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">Donated ${donation.amount}</h4>
-                        <p className="text-sm text-gray-600">
-                          to {donation.artistName} • {donation.createdAt}
-                        </p>
-                      </div>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>
-                    </div>
-                  ))}
-                  {donations.length === 0 && (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No recent activity. Start supporting artists to see updates here!</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <button
+                onClick={() => setActiveTab("rewards")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "rewards"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Award className="w-5 h-5" />
+                <span className="font-medium">Rewards</span>
+              </button>
 
-          <TabsContent value="donations" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {donations.map((donation) => (
-                <Card key={donation.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
+              <button
+                onClick={() => setActiveTab("artists")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "artists"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">Artists</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("helper")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "helper"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Settings className="w-5 h-5" />
+                <span className="font-medium">Helper</span>
+              </button>
+            </nav>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 space-y-6">
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Monthly Impact</CardTitle>
+                      <CardDescription>Your contribution this month</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div>
-                        <CardTitle className="text-lg">${donation.amount}</CardTitle>
-                        <CardDescription>to {donation.artistName}</CardDescription>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Donations</span>
+                          <span>${stats.engagement?.monthlyDonations || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyDonations || 0) / 500) * 100, 100)}
+                          className="h-2"
+                        />
                       </div>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">{donation.status}</Badge>
-                    </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Comments</span>
+                          <span>{stats.engagement?.monthlyComments || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyComments || 0) / 50) * 100, 100)}
+                          className="h-2"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Votes</span>
+                          <span>{stats.engagement?.monthlyVotes || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyVotes || 0) / 100) * 100, 100)}
+                          className="h-2"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Engagement Score</CardTitle>
+                      <CardDescription>Your community involvement level</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-purple-600 mb-2">
+                          {stats.engagement?.engagementScore || 0}
+                        </div>
+                        <p className="text-gray-600 mb-4">Community Impact Score</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Reward Streak</span>
+                            <span>{stats.engagement?.rewardStreak || 0} days</span>
+                          </div>
+                          <Progress
+                            value={Math.min(((stats.engagement?.rewardStreak || 0) / 30) * 100, 100)}
+                            className="h-2"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
+                    <CardDescription>Your latest contributions and interactions</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {donation.message && <p className="text-sm text-gray-600 mb-3 italic">"{donation.message}"</p>}
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>{donation.createdAt}</span>
-                      <span>{donation.isAnonymous ? "Anonymous" : "Public"}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {donations.length === 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardContent className="text-center py-12">
-                  <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No donations yet</h3>
-                  <p className="text-gray-600 mb-6">
-                    Start supporting artists to make a difference in their creative journey
-                  </p>
-                  <Button
-                    onClick={() => setDonateDialog(true)}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Make Your First Donation
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="engagement" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Comment Activity</CardTitle>
-                  <CardDescription>Your artwork interactions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Total Comments</span>
-                      <Badge variant="outline">{stats.overview?.commentsPosted || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>This Month</span>
-                      <Badge variant="outline">{stats.engagement?.monthlyComments || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Average per Week</span>
-                      <Badge variant="outline">{Math.round((stats.engagement?.monthlyComments || 0) / 4)}</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Voting Activity</CardTitle>
-                  <CardDescription>Your artwork ratings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Total Votes</span>
-                      <Badge variant="outline">{stats.overview?.votesSubmitted || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>This Month</span>
-                      <Badge variant="outline">{stats.engagement?.monthlyVotes || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Average Rating</span>
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 mr-1" />
-                        <span>4.2</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Engagement Goals</CardTitle>
-                <CardDescription>Track your community involvement progress</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-blue-600">
-                      {Math.round(((stats.engagement?.monthlyComments || 0) / 20) * 100)}%
-                    </div>
-                    <div className="text-sm text-blue-600">Monthly Comments</div>
-                    <div className="text-xs text-gray-500 mt-1">Goal: 20 comments</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <Zap className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-purple-600">
-                      {Math.round(((stats.engagement?.monthlyVotes || 0) / 50) * 100)}%
-                    </div>
-                    <div className="text-sm text-purple-600">Monthly Votes</div>
-                    <div className="text-xs text-gray-500 mt-1">Goal: 50 votes</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <Gift className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-green-600">{stats.engagement?.rewardStreak || 0}</div>
-                    <div className="text-sm text-green-600">Day Streak</div>
-                    <div className="text-xs text-gray-500 mt-1">Keep it up!</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="rewards" className="space-y-6">
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="text-xl font-bold">Engagement Rewards</CardTitle>
-                    <CardDescription>Earn points for your community participation</CardDescription>
-                  </div>
-                  {engagementRewards.filter((r) => !r.claimed).length > 0 && (
-                    <Button
-                      onClick={() => claimRewards(engagementRewards.filter((r) => !r.claimed).map((r) => r._id))}
-                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                    >
-                      <Award className="w-4 h-4 mr-2" />
-                      Claim All ({engagementRewards.filter((r) => !r.claimed).length})
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {engagementRewards.map((reward) => (
-                    <div
-                      key={reward._id}
-                      className={`flex items-center justify-between p-4 rounded-lg border ${
-                        reward.claimed
-                          ? "bg-gray-50 border-gray-200"
-                          : "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            reward.claimed ? "bg-gray-300" : "bg-gradient-to-r from-orange-400 to-yellow-400"
-                          }`}
-                        >
-                          <Award className={`w-5 h-5 ${reward.claimed ? "text-gray-600" : "text-white"}`} />
+                    <div className="space-y-4">
+                      {donations.slice(0, 5).map((donation, index) => (
+                        <div key={index} className="flex items-center space-x-4 p-3 bg-white/50 rounded-lg">
+                          <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full flex items-center justify-center">
+                            <Heart className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">Donated ${donation.amount}</h4>
+                            <p className="text-sm text-gray-600">
+                              to {donation.artistName} • {donation.createdAt}
+                            </p>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">{reward.description}</h4>
-                          <p className="text-sm text-gray-600">
-                            {reward.points} points • {new Date(reward.createdAt).toLocaleDateString()}
+                      ))}
+                      {donations.length === 0 && (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">
+                            No recent activity. Start supporting artists to see updates here!
                           </p>
                         </div>
-                      </div>
-                      <div>
-                        {reward.claimed ? (
-                          <Badge className="bg-gray-100 text-gray-600 border-gray-200">Claimed</Badge>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => claimRewards([reward._id])}
-                            className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
-                          >
-                            Claim
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {engagementRewards.length === 0 && (
-                    <div className="text-center py-8">
-                      <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-medium text-gray-900 mb-2">No rewards yet</h3>
-                      <p className="text-gray-600">Start engaging with the community to earn rewards!</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="artists" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {supportedArtists.map((artist) => (
-                <Card key={artist.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                  <CardHeader>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
-                        {artist.profileImage ? (
-                          <img
-                            src={artist.profileImage || "/placeholder.svg"}
-                            alt={artist.name}
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        ) : (
-                          <Users className="w-6 h-6 text-white" />
-                        )}
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg">{artist.name}</CardTitle>
-                        <CardDescription>{artist.specialty || "Artist"}</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span>Total Supported:</span>
-                        <span className="font-medium">${artist.totalSupported || 0}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Artworks:</span>
-                        <span>{artist.artworkCount || 0}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Last Donation:</span>
-                        <span>{artist.lastDonation || "Never"}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                        onClick={() => {
-                          setDonationForm((prev) => ({ ...prev, artistId: artist.id }))
-                          setDonateDialog(true)
-                        }}
-                      >
-                        <Heart className="w-4 h-4 mr-1" />
-                        Donate
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                        onClick={() => {
-                          setGiftForm((prev) => ({ ...prev, recipientId: artist.id }))
-                          setGiftPointsDialog(true)
-                        }}
-                      >
-                        <Gift className="w-4 h-4 mr-1" />
-                        Gift
-                      </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-
-            {supportedArtists.length === 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardContent className="text-center py-12">
-                  <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No artists supported yet</h3>
-                  <p className="text-gray-600 mb-6">Discover and support talented Christian artists</p>
-                  <Button
-                    onClick={() => router.push("/artist-gallery")}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Browse Artists
-                  </Button>
-                </CardContent>
-              </Card>
+              </div>
             )}
-          </TabsContent>
 
-          <TabsContent value="helper" className="space-y-6">
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="text-xl font-bold">Helper Availability</CardTitle>
-                    <CardDescription>Manage your availability to help churches and events</CardDescription>
-                  </div>
-                  <Dialog open={helperDialog} onOpenChange={setHelperDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="bg-white/50 hover:bg-white/80 border-white/30">
-                        <Settings className="w-4 h-4 mr-2" />
-                        Update Availability
+            {activeTab === "donations" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {donations.map((donation) => (
+                    <Card key={donation.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">${donation.amount}</CardTitle>
+                            <CardDescription>to {donation.artistName}</CardDescription>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800 border-green-200">{donation.status}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {donation.message && <p className="text-sm text-gray-600 mb-3 italic">"{donation.message}"</p>}
+                        <div className="flex justify-between text-sm text-gray-500">
+                          <span>{donation.createdAt}</span>
+                          <span>{donation.isAnonymous ? "Anonymous" : "Public"}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {donations.length === 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardContent className="text-center py-12">
+                      <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No donations yet</h3>
+                      <p className="text-gray-600 mb-6">
+                        Start supporting artists to make a difference in their creative journey
+                      </p>
+                      <Button
+                        onClick={() => setDonateDialog(true)}
+                        className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                      >
+                        <Heart className="w-4 h-4 mr-2" />
+                        Make Your First Donation
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Update Helper Availability</DialogTitle>
-                        <DialogDescription>Set your availability and skills to help churches</DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleUpdateHelperAvailability} className="space-y-6">
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="isAvailable"
-                            checked={helperForm.isAvailable}
-                            onChange={(e) => setHelperForm((prev) => ({ ...prev, isAvailable: e.target.checked }))}
-                          />
-                          <Label htmlFor="isAvailable">I am available to help</Label>
-                        </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
-                        <div>
-                          <Label htmlFor="skills">Skills (comma-separated)</Label>
-                          <Input
-                            id="skills"
-                            value={helperForm.skills.join(", ")}
-                            onChange={(e) =>
-                              setHelperForm((prev) => ({
-                                ...prev,
-                                skills: e.target.value
-                                  .split(",")
-                                  .map((s) => s.trim())
-                                  .filter((s) => s),
-                              }))
-                            }
-                            placeholder="e.g., Photography, Event Setup, Audio/Visual, Decoration"
-                          />
+            {activeTab === "engagement" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Comment Activity</CardTitle>
+                      <CardDescription>Your artwork interactions</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Total Comments</span>
+                          <Badge variant="outline">{stats.overview?.commentsPosted || 0}</Badge>
                         </div>
-
-                        <div>
-                          <Label htmlFor="hourlyRate">Hourly Rate ($ - optional)</Label>
-                          <Input
-                            id="hourlyRate"
-                            type="number"
-                            value={helperForm.hourlyRate}
-                            onChange={(e) => setHelperForm((prev) => ({ ...prev, hourlyRate: e.target.value }))}
-                            placeholder="0.00"
-                            min="0"
-                            step="0.01"
-                          />
+                        <div className="flex justify-between items-center">
+                          <span>This Month</span>
+                          <Badge variant="outline">{stats.engagement?.monthlyComments || 0}</Badge>
                         </div>
+                        <div className="flex justify-between items-center">
+                          <span>Average per Week</span>
+                          <Badge variant="outline">{Math.round((stats.engagement?.monthlyComments || 0) / 4)}</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                        <div>
-                          <Label>Weekly Availability</Label>
-                          <div className="space-y-3 mt-2">
-                            {Object.entries(helperForm.availability).map(([day, dayData]) => (
-                              <div key={day} className="flex items-center space-x-4">
-                                <div className="w-24">
-                                  <input
-                                    type="checkbox"
-                                    id={`${day}-available`}
-                                    checked={dayData.available}
-                                    onChange={(e) =>
-                                      setHelperForm((prev) => ({
-                                        ...prev,
-                                        availability: {
-                                          ...prev.availability,
-                                          [day]: { ...dayData, available: e.target.checked },
-                                        },
-                                      }))
-                                    }
-                                    className="mr-2"
-                                  />
-                                  <Label htmlFor={`${day}-available`} className="capitalize">
-                                    {day}
-                                  </Label>
-                                </div>
-                                {dayData.available && (
-                                  <Input
-                                    placeholder="e.g., 9:00 AM - 5:00 PM"
-                                    value={dayData.hours}
-                                    onChange={(e) =>
-                                      setHelperForm((prev) => ({
-                                        ...prev,
-                                        availability: {
-                                          ...prev.availability,
-                                          [day]: { ...dayData, hours: e.target.value },
-                                        },
-                                      }))
-                                    }
-                                    className="flex-1"
-                                  />
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Voting Activity</CardTitle>
+                      <CardDescription>Your artwork ratings</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Total Votes</span>
+                          <Badge variant="outline">{stats.overview?.votesSubmitted || 0}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>This Month</span>
+                          <Badge variant="outline">{stats.engagement?.monthlyVotes || 0}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Average Rating</span>
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                            <span>4.2</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold">Engagement Goals</CardTitle>
+                    <CardDescription>Track your community involvement progress</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-blue-600">
+                          {Math.round(((stats.engagement?.monthlyComments || 0) / 20) * 100)}%
+                        </div>
+                        <div className="text-sm text-blue-600">Monthly Comments</div>
+                        <div className="text-xs text-gray-500 mt-1">Goal: 20 comments</div>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg">
+                        <Zap className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-purple-600">
+                          {Math.round(((stats.engagement?.monthlyVotes || 0) / 50) * 100)}%
+                        </div>
+                        <div className="text-sm text-purple-600">Monthly Votes</div>
+                        <div className="text-xs text-gray-500 mt-1">Goal: 50 votes</div>
+                      </div>
+                      <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <Gift className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-green-600">{stats.engagement?.rewardStreak || 0}</div>
+                        <div className="text-sm text-green-600">Day Streak</div>
+                        <div className="text-xs text-gray-500 mt-1">Keep it up!</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === "rewards" && (
+              <div className="space-y-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle className="text-xl font-bold">Engagement Rewards</CardTitle>
+                        <CardDescription>Earn points for your community participation</CardDescription>
+                      </div>
+                      {engagementRewards.filter((r) => !r.claimed).length > 0 && (
+                        <Button
+                          onClick={() => claimRewards(engagementRewards.filter((r) => !r.claimed).map((r) => r._id))}
+                          className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                        >
+                          <Award className="w-4 h-4 mr-2" />
+                          Claim All ({engagementRewards.filter((r) => !r.claimed).length})
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {engagementRewards.map((reward) => (
+                        <div
+                          key={reward._id}
+                          className={`flex items-center justify-between p-4 rounded-lg border ${
+                            reward.claimed
+                              ? "bg-gray-50 border-gray-200"
+                              : "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div
+                              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                reward.claimed ? "bg-gray-300" : "bg-gradient-to-r from-orange-400 to-yellow-400"
+                              }`}
+                            >
+                              <Award className={`w-5 h-5 ${reward.claimed ? "text-gray-600" : "text-white"}`} />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{reward.description}</h4>
+                              <p className="text-sm text-gray-600">
+                                {reward.points} points • {new Date(reward.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            {reward.claimed ? (
+                              <Badge className="bg-gray-100 text-gray-600 border-gray-200">Claimed</Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                onClick={() => claimRewards([reward._id])}
+                                className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                              >
+                                Claim
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {engagementRewards.length === 0 && (
+                        <div className="text-center py-8">
+                          <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-xl font-medium text-gray-900 mb-2">No rewards yet</h3>
+                          <p className="text-gray-600">Start engaging with the community to earn rewards!</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === "artists" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {supportedArtists.map((artist) => (
+                    <Card key={artist.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                      <CardHeader>
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
+                            {artist.profileImage ? (
+                              <img
+                                src={artist.profileImage || "/placeholder.svg"}
+                                alt={artist.name}
+                                className="w-full h-full object-cover rounded-full"
+                              />
+                            ) : (
+                              <Users className="w-6 h-6 text-white" />
+                            )}
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{artist.name}</CardTitle>
+                            <CardDescription>{artist.specialty || "Artist"}</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm">
+                            <span>Total Supported:</span>
+                            <span className="font-medium">${artist.totalSupported || 0}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Artworks:</span>
+                            <span>{artist.artworkCount || 0}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Last Donation:</span>
+                            <span>{artist.lastDonation || "Never"}</span>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                            onClick={() => {
+                              setDonationForm((prev) => ({ ...prev, artistId: artist.id }))
+                              setDonateDialog(true)
+                            }}
+                          >
+                            <Heart className="w-4 h-4 mr-1" />
+                            Donate
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                            onClick={() => {
+                              setGiftForm((prev) => ({ ...prev, recipientId: artist.id }))
+                              setGiftPointsDialog(true)
+                            }}
+                          >
+                            <Gift className="w-4 h-4 mr-1" />
+                            Gift
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {supportedArtists.length === 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardContent className="text-center py-12">
+                      <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No artists supported yet</h3>
+                      <p className="text-gray-600 mb-6">Discover and support talented Christian artists</p>
+                      <Button
+                        onClick={() => router.push("/artist-gallery")}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Browse Artists
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === "helper" && (
+              <div className="space-y-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle className="text-xl font-bold">Helper Availability</CardTitle>
+                        <CardDescription>Manage your availability to help churches and events</CardDescription>
+                      </div>
+                      <Dialog open={helperDialog} onOpenChange={setHelperDialog}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="bg-white/50 hover:bg-white/80 border-white/30">
+                            <Settings className="w-4 h-4 mr-2" />
+                            Update Availability
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Update Helper Availability</DialogTitle>
+                            <DialogDescription>Set your availability and skills to help churches</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleUpdateHelperAvailability} className="space-y-6">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id="isAvailable"
+                                checked={helperForm.isAvailable}
+                                onChange={(e) => setHelperForm((prev) => ({ ...prev, isAvailable: e.target.checked }))}
+                              />
+                              <Label htmlFor="isAvailable">I am available to help</Label>
+                            </div>
+
+                            <div>
+                              <Label htmlFor="skills">Skills (comma-separated)</Label>
+                              <Input
+                                id="skills"
+                                value={helperForm.skills.join(", ")}
+                                onChange={(e) =>
+                                  setHelperForm((prev) => ({
+                                    ...prev,
+                                    skills: e.target.value
+                                      .split(",")
+                                      .map((s) => s.trim())
+                                      .filter((s) => s),
+                                  }))
+                                }
+                                placeholder="e.g., Photography, Event Setup, Audio/Visual, Decoration"
+                              />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="hourlyRate">Hourly Rate ($ - optional)</Label>
+                              <Input
+                                id="hourlyRate"
+                                type="number"
+                                value={helperForm.hourlyRate}
+                                onChange={(e) => setHelperForm((prev) => ({ ...prev, hourlyRate: e.target.value }))}
+                                placeholder="0.00"
+                                min="0"
+                                step="0.01"
+                              />
+                            </div>
+
+                            <div>
+                              <Label>Weekly Availability</Label>
+                              <div className="space-y-3 mt-2">
+                                {Object.entries(helperForm.availability).map(([day, dayData]) => (
+                                  <div key={day} className="flex items-center space-x-4">
+                                    <div className="w-24">
+                                      <input
+                                        type="checkbox"
+                                        id={`${day}-available`}
+                                        checked={dayData.available}
+                                        onChange={(e) =>
+                                          setHelperForm((prev) => ({
+                                            ...prev,
+                                            availability: {
+                                              ...prev.availability,
+                                              [day]: { ...dayData, available: e.target.checked },
+                                            },
+                                          }))
+                                        }
+                                        className="mr-2"
+                                      />
+                                      <Label htmlFor={`${day}-available`} className="capitalize">
+                                        {day}
+                                      </Label>
+                                    </div>
+                                    {dayData.available && (
+                                      <Input
+                                        placeholder="e.g., 9:00 AM - 5:00 PM"
+                                        value={dayData.hours}
+                                        onChange={(e) =>
+                                          setHelperForm((prev) => ({
+                                            ...prev,
+                                            availability: {
+                                              ...prev.availability,
+                                              [day]: { ...dayData, hours: e.target.value },
+                                            },
+                                          }))
+                                        }
+                                        className="flex-1"
+                                      />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <DialogFooter>
+                              <Button type="button" variant="outline" onClick={() => setHelperDialog(false)}>
+                                Cancel
+                              </Button>
+                              <Button type="submit" disabled={submitting}>
+                                {submitting ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Settings className="w-4 h-4 mr-2" />
                                 )}
+                                Update Availability
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {helperAvailability ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span>Status:</span>
+                          <Badge
+                            className={
+                              helperAvailability.isAvailable
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-gray-100 text-gray-800 border-gray-200"
+                            }
+                          >
+                            {helperAvailability.isAvailable ? "Available" : "Not Available"}
+                          </Badge>
+                        </div>
+
+                        {helperAvailability.skills && helperAvailability.skills.length > 0 && (
+                          <div>
+                            <span className="font-medium">Skills:</span>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {helperAvailability.skills.map((skill, index) => (
+                                <Badge key={index} variant="outline">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {helperAvailability.hourlyRate && (
+                          <div className="flex items-center justify-between">
+                            <span>Hourly Rate:</span>
+                            <span className="font-medium">${helperAvailability.hourlyRate}/hour</span>
+                          </div>
+                        )}
+
+                        <div>
+                          <span className="font-medium">Weekly Schedule:</span>
+                          <div className="mt-2 space-y-1">
+                            {Object.entries(helperAvailability.availability || {}).map(([day, dayData]) => (
+                              <div key={day} className="flex justify-between text-sm">
+                                <span className="capitalize">{day}:</span>
+                                <span>{dayData.available ? dayData.hours || "Available" : "Not Available"}</span>
                               </div>
                             ))}
                           </div>
                         </div>
-
-                        <DialogFooter>
-                          <Button type="button" variant="outline" onClick={() => setHelperDialog(false)}>
-                            Cancel
-                          </Button>
-                          <Button type="submit" disabled={submitting}>
-                            {submitting ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <Settings className="w-4 h-4 mr-2" />
-                            )}
-                            Update Availability
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {helperAvailability ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>Status:</span>
-                      <Badge
-                        className={
-                          helperAvailability.isAvailable
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : "bg-gray-100 text-gray-800 border-gray-200"
-                        }
-                      >
-                        {helperAvailability.isAvailable ? "Available" : "Not Available"}
-                      </Badge>
-                    </div>
-
-                    {helperAvailability.skills && helperAvailability.skills.length > 0 && (
-                      <div>
-                        <span className="font-medium">Skills:</span>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {helperAvailability.skills.map((skill, index) => (
-                            <Badge key={index} variant="outline">
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-medium text-gray-900 mb-2">Helper Profile Not Set</h3>
+                        <p className="text-gray-600 mb-6">
+                          Set up your helper profile to assist churches with their events
+                        </p>
+                        <Button
+                          onClick={() => setHelperDialog(true)}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Set Up Helper Profile
+                        </Button>
                       </div>
                     )}
-
-                    {helperAvailability.hourlyRate && (
-                      <div className="flex items-center justify-between">
-                        <span>Hourly Rate:</span>
-                        <span className="font-medium">${helperAvailability.hourlyRate}/hour</span>
-                      </div>
-                    )}
-
-                    <div>
-                      <span className="font-medium">Weekly Schedule:</span>
-                      <div className="mt-2 space-y-1">
-                        {Object.entries(helperAvailability.availability || {}).map(([day, dayData]) => (
-                          <div key={day} className="flex justify-between text-sm">
-                            <span className="capitalize">{day}:</span>
-                            <span>{dayData.available ? dayData.hours || "Available" : "Not Available"}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">Helper Profile Not Set</h3>
-                    <p className="text-gray-600 mb-6">
-                      Set up your helper profile to assist churches with their events
-                    </p>
-                    <Button
-                      onClick={() => setHelperDialog(true)}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Set Up Helper Profile
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

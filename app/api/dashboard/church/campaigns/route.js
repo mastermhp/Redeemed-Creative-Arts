@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Donation from "@/models/Donation"
-import { getServerSession } from "@/lib/auth"
+import { authenticateRequest } from "@/lib/auth"
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const session = await getServerSession()
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
 
-    if (!session || session.userType !== "church") {
+    if (authResult.user.userType !== "church") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -15,7 +18,7 @@ export async function GET() {
 
     // Get campaigns by grouping donations by campaignId
     const campaignData = await Donation.aggregate([
-      { $match: { recipientId: session.userId } },
+      { $match: { recipientId: authResult.user._id } },
       {
         $group: {
           _id: "$campaignId",
@@ -61,9 +64,12 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const session = await getServerSession()
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
 
-    if (!session || session.userType !== "church") {
+    if (authResult.user.userType !== "church") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -77,7 +83,7 @@ export async function POST(request) {
       campaignDescription: campaignData.description,
       campaignGoal: campaignData.goal,
       category: campaignData.category,
-      recipientId: session.userId,
+      recipientId: authResult.user._id,
       amount: 0,
       status: "active",
       campaignEndDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now

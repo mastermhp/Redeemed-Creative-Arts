@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
+import User from "@/models/User"
 import { authenticateRequest } from "@/lib/auth"
-import Helper from "@/models/Helper"
 
 export async function GET(request) {
   try {
@@ -12,15 +12,29 @@ export async function GET(request) {
       return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
-    const helper = await Helper.findOne({ user: authResult.user._id }).populate("user", "name email profileImage")
-
-    if (!helper) {
-      return NextResponse.json({ error: "Helper profile not found" }, { status: 404 })
+    const user = await User.findById(authResult.user._id)
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ helper })
+    return NextResponse.json({
+      helper: {
+        isAvailable: user.isHelper,
+        skills: user.helperInfo?.skills || [],
+        hourlyRate: user.helperInfo?.hourlyRate || "",
+        availability: user.helperInfo?.availability || {
+          monday: { available: false, hours: "" },
+          tuesday: { available: false, hours: "" },
+          wednesday: { available: false, hours: "" },
+          thursday: { available: false, hours: "" },
+          friday: { available: false, hours: "" },
+          saturday: { available: false, hours: "" },
+          sunday: { available: false, hours: "" },
+        },
+      },
+    })
   } catch (error) {
-    console.error("Fetch helper availability error:", error)
+    console.error("Helper availability GET error:", error)
     return NextResponse.json({ error: "Failed to fetch helper availability" }, { status: 500 })
   }
 }
@@ -34,26 +48,40 @@ export async function PUT(request) {
       return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
-    const { availability, skills, hourlyRate, isAvailable } = await request.json()
+    const { isAvailable, skills, hourlyRate, availability } = await request.json()
 
-    const helper = await Helper.findOneAndUpdate(
-      { user: authResult.user._id },
+    const user = await User.findByIdAndUpdate(
+      authResult.user._id,
       {
-        availability,
-        skills,
-        hourlyRate,
-        isAvailable,
-        updatedAt: new Date(),
+        isHelper: isAvailable,
+        helperInfo: {
+          skills: skills || [],
+          hourlyRate: hourlyRate || 0,
+          availability: availability || {},
+          rating: {
+            average: 0,
+            count: 0,
+          },
+        },
       },
-      { new: true, upsert: true },
-    ).populate("user", "name email profileImage")
+      { new: true },
+    )
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
 
     return NextResponse.json({
       message: "Helper availability updated successfully",
-      helper,
+      helper: {
+        isAvailable: user.isHelper,
+        skills: user.helperInfo?.skills || [],
+        hourlyRate: user.helperInfo?.hourlyRate || "",
+        availability: user.helperInfo?.availability || {},
+      },
     })
   } catch (error) {
-    console.error("Update helper availability error:", error)
+    console.error("Helper availability PUT error:", error)
     return NextResponse.json({ error: "Failed to update helper availability" }, { status: 500 })
   }
 }

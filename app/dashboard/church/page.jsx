@@ -17,7 +17,6 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { useRouter } from "next/navigation"
@@ -829,700 +828,768 @@ export default function ChurchDashboard() {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white/50 backdrop-blur-sm border border-white/20 shadow-lg">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="helpers" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <UserCheck className="w-4 h-4 mr-2" />
-              Helpers
-            </TabsTrigger>
-            <TabsTrigger value="events" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Calendar className="w-4 h-4 mr-2" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="campaigns" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Heart className="w-4 h-4 mr-2" />
-              Campaigns
-            </TabsTrigger>
-            <TabsTrigger value="engagement" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Engagement
-            </TabsTrigger>
-            <TabsTrigger value="impact" className="data-[state=active]:bg-white data-[state=active]:shadow-md">
-              <Target className="w-4 h-4 mr-2" />
-              Impact
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <div className="w-64 bg-white/70 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl p-6 h-fit sticky top-8">
+            <nav className="space-y-2">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "overview"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-medium">Overview</span>
+              </button>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Monthly Progress</CardTitle>
-                  <CardDescription>Your community engagement this month</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Helpers Booked</span>
-                      <span>{stats.engagement?.monthlyHelpers || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyHelpers || 0) / 10) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Events Created</span>
-                      <span>{stats.engagement?.monthlyEvents || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyEvents || 0) / 5) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Donations Facilitated</span>
-                      <span>${stats.engagement?.monthlyDonations || 0}</span>
-                    </div>
-                    <Progress
-                      value={Math.min(((stats.engagement?.monthlyDonations || 0) / 1000) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <button
+                onClick={() => setActiveTab("helpers")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "helpers"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <UserCheck className="w-5 h-5" />
+                <span className="font-medium">Helpers</span>
+              </button>
 
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Community Reach</CardTitle>
-                  <CardDescription>Your ministry's impact metrics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-purple-600 mb-2">
-                      {stats.engagement?.communityReach || 0}
-                    </div>
-                    <p className="text-gray-600 mb-4">People Reached</p>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Growth Rate</span>
-                        <span>+{stats.engagement?.engagementGrowth || 0}%</span>
-                      </div>
-                      <Progress value={Math.min(stats.engagement?.engagementGrowth || 0, 100)} className="h-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              <button
+                onClick={() => setActiveTab("events")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "events"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Calendar className="w-5 h-5" />
+                <span className="font-medium">Events</span>
+              </button>
 
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
-                <CardDescription>Latest church activities and bookings</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {helpers.slice(0, 5).map((helper, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-3 bg-white/50 rounded-lg">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center">
-                        <UserCheck className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">Booked {helper.helperName}</h4>
-                        <p className="text-sm text-gray-600">
-                          for {helper.eventDescription} • {helper.eventDate}
-                        </p>
-                      </div>
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-200">{helper.status}</Badge>
-                    </div>
-                  ))}
-                  {helpers.length === 0 && (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No recent activity. Start booking helpers to see updates here!</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <button
+                onClick={() => setActiveTab("campaigns")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "campaigns"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Heart className="w-5 h-5" />
+                <span className="font-medium">Campaigns</span>
+              </button>
 
-          <TabsContent value="helpers" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {helpers.map((helper) => (
-                <Card key={helper.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
+              <button
+                onClick={() => setActiveTab("engagement")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "engagement"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <BarChart3 className="w-5 h-5" />
+                <span className="font-medium">Engagement</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("impact")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                  activeTab === "impact"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                }`}
+              >
+                <Target className="w-5 h-5" />
+                <span className="font-medium">Impact</span>
+              </button>
+            </nav>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 space-y-6">
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Monthly Progress</CardTitle>
+                      <CardDescription>Your community engagement this month</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div>
-                        <CardTitle className="text-lg">{helper.helperName}</CardTitle>
-                        <CardDescription>{helper.eventDescription}</CardDescription>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Helpers Booked</span>
+                          <span>{stats.engagement?.monthlyHelpers || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyHelpers || 0) / 10) * 100, 100)}
+                          className="h-2"
+                        />
                       </div>
-                      <Badge
-                        className={`${
-                          helper.status === "confirmed"
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : helper.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                              : "bg-gray-100 text-gray-800 border-gray-200"
-                        }`}
-                      >
-                        {helper.status}
-                      </Badge>
-                    </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Events Created</span>
+                          <span>{stats.engagement?.monthlyEvents || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyEvents || 0) / 5) * 100, 100)}
+                          className="h-2"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Donations Facilitated</span>
+                          <span>${stats.engagement?.monthlyDonations || 0}</span>
+                        </div>
+                        <Progress
+                          value={Math.min(((stats.engagement?.monthlyDonations || 0) / 1000) * 100, 100)}
+                          className="h-2"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Community Reach</CardTitle>
+                      <CardDescription>Your ministry's impact metrics</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-purple-600 mb-2">
+                          {stats.engagement?.communityReach || 0}
+                        </div>
+                        <p className="text-gray-600 mb-4">People Reached</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Growth Rate</span>
+                            <span>+{stats.engagement?.engagementGrowth || 0}%</span>
+                          </div>
+                          <Progress value={Math.min(stats.engagement?.engagementGrowth || 0, 100)} className="h-2" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
+                    <CardDescription>Latest church activities and bookings</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {helper.eventDate}
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <Clock className="w-4 h-4 mr-2" />
-                        {helper.duration} hours
-                      </div>
-                      {helper.hourlyRate && (
-                        <div className="flex items-center text-gray-600">
-                          <DollarSign className="w-4 h-4 mr-2" />${helper.hourlyRate}/hour
+                    <div className="space-y-4">
+                      {helpers.slice(0, 5).map((helper, index) => (
+                        <div key={index} className="flex items-center space-x-4 p-3 bg-white/50 rounded-lg">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center">
+                            <UserCheck className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">Booked {helper.helperName}</h4>
+                            <p className="text-sm text-gray-600">
+                              for {helper.eventDescription} • {helper.eventDate}
+                            </p>
+                          </div>
+                          <Badge className="bg-blue-100 text-blue-800 border-blue-200">{helper.status}</Badge>
+                        </div>
+                      ))}
+                      {helpers.length === 0 && (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">
+                            No recent activity. Start booking helpers to see updates here!
+                          </p>
                         </div>
                       )}
                     </div>
-                    {helper.skills && helper.skills.length > 0 && (
-                      <div className="mt-3">
-                        <div className="flex flex-wrap gap-1">
-                          {helper.skills.map((skill, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === "helpers" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {helpers.map((helper) => (
+                    <Card key={helper.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">{helper.helperName}</CardTitle>
+                            <CardDescription>{helper.eventDescription}</CardDescription>
+                          </div>
+                          <Badge
+                            className={`${
+                              helper.status === "confirmed"
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : helper.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  : "bg-gray-100 text-gray-800 border-gray-200"
+                            }`}
+                          >
+                            {helper.status}
+                          </Badge>
                         </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center text-gray-600">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            {helper.eventDate}
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <Clock className="w-4 h-4 mr-2" />
+                            {helper.duration} hours
+                          </div>
+                          {helper.hourlyRate && (
+                            <div className="flex items-center text-gray-600">
+                              <DollarSign className="w-4 h-4 mr-2" />${helper.hourlyRate}/hour
+                            </div>
+                          )}
+                        </div>
+                        {helper.skills && helper.skills.length > 0 && (
+                          <div className="mt-3">
+                            <div className="flex flex-wrap gap-1">
+                              {helper.skills.map((skill, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {helpers.length === 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardContent className="text-center py-12">
+                      <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No helpers booked yet</h3>
+                      <p className="text-gray-600 mb-6">Find skilled volunteers to help with your church events</p>
+                      <Button
+                        onClick={() => setBookHelperDialog(true)}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      >
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Book Your First Helper
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {/* Add other tab content sections here following the same pattern */}
+            {activeTab === "events" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {events.map((event) => (
+                    <Card key={event.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">{event.title}</CardTitle>
+                            <CardDescription>{event.type}</CardDescription>
+                          </div>
+                          <Badge
+                            className={`${
+                              event.status === "upcoming"
+                                ? "bg-blue-100 text-blue-800 border-blue-200"
+                                : event.status === "ongoing"
+                                  ? "bg-green-100 text-green-800 border-green-200"
+                                  : "bg-gray-100 text-gray-800 border-gray-200"
+                            }`}
+                          >
+                            {event.status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center text-gray-600">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            {event.startDate}
+                          </div>
+                          {event.location && (
+                            <div className="flex items-center text-gray-600">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {event.location}
+                            </div>
+                          )}
+                          <div className="flex items-center text-gray-600">
+                            <Users className="w-4 h-4 mr-2" />
+                            {event.attendeeCount || 0} / {event.maxAttendees || "∞"} attendees
+                          </div>
+                        </div>
+                        <div className="mt-4 flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {events.length === 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardContent className="text-center py-12">
+                      <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No events created yet</h3>
+                      <p className="text-gray-600 mb-6">Start organizing community events and activities</p>
+                      <Button
+                        onClick={() => setCreateEventDialog(true)}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      >
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Create Your First Event
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === "campaigns" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {campaigns.map((campaign) => (
+                    <Card key={campaign.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">{campaign.title}</CardTitle>
+                            <CardDescription>{campaign.category}</CardDescription>
+                          </div>
+                          <Badge
+                            className={`${
+                              campaign.status === "active"
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : campaign.status === "completed"
+                                  ? "bg-blue-100 text-blue-800 border-blue-200"
+                                  : "bg-gray-100 text-gray-800 border-gray-200"
+                            }`}
+                          >
+                            {campaign.status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600 mb-3">{campaign.description}</p>
+                        <div className="space-y-3">
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span>Progress</span>
+                              <span>
+                                ${campaign.currentAmount || 0} / ${campaign.targetAmount}
+                              </span>
+                            </div>
+                            <Progress
+                              value={Math.min(((campaign.currentAmount || 0) / campaign.targetAmount) * 100, 100)}
+                              className="h-2"
+                            />
+                          </div>
+                          <div className="flex justify-between text-sm text-gray-600">
+                            <span>Donors: {campaign.donorCount || 0}</span>
+                            <span>Ends: {campaign.endDate}</span>
+                          </div>
+                          {campaign.isMatching && (
+                            <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                              Matching {campaign.matchingRatio}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="mt-4 flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {campaigns.length === 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardContent className="text-center py-12">
+                      <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No campaigns created yet</h3>
+                      <p className="text-gray-600 mb-6">Launch fundraising campaigns to support your community</p>
+                      <Button
+                        onClick={() => setCreateCampaignDialog(true)}
+                        className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                      >
+                        <Heart className="w-4 h-4 mr-2" />
+                        Create Your First Campaign
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === "engagement" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Engagement Metrics</CardTitle>
+                      <CardDescription>Track your community interaction</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Monthly Helpers</span>
+                          <Badge variant="outline">{stats.engagement?.monthlyHelpers || 0}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Monthly Events</span>
+                          <Badge variant="outline">{stats.engagement?.monthlyEvents || 0}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Monthly Donations</span>
+                          <Badge variant="outline">${stats.engagement?.monthlyDonations || 0}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Community Reach</span>
+                          <Badge variant="outline">{stats.engagement?.communityReach || 0} people</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Growth Trends</CardTitle>
+                      <CardDescription>Your ministry's growth over time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span>Engagement Growth</span>
+                          <div className="flex items-center">
+                            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                            <span className="text-green-600">+{stats.engagement?.engagementGrowth || 0}%</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Helper Retention</span>
+                          <span className="text-blue-600">85%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Event Attendance</span>
+                          <span className="text-purple-600">92%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Campaign Success</span>
+                          <span className="text-green-600">78%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold">Engagement Goals</CardTitle>
+                    <CardDescription>Track your ministry objectives</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <UserCheck className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-blue-600">
+                          {Math.round(((stats.engagement?.monthlyHelpers || 0) / 10) * 100)}%
+                        </div>
+                        <div className="text-sm text-blue-600">Monthly Helpers</div>
+                        <div className="text-xs text-gray-500 mt-1">Goal: 10 helpers</div>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg">
+                        <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-purple-600">
+                          {Math.round(((stats.engagement?.monthlyEvents || 0) / 5) * 100)}%
+                        </div>
+                        <div className="text-sm text-purple-600">Monthly Events</div>
+                        <div className="text-xs text-gray-500 mt-1">Goal: 5 events</div>
+                      </div>
+                      <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <Heart className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-green-600">
+                          {Math.round(((stats.engagement?.monthlyDonations || 0) / 1000) * 100)}%
+                        </div>
+                        <div className="text-sm text-green-600">Monthly Donations</div>
+                        <div className="text-xs text-gray-500 mt-1">Goal: $1,000</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === "impact" && (
+              <div className="space-y-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle className="text-xl font-bold">Community Impact Goals</CardTitle>
+                        <CardDescription>Set and track your ministry's impact objectives</CardDescription>
+                      </div>
+                      <Dialog open={impactGoalsDialog} onOpenChange={setImpactGoalsDialog}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="bg-white/50 hover:bg-white/80 border-white/30">
+                            <Settings className="w-4 h-4 mr-2" />
+                            Update Goals
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Update Impact Goals</DialogTitle>
+                            <DialogDescription>Set targets for your community impact metrics</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleUpdateImpactGoals} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="artistsSupported">Artists Supported</Label>
+                                <Input
+                                  id="artistsSupported"
+                                  type="number"
+                                  value={impactGoalsForm.artistsSupported}
+                                  onChange={(e) =>
+                                    setImpactGoalsForm((prev) => ({ ...prev, artistsSupported: e.target.value }))
+                                  }
+                                  placeholder="10"
+                                  min="0"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="totalDonations">Total Donations ($)</Label>
+                                <Input
+                                  id="totalDonations"
+                                  type="number"
+                                  value={impactGoalsForm.totalDonations}
+                                  onChange={(e) =>
+                                    setImpactGoalsForm((prev) => ({ ...prev, totalDonations: e.target.value }))
+                                  }
+                                  placeholder="1000.00"
+                                  min="0"
+                                  step="0.01"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="eventsHosted">Events Hosted</Label>
+                                <Input
+                                  id="eventsHosted"
+                                  type="number"
+                                  value={impactGoalsForm.eventsHosted}
+                                  onChange={(e) =>
+                                    setImpactGoalsForm((prev) => ({ ...prev, eventsHosted: e.target.value }))
+                                  }
+                                  placeholder="5"
+                                  min="0"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="helpersBooked">Helpers Booked</Label>
+                                <Input
+                                  id="helpersBooked"
+                                  type="number"
+                                  value={impactGoalsForm.helpersBooked}
+                                  onChange={(e) =>
+                                    setImpactGoalsForm((prev) => ({ ...prev, helpersBooked: e.target.value }))
+                                  }
+                                  placeholder="20"
+                                  min="0"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button type="button" variant="outline" onClick={() => setImpactGoalsDialog(false)}>
+                                Cancel
+                              </Button>
+                              <Button type="submit" disabled={submitting}>
+                                {submitting ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Target className="w-4 h-4 mr-2" />
+                                )}
+                                Update Goals
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {communityImpact ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-blue-600">
+                            {communityImpact.metrics?.artistsSupported || 0}
+                          </div>
+                          <div className="text-sm text-blue-600">Artists Supported</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Goal: {communityImpact.goals?.artistsSupported?.target || 0}
+                          </div>
+                          <Progress
+                            value={Math.min(
+                              ((communityImpact.metrics?.artistsSupported || 0) /
+                                (communityImpact.goals?.artistsSupported?.target || 1)) *
+                                100,
+                              100,
+                            )}
+                            className="h-2 mt-2"
+                          />
+                        </div>
+
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-green-600">
+                            ${(communityImpact.metrics?.totalDonations || 0).toLocaleString()}
+                          </div>
+                          <div className="text-sm text-green-600">Total Donations</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Goal: ${(communityImpact.goals?.totalDonations?.target || 0).toLocaleString()}
+                          </div>
+                          <Progress
+                            value={Math.min(
+                              ((communityImpact.metrics?.totalDonations || 0) /
+                                (communityImpact.goals?.totalDonations?.target || 1)) *
+                                100,
+                              100,
+                            )}
+                            className="h-2 mt-2"
+                          />
+                        </div>
+
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                          <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-purple-600">
+                            {communityImpact.metrics?.eventsHosted || 0}
+                          </div>
+                          <div className="text-sm text-purple-600">Events Hosted</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Goal: {communityImpact.goals?.eventsHosted?.target || 0}
+                          </div>
+                          <Progress
+                            value={Math.min(
+                              ((communityImpact.metrics?.eventsHosted || 0) /
+                                (communityImpact.goals?.eventsHosted?.target || 1)) *
+                                100,
+                              100,
+                            )}
+                            className="h-2 mt-2"
+                          />
+                        </div>
+
+                        <div className="text-center p-4 bg-orange-50 rounded-lg">
+                          <UserCheck className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-orange-600">
+                            {communityImpact.metrics?.helpersBooked || 0}
+                          </div>
+                          <div className="text-sm text-orange-600">Helpers Booked</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Goal: {communityImpact.goals?.helpersBooked?.target || 0}
+                          </div>
+                          <Progress
+                            value={Math.min(
+                              ((communityImpact.metrics?.helpersBooked || 0) /
+                                (communityImpact.goals?.helpersBooked?.target || 1)) *
+                                100,
+                              100,
+                            )}
+                            className="h-2 mt-2"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-medium text-gray-900 mb-2">No impact data yet</h3>
+                        <p className="text-gray-600 mb-6">Start setting goals to track your community impact</p>
+                        <Button
+                          onClick={() => setImpactGoalsDialog(true)}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        >
+                          <Target className="w-4 h-4 mr-2" />
+                          Set Impact Goals
+                        </Button>
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
 
-            {helpers.length === 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardContent className="text-center py-12">
-                  <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No helpers booked yet</h3>
-                  <p className="text-gray-600 mb-6">Find skilled volunteers to help with your church events</p>
-                  <Button
-                    onClick={() => setBookHelperDialog(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    Book Your First Helper
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="events" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <Card key={event.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{event.title}</CardTitle>
-                        <CardDescription>{event.type}</CardDescription>
-                      </div>
-                      <Badge
-                        className={`${
-                          event.status === "upcoming"
-                            ? "bg-blue-100 text-blue-800 border-blue-200"
-                            : event.status === "ongoing"
-                              ? "bg-green-100 text-green-800 border-green-200"
-                              : "bg-gray-100 text-gray-800 border-gray-200"
-                        }`}
-                      >
-                        {event.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-3">{event.description}</p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {event.startDate}
-                      </div>
-                      {event.location && (
-                        <div className="flex items-center text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {event.location}
-                        </div>
-                      )}
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2" />
-                        {event.attendeeCount || 0} / {event.maxAttendees || "∞"} attendees
-                      </div>
-                    </div>
-                    <div className="mt-4 flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {events.length === 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardContent className="text-center py-12">
-                  <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No events created yet</h3>
-                  <p className="text-gray-600 mb-6">Start organizing community events and activities</p>
-                  <Button
-                    onClick={() => setCreateEventDialog(true)}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Create Your First Event
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="campaigns" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {campaigns.map((campaign) => (
-                <Card key={campaign.id} className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{campaign.title}</CardTitle>
-                        <CardDescription>{campaign.category}</CardDescription>
-                      </div>
-                      <Badge
-                        className={`${
-                          campaign.status === "active"
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : campaign.status === "completed"
-                              ? "bg-blue-100 text-blue-800 border-blue-200"
-                              : "bg-gray-100 text-gray-800 border-gray-200"
-                        }`}
-                      >
-                        {campaign.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-3">{campaign.description}</p>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Progress</span>
-                          <span>
-                            ${campaign.currentAmount || 0} / ${campaign.targetAmount}
-                          </span>
-                        </div>
-                        <Progress
-                          value={Math.min(((campaign.currentAmount || 0) / campaign.targetAmount) * 100, 100)}
-                          className="h-2"
-                        />
-                      </div>
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Donors: {campaign.donorCount || 0}</span>
-                        <span>Ends: {campaign.endDate}</span>
-                      </div>
-                      {campaign.isMatching && (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
-                          Matching {campaign.matchingRatio}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="mt-4 flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 bg-white/50 hover:bg-white/80 border-white/30"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {campaigns.length === 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardContent className="text-center py-12">
-                  <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No campaigns created yet</h3>
-                  <p className="text-gray-600 mb-6">Launch fundraising campaigns to support your community</p>
-                  <Button
-                    onClick={() => setCreateCampaignDialog(true)}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Create Your First Campaign
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="engagement" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Engagement Metrics</CardTitle>
-                  <CardDescription>Track your community interaction</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Monthly Helpers</span>
-                      <Badge variant="outline">{stats.engagement?.monthlyHelpers || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Monthly Events</span>
-                      <Badge variant="outline">{stats.engagement?.monthlyEvents || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Monthly Donations</span>
-                      <Badge variant="outline">${stats.engagement?.monthlyDonations || 0}</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Community Reach</span>
-                      <Badge variant="outline">{stats.engagement?.communityReach || 0} people</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Growth Trends</CardTitle>
-                  <CardDescription>Your ministry's growth over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Engagement Growth</span>
-                      <div className="flex items-center">
-                        <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                        <span className="text-green-600">+{stats.engagement?.engagementGrowth || 0}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Helper Retention</span>
-                      <span className="text-blue-600">85%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Event Attendance</span>
-                      <span className="text-purple-600">92%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Campaign Success</span>
-                      <span className="text-green-600">78%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Engagement Goals</CardTitle>
-                <CardDescription>Track your ministry objectives</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <UserCheck className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-blue-600">
-                      {Math.round(((stats.engagement?.monthlyHelpers || 0) / 10) * 100)}%
-                    </div>
-                    <div className="text-sm text-blue-600">Monthly Helpers</div>
-                    <div className="text-xs text-gray-500 mt-1">Goal: 10 helpers</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-purple-600">
-                      {Math.round(((stats.engagement?.monthlyEvents || 0) / 5) * 100)}%
-                    </div>
-                    <div className="text-sm text-purple-600">Monthly Events</div>
-                    <div className="text-xs text-gray-500 mt-1">Goal: 5 events</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <Heart className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-green-600">
-                      {Math.round(((stats.engagement?.monthlyDonations || 0) / 1000) * 100)}%
-                    </div>
-                    <div className="text-sm text-green-600">Monthly Donations</div>
-                    <div className="text-xs text-gray-500 mt-1">Goal: $1,000</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="impact" className="space-y-6">
-            <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="text-xl font-bold">Community Impact Goals</CardTitle>
-                    <CardDescription>Set and track your ministry's impact objectives</CardDescription>
-                  </div>
-                  <Dialog open={impactGoalsDialog} onOpenChange={setImpactGoalsDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="bg-white/50 hover:bg-white/80 border-white/30">
-                        <Settings className="w-4 h-4 mr-2" />
-                        Update Goals
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Update Impact Goals</DialogTitle>
-                        <DialogDescription>Set targets for your community impact metrics</DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleUpdateImpactGoals} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="artistsSupported">Artists Supported</Label>
-                            <Input
-                              id="artistsSupported"
-                              type="number"
-                              value={impactGoalsForm.artistsSupported}
-                              onChange={(e) =>
-                                setImpactGoalsForm((prev) => ({ ...prev, artistsSupported: e.target.value }))
-                              }
-                              placeholder="10"
-                              min="0"
-                            />
+                {communityImpact?.achievements && communityImpact.achievements.length > 0 && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold">Recent Achievements</CardTitle>
+                      <CardDescription>Celebrate your ministry milestones</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {communityImpact.achievements.map((achievement, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200"
+                          >
+                            <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                              <Award className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900">{achievement.name}</h4>
+                              <p className="text-sm text-gray-600">{achievement.description}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-orange-600">+{achievement.points} points</div>
+                              <div className="text-xs text-gray-500">
+                                {new Date(achievement.achievedAt).toLocaleDateString()}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <Label htmlFor="totalDonations">Total Donations ($)</Label>
-                            <Input
-                              id="totalDonations"
-                              type="number"
-                              value={impactGoalsForm.totalDonations}
-                              onChange={(e) =>
-                                setImpactGoalsForm((prev) => ({ ...prev, totalDonations: e.target.value }))
-                              }
-                              placeholder="1000.00"
-                              min="0"
-                              step="0.01"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="eventsHosted">Events Hosted</Label>
-                            <Input
-                              id="eventsHosted"
-                              type="number"
-                              value={impactGoalsForm.eventsHosted}
-                              onChange={(e) =>
-                                setImpactGoalsForm((prev) => ({ ...prev, eventsHosted: e.target.value }))
-                              }
-                              placeholder="5"
-                              min="0"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="helpersBooked">Helpers Booked</Label>
-                            <Input
-                              id="helpersBooked"
-                              type="number"
-                              value={impactGoalsForm.helpersBooked}
-                              onChange={(e) =>
-                                setImpactGoalsForm((prev) => ({ ...prev, helpersBooked: e.target.value }))
-                              }
-                              placeholder="20"
-                              min="0"
-                            />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button type="button" variant="outline" onClick={() => setImpactGoalsDialog(false)}>
-                            Cancel
-                          </Button>
-                          <Button type="submit" disabled={submitting}>
-                            {submitting ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <Target className="w-4 h-4 mr-2" />
-                            )}
-                            Update Goals
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {communityImpact ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-blue-600">
-                        {communityImpact.metrics?.artistsSupported || 0}
+                        ))}
                       </div>
-                      <div className="text-sm text-blue-600">Artists Supported</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Goal: {communityImpact.goals?.artistsSupported?.target || 0}
-                      </div>
-                      <Progress
-                        value={Math.min(
-                          ((communityImpact.metrics?.artistsSupported || 0) /
-                            (communityImpact.goals?.artistsSupported?.target || 1)) *
-                            100,
-                          100,
-                        )}
-                        className="h-2 mt-2"
-                      />
-                    </div>
-
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-green-600">
-                        ${(communityImpact.metrics?.totalDonations || 0).toLocaleString()}
-                      </div>
-                      <div className="text-sm text-green-600">Total Donations</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Goal: ${(communityImpact.goals?.totalDonations?.target || 0).toLocaleString()}
-                      </div>
-                      <Progress
-                        value={Math.min(
-                          ((communityImpact.metrics?.totalDonations || 0) /
-                            (communityImpact.goals?.totalDonations?.target || 1)) *
-                            100,
-                          100,
-                        )}
-                        className="h-2 mt-2"
-                      />
-                    </div>
-
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-purple-600">
-                        {communityImpact.metrics?.eventsHosted || 0}
-                      </div>
-                      <div className="text-sm text-purple-600">Events Hosted</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Goal: {communityImpact.goals?.eventsHosted?.target || 0}
-                      </div>
-                      <Progress
-                        value={Math.min(
-                          ((communityImpact.metrics?.eventsHosted || 0) /
-                            (communityImpact.goals?.eventsHosted?.target || 1)) *
-                            100,
-                          100,
-                        )}
-                        className="h-2 mt-2"
-                      />
-                    </div>
-
-                    <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <UserCheck className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-orange-600">
-                        {communityImpact.metrics?.helpersBooked || 0}
-                      </div>
-                      <div className="text-sm text-orange-600">Helpers Booked</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Goal: {communityImpact.goals?.helpersBooked?.target || 0}
-                      </div>
-                      <Progress
-                        value={Math.min(
-                          ((communityImpact.metrics?.helpersBooked || 0) /
-                            (communityImpact.goals?.helpersBooked?.target || 1)) *
-                            100,
-                          100,
-                        )}
-                        className="h-2 mt-2"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">No impact data yet</h3>
-                    <p className="text-gray-600 mb-6">Start setting goals to track your community impact</p>
-                    <Button
-                      onClick={() => setImpactGoalsDialog(true)}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                    >
-                      <Target className="w-4 h-4 mr-2" />
-                      Set Impact Goals
-                    </Button>
-                  </div>
+                    </CardContent>
+                  </Card>
                 )}
-              </CardContent>
-            </Card>
-
-            {communityImpact?.achievements && communityImpact.achievements.length > 0 && (
-              <Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Recent Achievements</CardTitle>
-                  <CardDescription>Celebrate your ministry milestones</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {communityImpact.achievements.map((achievement, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200"
-                      >
-                        <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-                          <Award className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{achievement.name}</h4>
-                          <p className="text-sm text-gray-600">{achievement.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-orange-600">+{achievement.points} points</div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(achievement.achievedAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              </div>
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   )

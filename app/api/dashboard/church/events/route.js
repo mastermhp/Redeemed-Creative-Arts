@@ -1,20 +1,23 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Event from "@/models/Event"
-import { getServerSession } from "@/lib/auth"
+import { authenticateRequest } from "@/lib/auth"
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const session = await getServerSession()
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
 
-    if (!session || session.userType !== "church") {
+    if (authResult.user.userType !== "church") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     await connectDB()
 
-    const events = await Event.find({ createdBy: session.userId })
-      .populate("helpersBooked.helper", "name profileImage")
+    const events = await Event.find({ organizer: authResult.user._id })
+      .populate("helpers", "name profileImage")
       .sort({ date: 1 })
 
     return NextResponse.json({ events })
@@ -26,9 +29,12 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const session = await getServerSession()
+    const authResult = await authenticateRequest(request)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
 
-    if (!session || session.userType !== "church") {
+    if (authResult.user.userType !== "church") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -37,8 +43,10 @@ export async function POST(request) {
 
     const event = new Event({
       ...eventData,
-      createdBy: session.userId,
+      organizer: authResult.user._id,
       status: "active",
+      date: new Date(eventData.startDate),
+      endDate: eventData.endDate ? new Date(eventData.endDate) : null,
     })
 
     await event.save()
