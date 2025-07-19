@@ -14,13 +14,13 @@ export async function GET(request) {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId") || session.userId
+    const userId = searchParams.get("userId") || session.user._id
     const page = Number.parseInt(searchParams.get("page")) || 1
     const limit = Number.parseInt(searchParams.get("limit")) || 10
 
     // Verify user access
     const user = await User.findById(userId)
-    if (!user || (user.userType !== "patron" && session.userType !== "admin")) {
+    if (!user || (user.userType !== "patron" && session.user.userType !== "admin")) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
@@ -28,8 +28,6 @@ export async function GET(request) {
 
     const donations = await Donation.find({ donorId: user._id })
       .populate("recipientId", "name email userType")
-      .populate("matchingCampaignId", "title")
-      .populate("challengeCampaignId", "title")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -42,12 +40,16 @@ export async function GET(request) {
       recipient: donation.recipientId?.name || "Unknown",
       recipientType: donation.recipientId?.userType || "unknown",
       amount: donation.amount,
-      campaign: donation.challengeCampaignId?.title || donation.matchingCampaignId?.title || "Direct Support",
+      campaign: "Direct Support",
       date: donation.createdAt.toISOString().split("T")[0],
       status: donation.status,
       matchingFunds: donation.matchedAmount || 0,
       impact: donation.status === "completed" ? "Donation completed successfully" : "Processing",
-      artwork: "General Support", // Would need to link to specific artwork
+      artwork: "General Support",
+      artistName: donation.recipientId?.name || "Unknown",
+      createdAt: donation.createdAt.toISOString().split("T")[0],
+      message: donation.message || "",
+      isAnonymous: donation.isAnonymous || false,
     }))
 
     return NextResponse.json({

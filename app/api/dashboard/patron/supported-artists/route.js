@@ -15,11 +15,11 @@ export async function GET(request) {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId") || session.userId
+    const userId = searchParams.get("userId") || session.user._id
 
     // Verify user is a patron or admin
     const user = await User.findById(userId)
-    if (!user || (user.userType !== "patron" && session.userType !== "admin")) {
+    if (!user || (user.userType !== "patron" && session.user.userType !== "admin")) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 

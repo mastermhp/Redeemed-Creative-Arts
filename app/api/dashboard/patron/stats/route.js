@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
-import User from "@/models/User"
 import Donation from "@/models/Donation"
+import User from "@/models/User"
+import Comment from "@/models/Comment"
+import Vote from "@/models/Vote"
+import PointTransaction from "@/models/PointTransaction"
+import EngagementReward from "@/models/EngagementReward"
 import { getServerSession } from "@/lib/auth"
 
 export async function GET(request) {
@@ -14,99 +18,179 @@ export async function GET(request) {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId") || session.userId
+    const userId = searchParams.get("userId") || session.user._id
 
     // Verify user is a patron or admin
     const user = await User.findById(userId)
-    if (!user || (user.userType !== "patron" && session.userType !== "admin")) {
+    if (!user || (user.userType !== "patron" && session.user.userType !== "admin")) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    // Get donation statistics
+    // Get current date and month boundaries
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+    // Calculate total donations
     const donationStats = await Donation.aggregate([
-      { $match: { donorId: user._id, status: "completed" } },
-      {
-        $group: {
-          _id: null,
-          totalDonated: { $sum: "$amount" },
-          totalDonations: { $sum: 1 },
-          totalMatched: { $sum: "$matchedAmount" },
-        },
-      },
-    ])
-
-    const stats = donationStats[0] || {
-      totalDonated: 0,
-      totalDonations: 0,
-      totalMatched: 0,
-    }
-
-    // Get unique artists supported
-    const supportedArtists = await Donation.distinct("recipientId", {
-      donorId: user._id,
-      status: "completed",
-    })
-
-    // Get campaigns supported (would need Campaign model)
-    const campaignsSupported = await Donation.distinct("challengeCampaignId", {
-      donorId: user._id,
-      status: "completed",
-      challengeCampaignId: { $ne: null },
-    })
-
-    // Calculate this month's donations
-    const thisMonth = new Date()
-    thisMonth.setDate(1)
-    thisMonth.setHours(0, 0, 0, 0)
-
-    const monthlyDonations = await Donation.aggregate([
       {
         $match: {
           donorId: user._id,
           status: "completed",
-          createdAt: { $gte: thisMonth },
         },
       },
       {
         $group: {
           _id: null,
-          currentMonthDonated: { $sum: "$amount" },
+          totalDonations: { $sum: "$amount" },
+          donationCount: { $sum: 1 },
+          uniqueRecipients: { $addToSet: "$recipientId" },
         },
       },
     ])
 
-    const currentMonthDonated = monthlyDonations[0]?.currentMonthDonated || 0
+    const totalDonations = donationStats[0]?.totalDonations || 0
+    const artistsSupported = donationStats[0]?.uniqueRecipients?.length || 0
 
-    // Mock engagement stats (would need actual tracking)
-    const engagementStats = {
-      artworksLiked: 0, // Would need Like model
-      commentsPosted: 0, // Would need Comment model
-      pointsGifted: 0, // Would need PointTransaction model
-      votescast: 0, // Would need Vote model
+    // Calculate monthly donations
+    const monthlyDonationStats = await Donation.aggregate([
+      {
+        $match: {
+          donorId: user._id,
+          status: "completed",
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          monthlyDonations: { $sum: "$amount" },
+        },
+      },
+    ])
+
+    const monthlyDonations = monthlyDonationStats[0]?.monthlyDonations || 0
+
+    // Calculate points gifted
+    const pointsGiftedStats = await PointTransaction.aggregate([
+      {
+        $match: {
+          fromUserId: user._id,
+          type: "gift",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          pointsGifted: { $sum: "$amount" },
+        },
+      },
+    ])
+
+    const pointsGifted = pointsGiftedStats[0]?.pointsGifted || 0
+
+    // Calculate current points
+    const currentPointsStats = await PointTransaction.aggregate([
+      {
+        $match: {
+          $or: [{ fromUserId: user._id }, { toUserId: user._id }],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalEarned: {
+            $sum: {
+              $cond: [{ $eq: ["$toUserId", user._id] }, "$amount", 0],
+            },
+          },
+          totalSpent: {
+            $sum: {
+              $cond: [{ $eq: ["$fromUserId", user._id] }, "$amount", 0],
+            },
+          },
+        },
+      },
+    ])
+
+    const totalEarned = currentPointsStats[0]?.totalEarned || 0
+    const totalSpent = currentPointsStats[0]?.totalSpent || 0
+    const currentPoints = totalEarned - totalSpent
+
+    // Calculate comments posted
+    const commentsPosted = await Comment.countDocuments({ author: user._id })
+
+    // Calculate monthly comments
+    const monthlyComments = await Comment.countDocuments({
+      author: user._id,
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    })
+
+    // Calculate votes submitted
+    const votesSubmitted = await Vote.countDocuments({ voter: user._id })
+
+    // Calculate monthly votes
+    const monthlyVotes = await Vote.countDocuments({
+      voter: user._id,
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    })
+
+    // Calculate engagement rewards
+    const rewardStats = await EngagementReward.aggregate([
+      {
+        $match: { userId: user._id },
+      },
+      {
+        $group: {
+          _id: null,
+          availableRewards: {
+            $sum: { $cond: [{ $eq: ["$claimed", false] }, 1, 0] },
+          },
+          claimedRewards: {
+            $sum: { $cond: [{ $eq: ["$claimed", true] }, 1, 0] },
+          },
+          totalPoints: { $sum: "$points" },
+          availablePoints: {
+            $sum: { $cond: [{ $eq: ["$claimed", false] }, "$points", 0] },
+          },
+        },
+      },
+    ])
+
+    const rewardData = rewardStats[0] || {}
+
+    // Calculate engagement score (simple formula)
+    const engagementScore = Math.round((commentsPosted * 2 + votesSubmitted * 1 + totalDonations / 10) / 3)
+
+    // Calculate reward streak (days with activity)
+    const rewardStreak = Math.min(Math.floor((monthlyComments + monthlyVotes + (monthlyDonations > 0 ? 1 : 0)) / 2), 30)
+
+    const stats = {
+      overview: {
+        totalDonations,
+        artistsSupported,
+        pointsGifted,
+        commentsPosted,
+        votesSubmitted,
+        currentPoints,
+        totalPoints: totalEarned,
+      },
+      engagement: {
+        monthlyDonations,
+        monthlyComments,
+        monthlyVotes,
+        engagementScore,
+        rewardStreak,
+      },
+      rewards: {
+        available: rewardData.availableRewards || 0,
+        claimed: rewardData.claimedRewards || 0,
+        totalPoints: rewardData.totalPoints || 0,
+        availablePoints: rewardData.availablePoints || 0,
+      },
     }
 
-    // Calculate impact score (simplified)
-    const impactScore = Math.min(
-      100,
-      Math.floor(stats.totalDonated / 100 + supportedArtists.length * 5 + campaignsSupported.length * 3),
-    )
-
-    return NextResponse.json({
-      totalDonated: stats.totalDonated,
-      artistsSupported: supportedArtists.length,
-      campaignsSupported: campaignsSupported.length,
-      impactScore,
-      currentMonthDonated,
-      monthlyGoal: user.monthlyGoal || 500,
-      ...engagementStats,
-      userInfo: {
-        name: user.name,
-        email: user.email,
-        userType: user.userType,
-        tier: user.membership?.tier || "free",
-        points: user.points,
-      },
-    })
+    return NextResponse.json(stats)
   } catch (error) {
     console.error("Patron stats API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

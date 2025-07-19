@@ -70,6 +70,7 @@ export default function PatronDashboard() {
 
   const [donations, setDonations] = useState([])
   const [supportedArtists, setSupportedArtists] = useState([])
+  const [allArtists, setAllArtists] = useState([])
   const [engagementRewards, setEngagementRewards] = useState([])
   const [helperAvailability, setHelperAvailability] = useState(null)
   const [recentActivity, setRecentActivity] = useState([])
@@ -155,7 +156,7 @@ export default function PatronDashboard() {
       })
       if (artistsResponse.ok) {
         const artistsData = await artistsResponse.json()
-        setSupportedArtists(artistsData.artists || [])
+        setSupportedArtists(artistsData.supportedArtists || [])
       }
 
       // Fetch engagement rewards
@@ -190,7 +191,7 @@ export default function PatronDashboard() {
       })
       if (allArtistsResponse.ok) {
         const allArtistsData = await allArtistsResponse.json()
-        setSupportedArtists(allArtistsData.users || [])
+        setAllArtists(allArtistsData.users || [])
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
@@ -403,7 +404,7 @@ export default function PatronDashboard() {
                         <SelectValue placeholder="Choose an artist to support" />
                       </SelectTrigger>
                       <SelectContent>
-                        {supportedArtists.map((artist) => (
+                        {allArtists.map((artist) => (
                           <SelectItem key={artist._id} value={artist._id}>
                             {artist.name}
                           </SelectItem>
@@ -483,8 +484,8 @@ export default function PatronDashboard() {
                         <SelectValue placeholder="Choose an artist" />
                       </SelectTrigger>
                       <SelectContent>
-                        {supportedArtists.map((artist) => (
-                          <SelectItem key={artist.id} value={artist.id}>
+                        {allArtists.map((artist) => (
+                          <SelectItem key={artist._id} value={artist._id}>
                             {artist.name}
                           </SelectItem>
                         ))}
@@ -1008,7 +1009,7 @@ export default function PatronDashboard() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span>Artworks:</span>
-                            <span>{artist.artworkCount || 0}</span>
+                            <span>{artist.artworksCreated || 0}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span>Last Donation:</span>

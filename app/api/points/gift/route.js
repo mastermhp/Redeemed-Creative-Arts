@@ -1,94 +1,88 @@
 import { NextResponse } from "next/server"
-import connectDB from "@/lib/database"
-import { authenticateRequest } from "@/lib/auth"
+import { connectDB } from "@/lib/database"
 import User from "@/models/User"
 import PointTransaction from "@/models/PointTransaction"
-import Notification from "@/models/Notification"
+import { extractTokenFromHeaders, extractTokenFromCookies, getUserFromToken } from "@/lib/auth"
 
 export async function POST(request) {
   try {
     await connectDB()
 
-    const authResult = await authenticateRequest(request)
-    if (!authResult.success) {
-      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    // Get user from token
+    const token = extractTokenFromHeaders(request) || extractTokenFromCookies(request)
+    const user = await getUserFromToken(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
-    const { recipientId, amount, message } = await request.json()
+    const body = await request.json()
+    const { recipientId, amount, points, message } = body
 
-    if (!recipientId || !amount) {
-      return NextResponse.json({ error: "Recipient ID and amount are required" }, { status: 400 })
+    // Handle both 'amount' and 'points' field names
+    const pointsToGift = amount || points
+
+    if (!recipientId || !pointsToGift) {
+      return NextResponse.json({ error: "Recipient and points amount are required" }, { status: 400 })
     }
 
-    if (amount < 1 || amount > 1000) {
-      return NextResponse.json({ error: "Amount must be between 1 and 1000 points" }, { status: 400 })
+    const pointsAmount = Number.parseInt(pointsToGift)
+
+    if (isNaN(pointsAmount) || pointsAmount <= 0) {
+      return NextResponse.json({ error: "Invalid points amount" }, { status: 400 })
     }
 
-    if (recipientId === authResult.user._id.toString()) {
-      return NextResponse.json({ error: "Cannot gift points to yourself" }, { status: 400 })
-    }
-
-    // Check if sender has enough points
-    const sender = await User.findById(authResult.user._id)
-    if (sender.points.current < amount) {
+    // Check if user has enough points
+    if (user.points < pointsAmount) {
       return NextResponse.json({ error: "Insufficient points" }, { status: 400 })
     }
 
-    // Check if recipient exists
+    // Find recipient
     const recipient = await User.findById(recipientId)
     if (!recipient) {
       return NextResponse.json({ error: "Recipient not found" }, { status: 404 })
     }
 
-    // Create transaction record
-    const transaction = new PointTransaction({
-      from: authResult.user._id,
-      to: recipientId,
-      amount,
-      type: "gift",
-      description: message || `Points gift from ${sender.name}`,
-      status: "completed",
+    // Create point transactions
+    const senderTransaction = new PointTransaction({
+      userId: user._id,
+      type: "gift_sent",
+      points: -pointsAmount,
+      description: `Gifted ${pointsAmount} points to ${recipient.name}`,
+      relatedUserId: recipient._id,
+      message,
     })
 
-    await transaction.save()
-
-    // Update points
-    await User.findByIdAndUpdate(authResult.user._id, {
-      $inc: { "points.current": -amount },
+    const recipientTransaction = new PointTransaction({
+      userId: recipient._id,
+      type: "gift_received",
+      points: pointsAmount,
+      description: `Received ${pointsAmount} points from ${user.name}`,
+      relatedUserId: user._id,
+      message,
     })
 
-    await User.findByIdAndUpdate(recipientId, {
-      $inc: {
-        "points.current": amount,
-        "points.total": amount,
-      },
+    // Update user points
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { points: -pointsAmount },
     })
 
-    // Create notification
-    await Notification.create({
-      recipient: recipientId,
-      type: "points_received",
-      title: "Points Gift Received",
-      message: `${sender.name} gifted you ${amount} points${message ? ": " + message : ""}`,
-      data: {
-        senderId: authResult.user._id,
-        senderName: sender.name,
-        amount,
-        transactionId: transaction._id,
-      },
+    await User.findByIdAndUpdate(recipient._id, {
+      $inc: { points: pointsAmount },
     })
+
+    // Save transactions
+    await senderTransaction.save()
+    await recipientTransaction.save()
 
     return NextResponse.json({
+      success: true,
       message: "Points gifted successfully",
-      transaction: {
-        id: transaction._id,
-        amount,
-        recipient: recipient.name,
-        createdAt: transaction.createdAt,
-      },
+      pointsGifted: pointsAmount,
+      recipient: recipient.name,
     })
   } catch (error) {
-    console.error("Gift points error:", error)
+    console.error("Error gifting points:", error)
     return NextResponse.json({ error: "Failed to gift points" }, { status: 500 })
   }
 }
