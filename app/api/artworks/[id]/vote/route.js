@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import { authenticateRequest } from "@/lib/auth"
-import Artwork from "@/models/Artwork"
 import Vote from "@/models/Vote"
+import Artwork from "@/models/Artwork"
 import User from "@/models/User"
 import Notification from "@/models/Notification"
 
@@ -15,93 +15,171 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
-    const artworkId = params.id
-    const { rating } = await request.json()
+    const user = authResult.user
+    const { voteType } = await request.json() // "upvote" or "downvote"
 
-    if (!rating || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 })
+    if (!["upvote", "downvote"].includes(voteType)) {
+      return NextResponse.json({ error: "Invalid vote type" }, { status: 400 })
     }
 
     // Check if artwork exists
-    const artwork = await Artwork.findById(artworkId).populate("artist", "name")
+    const artwork = await Artwork.findById(params.id).populate("artist", "name")
     if (!artwork) {
       return NextResponse.json({ error: "Artwork not found" }, { status: 404 })
     }
 
     // Check if user already voted
     const existingVote = await Vote.findOne({
-      user: authResult.user._id,
-      artwork: artworkId,
+      userId: user._id,
+      targetId: params.id,
+      targetType: "artwork",
     })
 
-    if (existingVote) {
-      // Update existing vote
-      existingVote.rating = rating
-      await existingVote.save()
+    let pointsAwarded = 0
+    let message = ""
 
-      return NextResponse.json({
-        message: "Vote updated successfully",
-        vote: {
-          rating: existingVote.rating,
-          createdAt: existingVote.createdAt,
-          updatedAt: existingVote.updatedAt,
-        },
-      })
+    if (existingVote) {
+      if (existingVote.voteType === voteType) {
+        // Remove vote if same type
+        await Vote.findByIdAndDelete(existingVote._id)
+
+        // Update artwork engagement
+        const updateField = voteType === "upvote" ? "engagement.likes" : "engagement.dislikes"
+        await Artwork.findByIdAndUpdate(params.id, {
+          $inc: { [updateField]: -1 },
+        })
+
+        message = "Vote removed"
+      } else {
+        // Change vote type
+        existingVote.voteType = voteType
+        await existingVote.save()
+
+        // Update artwork engagement
+        const incField = voteType === "upvote" ? "engagement.likes" : "engagement.dislikes"
+        const decField = voteType === "upvote" ? "engagement.dislikes" : "engagement.likes"
+
+        await Artwork.findByIdAndUpdate(params.id, {
+          $inc: {
+            [incField]: 1,
+            [decField]: -1,
+          },
+        })
+
+        message = "Vote updated"
+      }
     } else {
       // Create new vote
-      const vote = new Vote({
-        user: authResult.user._id,
-        artwork: artworkId,
-        rating,
+      const newVote = new Vote({
+        userId: user._id,
+        targetId: params.id,
+        targetType: "artwork",
+        voteType,
+      })
+      await newVote.save()
+
+      // Update artwork engagement
+      const updateField = voteType === "upvote" ? "engagement.likes" : "engagement.dislikes"
+      await Artwork.findByIdAndUpdate(params.id, {
+        $inc: { [updateField]: 1 },
       })
 
-      await vote.save()
-
-      // Update artwork rating
-      const votes = await Vote.find({ artwork: artworkId })
-      const averageRating = votes.reduce((sum, v) => sum + v.rating, 0) / votes.length
-
-      await Artwork.findByIdAndUpdate(artworkId, {
-        "engagement.rating": averageRating,
-        "engagement.votes": votes.length,
-      })
-
-      // Award points to voter
-      await User.findByIdAndUpdate(authResult.user._id, {
+      // Award points for engagement
+      pointsAwarded = 10
+      await User.findByIdAndUpdate(user._id, {
         $inc: {
-          "points.current": 1,
-          "points.total": 1,
+          "points.current": pointsAwarded,
+          "points.total": pointsAwarded,
         },
       })
 
-      // Create notification for artist (if not voting on own artwork)
-      if (artwork.artist._id.toString() !== authResult.user._id.toString()) {
+      // Create notification for artist (only for upvotes)
+      if (voteType === "upvote" && artwork.artist.toString() !== user._id.toString()) {
         await Notification.create({
-          recipient: artwork.artist._id,
-          type: "artwork_rated",
-          title: "Artwork Rated",
-          message: `${authResult.user.name} rated your artwork "${artwork.title}" ${rating} stars`,
+          recipient: artwork.artist,
+          type: "artwork_liked",
+          title: "Your artwork received a vote!",
+          message: `${user.name} ${user.userType === "artist" ? "(Artist)" : ""} voted for your artwork "${artwork.title}"`,
           data: {
             artworkId: artwork._id,
-            rating,
-            voterName: authResult.user.name,
+            artworkTitle: artwork.title,
+            voterName: user.name,
+            voterType: user.userType,
           },
         })
       }
 
-      return NextResponse.json(
-        {
-          message: "Vote submitted successfully",
-          vote: {
-            rating: vote.rating,
-            createdAt: vote.createdAt,
-          },
-        },
-        { status: 201 },
-      )
+      message = `${voteType === "upvote" ? "Upvoted" : "Downvoted"} successfully`
     }
+
+    // Get updated vote counts
+    const voteCounts = await Vote.aggregate([
+      { $match: { targetId: artwork._id, targetType: "artwork" } },
+      {
+        $group: {
+          _id: "$voteType",
+          count: { $sum: 1 },
+        },
+      },
+    ])
+
+    const upvotes = voteCounts.find((v) => v._id === "upvote")?.count || 0
+    const downvotes = voteCounts.find((v) => v._id === "downvote")?.count || 0
+
+    return NextResponse.json({
+      message,
+      pointsAwarded,
+      votes: {
+        upvotes,
+        downvotes,
+        userVote: existingVote?.voteType || null,
+      },
+    })
   } catch (error) {
     console.error("Vote artwork error:", error)
-    return NextResponse.json({ error: "Failed to submit vote" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to process vote" }, { status: 500 })
+  }
+}
+
+export async function GET(request, { params }) {
+  try {
+    await connectDB()
+
+    // Get vote counts for artwork
+    const voteCounts = await Vote.aggregate([
+      { $match: { targetId: params.id, targetType: "artwork" } },
+      {
+        $group: {
+          _id: "$voteType",
+          count: { $sum: 1 },
+        },
+      },
+    ])
+
+    const upvotes = voteCounts.find((v) => v._id === "upvote")?.count || 0
+    const downvotes = voteCounts.find((v) => v._id === "downvote")?.count || 0
+
+    // Check user's vote if authenticated
+    let userVote = null
+    const authResult = await authenticateRequest(request)
+    if (authResult.success) {
+      const existingVote = await Vote.findOne({
+        userId: authResult.user._id,
+        targetId: params.id,
+        targetType: "artwork",
+      })
+      userVote = existingVote?.voteType || null
+    }
+
+    return NextResponse.json({
+      votes: {
+        upvotes,
+        downvotes,
+        userVote,
+      },
+    })
+  } catch (error) {
+    console.error("Get votes error:", error)
+    return NextResponse.json({ error: "Failed to fetch votes" }, { status: 500 })
   }
 }

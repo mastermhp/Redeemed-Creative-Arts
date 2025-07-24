@@ -11,7 +11,6 @@ import {
   Palette,
   Heart,
   Church,
-  Star,
   Check,
   Instagram,
   Facebook,
@@ -19,10 +18,13 @@ import {
   ArrowDown,
   Trophy,
   Zap,
-  Award,
   Crown,
   Coins,
   DollarSign,
+  Target,
+  HandHeart,
+  Shield,
+  Sparkles,
 } from "lucide-react"
 import AIChatbox from "@/components/AIChatbox"
 
@@ -51,101 +53,211 @@ const artistImage = "https://images.unsplash.com/photo-1544413164-5f1b361f5b69?q
 const patronImage = "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1974&auto=format&fit=crop"
 const churchImage = "https://images.unsplash.com/photo-1545989253-02cc26577f88?q=80&w=2070&auto=format&fit=crop"
 
-// Testimonials
+// Testimonials with updated structure
 const testimonials = [
   {
     name: "Sarah Johnson",
     role: "Visual Artist",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop",
     quote:
-      "Redeemed Creative Arts has transformed my artistic journey. I've found a supportive community that understands the intersection of faith and creativity.",
-    points: 3250,
-    level: "Gold Member",
+      "Redeemed Creative Arts has transformed my artistic journey. The Helper system connected me with amazing churches, and I've earned over 15,000 FaithCoins through challenges and artwork sales!",
+    experience: 8450,
+    level: 8,
+    faithCoins: 15240,
+    tier: "Pro+",
+    badges: ["gold_crown", "challenge_contributor", "top_artist"],
   },
   {
-    name: "Michael Thompson",
+    name: "Pastor Michael Thompson",
     role: "Church Arts Director",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
     quote:
-      "Finding talented Christian artists used to be challenging. This platform has connected our church with incredible artists who share our vision and values.",
-    points: 1890,
-    level: "Silver Member",
+      "Finding talented Christian helpers used to be challenging. Through our Tier 2 membership, we've connected with incredible artists and helpers who share our vision. We've successfully completed 12 challenges this year!",
+    experience: 6890,
+    level: 6,
+    faithCoins: 8950,
+    tier: "Tier 2",
+    badges: ["silver_crown", "matching_contributor", "community_builder"],
   },
   {
     name: "Rebecca Martinez",
-    role: "Art Patron",
+    role: "Art Patron & Helper",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop",
     quote:
-      "Supporting faith-based artists brings me joy. I've discovered beautiful artwork that speaks to my soul and connects with my beliefs.",
-    points: 4120,
-    level: "Platinum Member",
+      "Being both a patron and helper has been incredibly rewarding. I've supported 25+ artists, participated in matching donations, and earned my Gold Helper badge. The FaithCoins system makes giving even more meaningful!",
+    experience: 12100,
+    level: 10,
+    faithCoins: 22300,
+    tier: "Tier 2",
+    badges: ["gold_helper", "matching_contributor", "top_patron"],
   },
 ]
 
-// Gallery images with point values and ratings
+// Updated gallery images with new features
 const galleryImages = [
   {
     src: "/artworkImages3.png",
     title: "Divine Light",
     artist: "Sarah Johnson",
-    points: 950,
+    experience: 950,
     rating: 9.2,
     category: "Painting",
     price: 1200,
+    tier: "Pro+",
+    badges: ["featured_artist"],
   },
   {
     src: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=2145&auto=format&fit=crop",
     title: "Heavenly Grace",
     artist: "Michael Chen",
-    points: 1200,
+    experience: 1200,
     rating: 9.5,
     category: "Digital Art",
     price: 850,
+    tier: "Pro",
+    badges: ["challenge_winner"],
   },
   {
     src: "/artworkImages1.png",
     title: "Faith Journey",
     artist: "Emma Wilson",
-    points: 780,
+    experience: 780,
     rating: 8.9,
     category: "Photography",
     price: 650,
+    tier: "Free",
+    badges: ["rising_star"],
   },
   {
     src: "https://images.unsplash.com/photo-1526336179256-1347bdb255ee?q=80&w=1974&auto=format&fit=crop",
     title: "Sacred Geometry",
     artist: "David Martinez",
-    points: 1450,
+    experience: 1450,
     rating: 9.7,
     category: "Mixed Media",
     price: 2100,
+    tier: "Pro+",
+    badges: ["master_artist", "gold_crown"],
   },
   {
     src: "/artworkImages2.png",
     title: "Eternal Hope",
     artist: "Lisa Taylor",
-    points: 890,
+    experience: 890,
     rating: 8.7,
     category: "Sculpture",
     price: 1800,
+    tier: "Pro",
+    badges: ["community_favorite"],
   },
   {
     src: "/artworkImages4.png",
     title: "Redemption",
     artist: "James Wilson",
-    points: 1100,
+    experience: 1100,
     rating: 9.1,
     category: "Painting",
     price: 950,
+    tier: "Pro",
+    badges: ["helper_artist"],
   },
 ]
 
-// Stats with points integration
+// Updated stats with new metrics
 const stats = [
-  { value: 500, label: "Artists", icon: <Palette className="h-6 w-6" />, points: "2.5M+ Points Earned" },
-  { value: 1200, label: "Patrons", icon: <Heart className="h-6 w-6" />, points: "1.8M+ Points Given" },
-  { value: 350, label: "Churches", icon: <Church className="h-6 w-6" />, points: "750K+ Points Shared" },
-  { value: 5000, label: "Artworks", icon: <Star className="h-6 w-6" />, points: "12M+ Total Points" },
+  { value: 500, label: "Artists", icon: <Palette className="h-6 w-6" />, subtext: "Creating & Earning" },
+  { value: 1200, label: "Patrons", icon: <Heart className="h-6 w-6" />, subtext: "Supporting & Helping" },
+  { value: 350, label: "Churches", icon: <Church className="h-6 w-6" />, subtext: "Growing Communities" },
+  { value: 150, label: "Active Helpers", icon: <HandHeart className="h-6 w-6" />, subtext: "Serving Together" },
+]
+
+// New features showcase
+const features = [
+  {
+    title: "Helper Network",
+    description: "Connect with skilled volunteers for your church events and projects",
+    icon: <HandHeart className="h-8 w-8" />,
+    color: "from-blue-500 to-cyan-500",
+    benefits: ["Free & Paid Services", "Verified Skills", "Local & Traveling Talent"],
+  },
+  {
+    title: "Challenge System",
+    description: "Goal-based donations with sponsor matching for maximum impact",
+    icon: <Target className="h-8 w-8" />,
+    color: "from-green-500 to-emerald-500",
+    benefits: ["Sponsor Matching", "Community Goals", "Meaningful Rewards"],
+  },
+  {
+    title: "Experience Levels",
+    description: "12-level progression system with seasonal rewards and recognition",
+    icon: <Trophy className="h-8 w-8" />,
+    color: "from-purple-500 to-pink-500",
+    benefits: ["Level Progression", "Seasonal Stickers", "Exclusive Badges"],
+  },
+  {
+    title: "FaithCoins Economy",
+    description: "Earn and spend our platform currency for discounts and exclusive items",
+    icon: <Coins className="h-8 w-8" />,
+    color: "from-amber-500 to-orange-500",
+    benefits: ["Earn Through Activity", "Spend on Rewards", "Gift to Others"],
+  },
+]
+
+// Membership tiers with updated structure
+const membershipTiers = [
+  {
+    name: "Free",
+    price: 0,
+    period: "forever",
+    description: "Perfect for getting started in our community",
+    features: [
+      "Basic profile & 5 artwork uploads",
+      "1x experience multiplier",
+      "Community discussions",
+      "Resource Share access",
+      "Contest participation",
+      "Helper registration (free services)",
+    ],
+    cta: "Get Started",
+    popular: false,
+    color: "from-gray-400 to-gray-600",
+  },
+  {
+    name: "Pro",
+    price: 15,
+    period: "month",
+    description: "Enhanced features for serious creators",
+    features: [
+      "Everything in Free",
+      "25 artwork uploads & custom cover",
+      "2x experience multiplier",
+      "500 FaithCoins monthly",
+      "Sell custom merchandise",
+      "Silver Helper badge",
+      "Priority support",
+    ],
+    cta: "Start 15-Day Trial",
+    popular: true,
+    color: "from-blue-500 to-purple-500",
+  },
+  {
+    name: "Pro+",
+    price: 29,
+    period: "month",
+    description: "Ultimate platform experience with premium features",
+    features: [
+      "Everything in Pro",
+      "Unlimited uploads & course creation",
+      "3x experience multiplier",
+      "1000 FaithCoins monthly",
+      "Gold Helper badge",
+      "Advanced analytics",
+      "Featured opportunities",
+    ],
+    cta: "Start 15-Day Trial",
+    popular: false,
+    color: "from-amber-500 to-orange-500",
+  },
 ]
 
 // Prize pool information
@@ -300,32 +412,7 @@ export default function Home() {
         ></motion.div>
       </div>
 
-      {/* Floating particles */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-amber-500/20"
-            style={{
-              width: Math.random() * 10 + 5,
-              height: Math.random() * 10 + 5,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Hero Section with Parallax */}
+      {/* Hero Section with Enhanced CTA */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden" ref={heroRef}>
         <motion.div className="absolute inset-0 z-0" style={{ y, opacity }}>
           <Image
@@ -359,7 +446,7 @@ export default function Home() {
               }}
             >
               <span className="px-4 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm font-medium border border-amber-500/30 backdrop-blur-sm">
-                Faith-Inspired Creativity
+                Faith-Inspired Creativity & Community
               </span>
             </motion.div>
 
@@ -399,65 +486,31 @@ export default function Home() {
               className="text-xl md:text-2xl lg:text-3xl text-gray-200 max-w-3xl mx-auto mb-8"
               variants={itemVariants}
             >
-              Building bridges between{" "}
-              <motion.span
-                className="text-amber-500 font-medium"
-                animate={{
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 0,
-                }}
-              >
-                Artists
-              </motion.span>
-              ,{" "}
-              <motion.span
-                className="text-[#e76f51] font-medium"
-                animate={{
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 0.7,
-                }}
-              >
-                Patrons
-              </motion.span>
-              , and{" "}
-              <motion.span
-                className="text-amber-400 font-medium"
-                animate={{
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 1.4,
-                }}
-              >
-                Churches
-              </motion.span>
-              .
+              <span className="text-amber-500 font-medium">Create</span>,{" "}
+              <span className="text-[#e76f51] font-medium">Support</span>, and{" "}
+              <span className="text-amber-400 font-medium">Serve</span> together in our faith-based community
             </motion.p>
 
-            {/* Prize Pool Highlight */}
+            {/* New Hero Features */}
             <motion.div
-              className="mb-8 p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl border border-amber-500/30 backdrop-blur-sm max-w-md mx-auto"
+              className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto"
               variants={itemVariants}
             >
-              <div className="flex items-center justify-center space-x-2 mb-2">
-                <Trophy className="h-5 w-5 text-amber-400" />
-                <span className="text-amber-400 font-semibold">Total Prize Pool</span>
+              <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <HandHeart className="h-8 w-8 text-amber-400 mx-auto mb-2" />
+                <h3 className="text-white font-semibold mb-1">Become a Helper</h3>
+                <p className="text-gray-300 text-sm">Help churches, earn rewards, grow connections</p>
               </div>
-              <div className="text-3xl font-bold text-white">${prizePool.total.toLocaleString()}</div>
-              <div className="text-sm text-gray-300">Available for artists & patrons</div>
+              <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <Target className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                <h3 className="text-white font-semibold mb-1">Join Challenges</h3>
+                <p className="text-gray-300 text-sm">Participate in goal-based donations with matching</p>
+              </div>
+              <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <Trophy className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+                <h3 className="text-white font-semibold mb-1">Earn & Level Up</h3>
+                <p className="text-gray-300 text-sm">Gain experience, FaithCoins, and exclusive badges</p>
+              </div>
             </motion.div>
 
             <motion.div className="flex flex-wrap justify-center gap-4" variants={itemVariants}>
@@ -468,7 +521,7 @@ export default function Home() {
                 >
                   <span className="relative z-10 flex items-center">
                     <Zap className="mr-2 h-5 w-5" />
-                    Start Earning Points
+                    Start Your Journey
                   </span>
                   <motion.span
                     className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-500 z-0"
@@ -483,7 +536,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-amber-500 text-amber-400 hover:bg-amber-500 hover:text-white transition-all duration-300 relative overflow-hidden group backdrop-blur-sm"
+                  className="border-amber-500 text-amber-400 hover:bg-amber-500 hover:text-white transition-all duration-300 relative overflow-hidden group backdrop-blur-sm bg-transparent"
                 >
                   <span className="relative z-10">Learn More</span>
                   <motion.span
@@ -519,8 +572,8 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Prize Pool Section */}
-      <section className="py-20 bg-gradient-to-b from-amber-50 to-white">
+      {/* New Features Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center mb-16"
@@ -531,227 +584,56 @@ export default function Home() {
           >
             <motion.div variants={itemVariants} className="mb-4 inline-block">
               <span className="px-4 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-600 rounded-full text-sm font-medium border border-amber-500/20">
-                Prize Pool System
+                What Makes Us Different
               </span>
             </motion.div>
             <motion.h2
               className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800"
               variants={itemVariants}
             >
-              <span className="text-amber-500">${prizePool.total.toLocaleString()}</span> Available in Prizes
+              More Than Just an <span className="text-amber-500">Art Platform</span>
             </motion.h2>
             <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
-              Earn points through engagement, artwork sales, and community participation. Convert points to real
-              rewards!
+              We're building a complete ecosystem where creativity, faith, and community service come together
             </motion.p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-lg border border-amber-200 text-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-            >
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coins className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Monthly Prizes</h3>
-              <div className="text-3xl font-bold text-green-600 mb-2">${prizePool.monthly.toLocaleString()}</div>
-              <p className="text-gray-600 text-sm">Distributed monthly to top contributors</p>
-            </motion.div>
-
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-lg border border-amber-200 text-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Quarterly Prizes</h3>
-              <div className="text-3xl font-bold text-blue-600 mb-2">${prizePool.quarterly.toLocaleString()}</div>
-              <p className="text-gray-600 text-sm">Seasonal competitions and challenges</p>
-            </motion.div>
-
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-lg border border-amber-200 text-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Crown className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Annual Grand Prize</h3>
-              <div className="text-3xl font-bold text-purple-600 mb-2">${prizePool.annual.toLocaleString()}</div>
-              <p className="text-gray-600 text-sm">Ultimate recognition for top performers</p>
-            </motion.div>
-          </div>
-
-          <motion.div
-            className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-8 text-center text-white"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUpVariants}
-          >
-            <h3 className="text-2xl font-bold mb-4">How Points Work</h3>
-            <div className="grid md:grid-cols-4 gap-6">
-              <div>
-                <div className="text-3xl font-bold mb-2">+50</div>
-                <div className="text-sm">Artwork Upload</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold mb-2">+25</div>
-                <div className="text-sm">Community Engagement</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold mb-2">+100</div>
-                <div className="text-sm">Artwork Sale</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold mb-2">+200</div>
-                <div className="text-sm">Monthly Challenge Win</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured Artwork Slider with Points */}
-      <section className="py-20 relative z-10 bg-white">
-        <div className="container mx-auto px-4 mb-12">
-          <motion.div
-            className="text-center mb-12"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainerVariants}
-          >
-            <motion.div variants={itemVariants} className="mb-4 inline-block">
-              <span className="px-4 py-1 bg-gradient-to-r from-[#e76f51]/10 to-orange-500/10 text-[#e76f51] rounded-full text-sm font-medium border border-[#e76f51]/20">
-                Featured Artwork
-              </span>
-            </motion.div>
-            <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800"
-              variants={itemVariants}
-            >
-              Inspiring <span className="text-[#e76f51]">Faith-Based</span> Creations
-            </motion.h2>
-            <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
-              Explore artwork from our talented Christian artists and see their point earnings
-            </motion.p>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          className="relative px-4 md:px-10"
-        >
-          <Swiper
-            effect={"coverflow"}
-            grabCursor={true}
-            centeredSlides={true}
-            slidesPerView={"auto"}
-            coverflowEffect={{
-              rotate: 50,
-              stretch: 0,
-              depth: 100,
-              modifier: 1,
-              slideShadows: true,
-            }}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            pagination={{ clickable: true }}
-            navigation={true}
-            modules={[EffectCoverflow, Pagination, Autoplay, Navigation]}
-            className="mySwiper"
-          >
-            {artworkImages.map((image, index) => (
-              <SwiperSlide key={index} className="max-w-[300px] md:max-w-[500px]">
-                <div className="relative group cursor-pointer overflow-hidden rounded-xl">
-                  <div className="relative h-[400px] w-full overflow-hidden">
-                    <Image
-                      src={image || "/placeholder.svg"}
-                      alt={`Artwork ${index + 1}`}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-
-                  {/* Colored Rating Square */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                className="relative group"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={itemVariants}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -10 }}
+              >
+                <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 h-full">
                   <div
-                    className={`absolute bottom-4 right-4 ${
-                      index % 4 === 0
-                        ? "bg-green-500"
-                        : index % 4 === 1
-                          ? "bg-blue-500"
-                          : index % 4 === 2
-                            ? "bg-purple-500"
-                            : "bg-orange-500"
-                    } text-white px-3 py-2 rounded-lg shadow-lg`}
+                    className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
                   >
-                    <div className="text-2xl font-bold">
-                      {index % 4 === 0 ? "9.2" : index % 4 === 1 ? "8.7" : index % 4 === 2 ? "9.5" : "8.1"}
-                    </div>
-                    <div className="text-xs font-medium">
-                      {index % 4 === 0
-                        ? "EXCELLENT"
-                        : index % 4 === 1
-                          ? "GREAT"
-                          : index % 4 === 2
-                            ? "MASTERPIECE"
-                            : "GOOD"}
-                    </div>
+                    <div className="text-white">{feature.icon}</div>
                   </div>
-
-                  {/* Points Badge */}
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
-                    {850 + index * 50} pts
-                  </div>
-
-                  {/* Price Badge */}
-                  <div className="absolute top-4 left-4 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <DollarSign className="h-3 w-3 mr-1" />${(500 + index * 200).toLocaleString()}
-                  </div>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                    <h3 className="text-white text-xl font-bold">Artwork Title {index + 1}</h3>
-                    <p className="text-white/80">Artist Name</p>
-                    <div className="flex items-center mt-2 space-x-2">
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
-                        {index % 2 === 0 ? "Painting" : "Digital Art"}
-                      </span>
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
-                        +{50 + index * 10} pts earned
-                      </span>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 mb-4">{feature.description}</p>
+                  <ul className="space-y-2">
+                    {feature.benefits.map((benefit, benefitIndex) => (
+                      <li key={benefitIndex} className="flex items-center text-sm text-gray-600">
+                        <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </SwiperSlide>
+              </motion.div>
             ))}
-          </Swiper>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
-      {/* Who We Serve with Points Integration */}
+      {/* Who We Serve - Enhanced */}
       <section className="py-20 relative z-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -773,7 +655,7 @@ export default function Home() {
               Who We Serve
             </motion.h2>
             <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
-              Join our points-based ecosystem where everyone benefits from creative collaboration
+              Join our growing community of creators, supporters, and servants
             </motion.p>
           </motion.div>
 
@@ -809,18 +691,30 @@ export default function Home() {
                   >
                     <Palette className="h-6 w-6 text-white" />
                   </motion.div>
-
-                  {/* Points Earning Indicator */}
-                  <div className="absolute top-4 right-4 bg-green-500/90 px-3 py-1 rounded-full text-white text-xs font-medium">
-                    Earn up to 500 pts/month
-                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-3 text-amber-600">For Artists</h3>
                   <p className="text-gray-600 mb-4">
-                    Showcase your faith-inspired art, earn points for every interaction, and convert points to real
-                    rewards.
+                    Create, sell artwork, build courses, and earn through our comprehensive platform
                   </p>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Membership Tiers</span>
+                      <div className="flex space-x-1">
+                        <span className="px-2 py-1 bg-gray-100 text-xs rounded">Free</span>
+                        <span className="px-2 py-1 bg-blue-100 text-xs rounded">Pro</span>
+                        <span className="px-2 py-1 bg-amber-100 text-xs rounded">Pro+</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Experience Multiplier</span>
+                      <span className="text-sm font-medium text-amber-600">Up to 3x</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Monthly FaithCoins</span>
+                      <span className="text-sm font-medium text-amber-600">Up to 1,000</span>
+                    </div>
+                  </div>
                   <ul className="space-y-3 mb-6">
                     <motion.li
                       className="flex items-start"
@@ -834,7 +728,7 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Earn 50 points per artwork upload</span>
+                      <span className="text-sm text-gray-600">Upload & sell original artwork</span>
                     </motion.li>
                     <motion.li
                       className="flex items-start"
@@ -848,7 +742,7 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">100 points per sale + commission</span>
+                      <span className="text-sm text-gray-600">Create & sell courses/workshops</span>
                     </motion.li>
                     <motion.li
                       className="flex items-start"
@@ -862,12 +756,26 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Bonus points for community engagement</span>
+                      <span className="text-sm text-gray-600">Sell custom merchandise</span>
+                    </motion.li>
+                    <motion.li
+                      className="flex items-start"
+                      whileHover={{ x: 5 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
+                    >
+                      <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
+                        <Check className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <span className="text-sm text-gray-600">Become a Helper for extra income</span>
                     </motion.li>
                   </ul>
                   <Link href="/artist-info">
                     <Button className="w-full bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white cursor-pointer transition-all duration-500 group relative overflow-hidden">
-                      <span className="relative z-10">Learn More</span>
+                      <span className="relative z-10">Become an Artist</span>
                       <motion.span
                         className="absolute inset-0 bg-amber-500 z-0"
                         initial={{ x: "-100%" }}
@@ -912,17 +820,30 @@ export default function Home() {
                   >
                     <Heart className="h-6 w-6 text-white" />
                   </motion.div>
-
-                  {/* Points Earning Indicator */}
-                  <div className="absolute top-4 right-4 bg-blue-500/90 px-3 py-1 rounded-full text-white text-xs font-medium">
-                    Earn up to 300 pts/month
-                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-3 text-amber-600">For Patrons</h3>
                   <p className="text-gray-600 mb-4">
-                    Support Christian artists, earn points for purchases and engagement, unlock exclusive rewards.
+                    Support artists, participate in challenges, and become a Helper to serve your community
                   </p>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Membership Tiers</span>
+                      <div className="flex space-x-1">
+                        <span className="px-2 py-1 bg-gray-100 text-xs rounded">Free</span>
+                        <span className="px-2 py-1 bg-blue-100 text-xs rounded">Tier 1</span>
+                        <span className="px-2 py-1 bg-amber-100 text-xs rounded">Tier 2</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Helper Badges</span>
+                      <div className="flex space-x-1">
+                        <Shield className="h-4 w-4 text-gray-400" />
+                        <Shield className="h-4 w-4 text-gray-400" />
+                        <Shield className="h-4 w-4 text-amber-500" />
+                      </div>
+                    </div>
+                  </div>
                   <ul className="space-y-3 mb-6">
                     <motion.li
                       className="flex items-start"
@@ -936,7 +857,7 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Earn 1 point per $1 spent</span>
+                      <span className="text-sm text-gray-600">Support artists & participate in challenges</span>
                     </motion.li>
                     <motion.li
                       className="flex items-start"
@@ -950,7 +871,7 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Exclusive access to limited editions</span>
+                      <span className="text-sm text-gray-600">Become a Helper (free or paid services)</span>
                     </motion.li>
                     <motion.li
                       className="flex items-start"
@@ -964,12 +885,26 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Redeem points for discounts & prizes</span>
+                      <span className="text-sm text-gray-600">Access Resource Share & donated items</span>
+                    </motion.li>
+                    <motion.li
+                      className="flex items-start"
+                      whileHover={{ x: 5 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
+                    >
+                      <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
+                        <Check className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <span className="text-sm text-gray-600">Earn FaithCoins & exclusive rewards</span>
                     </motion.li>
                   </ul>
                   <Link href="/patron-info">
                     <Button className="w-full bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white cursor-pointer transition-all duration-500 group relative overflow-hidden">
-                      <span className="relative z-10">Learn More</span>
+                      <span className="relative z-10">Become a Patron</span>
                       <motion.span
                         className="absolute inset-0 bg-amber-500 z-0"
                         initial={{ x: "-100%" }}
@@ -1014,18 +949,26 @@ export default function Home() {
                   >
                     <Church className="h-6 w-6 text-white" />
                   </motion.div>
-
-                  {/* Resource Share Indicator */}
-                  <div className="absolute top-4 right-4 bg-purple-500/90 px-3 py-1 rounded-full text-white text-xs font-medium">
-                    Resource Share Access
-                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-3 text-amber-600">For Churches</h3>
                   <p className="text-gray-600 mb-4">
-                    Connect with artists, access the Resource Share program, and enhance your ministry through visual
-                    arts.
+                    Connect with artists and helpers, create challenges, and build your community trust
                   </p>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Membership Tiers</span>
+                      <div className="flex space-x-1">
+                        <span className="px-2 py-1 bg-gray-100 text-xs rounded">Free</span>
+                        <span className="px-2 py-1 bg-blue-100 text-xs rounded">Tier 1</span>
+                        <span className="px-2 py-1 bg-amber-100 text-xs rounded">Tier 2</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Challenges/Month</span>
+                      <span className="text-sm font-medium text-amber-600">Up to 3</span>
+                    </div>
+                  </div>
                   <ul className="space-y-3 mb-6">
                     <motion.li
                       className="flex items-start"
@@ -1039,7 +982,21 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Access to Resource Share program</span>
+                      <span className="text-sm text-gray-600">Create challenges & matching donations</span>
+                    </motion.li>
+                    <motion.li
+                      className="flex items-start"
+                      whileHover={{ x: 5 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
+                    >
+                      <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
+                        <Check className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <span className="text-sm text-gray-600">Book helpers for events & projects</span>
                     </motion.li>
                     <motion.li
                       className="flex items-start"
@@ -1067,12 +1024,12 @@ export default function Home() {
                       <div className="bg-amber-500/10 p-1 rounded-full mr-2 shrink-0 mt-0.5">
                         <Check className="h-4 w-4 text-amber-600" />
                       </div>
-                      <span className="text-sm text-gray-600">Host art-focused ministry events</span>
+                      <span className="text-sm text-gray-600">Youth packages & ministry resources</span>
                     </motion.li>
                   </ul>
                   <Link href="/church-info">
                     <Button className="w-full bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white cursor-pointer transition-all duration-500 group relative overflow-hidden">
-                      <span className="relative z-10">Learn More</span>
+                      <span className="relative z-10">Join Our Churches</span>
                       <motion.span
                         className="absolute inset-0 bg-amber-500 z-0"
                         initial={{ x: "-100%" }}
@@ -1089,7 +1046,125 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Counter Section with Points */}
+      {/* Featured Artwork Slider */}
+      <section className="py-20 relative z-10 bg-white">
+        <div className="container mx-auto px-4 mb-12">
+          <motion.div
+            className="text-center mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainerVariants}
+          >
+            <motion.div variants={itemVariants} className="mb-4 inline-block">
+              <span className="px-4 py-1 bg-gradient-to-r from-[#e76f51]/10 to-orange-500/10 text-[#e76f51] rounded-full text-sm font-medium border border-[#e76f51]/20">
+                Featured Artwork
+              </span>
+            </motion.div>
+            <motion.h2
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800"
+              variants={itemVariants}
+            >
+              Inspiring <span className="text-[#e76f51]">Faith-Based</span> Creations
+            </motion.h2>
+            <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
+              Discover artwork from our talented community members and their experience levels
+            </motion.p>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+          className="relative px-4 md:px-10"
+        >
+          <Swiper
+            effect={"coverflow"}
+            grabCursor={true}
+            centeredSlides={true}
+            slidesPerView={"auto"}
+            coverflowEffect={{
+              rotate: 50,
+              stretch: 0,
+              depth: 100,
+              modifier: 1,
+              slideShadows: true,
+            }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: false,
+            }}
+            pagination={{ clickable: true }}
+            navigation={true}
+            modules={[EffectCoverflow, Pagination, Autoplay, Navigation]}
+            className="mySwiper"
+          >
+            {artworkImages.map((image, index) => {
+              const artwork = galleryImages[index] || {}
+              return (
+                <SwiperSlide key={index} className="max-w-[300px] md:max-w-[500px]">
+                  <div className="relative group cursor-pointer overflow-hidden rounded-xl">
+                    <div className="relative h-[400px] w-full overflow-hidden">
+                      <Image
+                        src={image || "/placeholder.svg"}
+                        alt={artwork.title || `Artwork ${index + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
+
+                    {/* Artist Level Badge */}
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                      <Trophy className="h-3 w-3 mr-1" />
+                      Level {Math.floor(Math.random() * 12) + 1}
+                    </div>
+
+                    {/* Experience Points */}
+                    <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                      <Sparkles className="h-3 w-3 mr-1 text-yellow-400" />
+                      {artwork.experience || 850 + index * 50} XP
+                    </div>
+
+                    {/* Tier Badge */}
+                    <div className="absolute bottom-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      {artwork.tier || "Pro"}
+                    </div>
+
+                    {/* Price Badge */}
+                    <div className="absolute bottom-4 left-4 bg-green-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                      <DollarSign className="h-3 w-3 mr-1" />
+                      {artwork.price?.toLocaleString() || (500 + index * 200).toLocaleString()}
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                      <h3 className="text-white text-xl font-bold">{artwork.title || `Artwork Title ${index + 1}`}</h3>
+                      <p className="text-white/80">{artwork.artist || "Artist Name"}</p>
+                      <div className="flex items-center mt-2 space-x-2">
+                        <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
+                          {artwork.category || (index % 2 === 0 ? "Painting" : "Digital Art")}
+                        </span>
+                        {artwork.badges &&
+                          artwork.badges.map((badge, badgeIndex) => (
+                            <span
+                              key={badgeIndex}
+                              className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs"
+                            >
+                              {badge}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              )
+            })}
+          </Swiper>
+        </motion.div>
+      </section>
+
+      {/* Stats Counter Section */}
       <section className="py-16 relative z-10 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
@@ -1127,15 +1202,15 @@ export default function Home() {
                   <Counter value={stat.value} />+
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">{stat.label}</p>
-                <p className="text-xs text-amber-600 font-medium">{stat.points}</p>
+                <p className="text-xs text-amber-600 font-medium">{stat.subtext}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Gallery Grid with Points and Ratings */}
-      <section className="py-20 relative z-10 bg-gray-50">
+      {/* Membership Tiers Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center mb-16"
@@ -1145,172 +1220,78 @@ export default function Home() {
             variants={staggerContainerVariants}
           >
             <motion.div variants={itemVariants} className="mb-4 inline-block">
-              <span className="px-4 py-1 bg-amber-500/10 text-amber-600 rounded-full text-sm font-medium border border-amber-500/20">
-                Gallery
+              <span className="px-4 py-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 text-purple-600 rounded-full text-sm font-medium border border-purple-500/20">
+                Membership Tiers
               </span>
             </motion.div>
             <motion.h2
               className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800"
               variants={itemVariants}
             >
-              Explore Our <span className="text-amber-500">Collection</span>
+              Choose Your <span className="text-purple-600">Journey</span>
             </motion.h2>
             <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
-              Discover artwork with real point values and community ratings
+              Unlock more features, earn more rewards, and grow your impact with our membership tiers
             </motion.p>
           </motion.div>
 
-          {/* Featured Gallery Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {galleryImages.slice(0, 3).map((artwork, index) => (
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {membershipTiers.map((tier, index) => (
               <motion.div
                 key={index}
-                className="relative overflow-hidden rounded-xl shadow-lg group"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={`relative bg-white rounded-2xl shadow-xl border-2 overflow-hidden ${
+                  tier.popular ? "border-purple-500 scale-105" : "border-gray-200"
+                }`}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={itemVariants}
+                transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
               >
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image
-                    src={artwork.src || "/placeholder.svg"}
-                    alt={artwork.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {tier.popular && (
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-center py-2 text-sm font-medium">
+                    Most Popular
+                  </div>
+                )}
 
-                  {/* Colored Rating Square */}
+                <div className="p-8">
                   <div
-                    className={`absolute bottom-4 right-4 ${
-                      index % 3 === 0 ? "bg-emerald-500" : index % 3 === 1 ? "bg-blue-500" : "bg-purple-500"
-                    } text-white px-3 py-2 rounded-lg shadow-lg`}
+                    className={`w-16 h-16 bg-gradient-to-r ${tier.color} rounded-xl flex items-center justify-center mb-6 mx-auto`}
                   >
-                    <div className="text-xl font-bold">{artwork.rating}</div>
-                    <div className="text-xs font-medium">
-                      {artwork.rating >= 9.5 ? "MASTERPIECE" : artwork.rating >= 9.0 ? "EXCELLENT" : "AMAZING"}
-                    </div>
+                    <Crown className="h-8 w-8 text-white" />
                   </div>
 
-                  {/* Points Badge */}
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
-                    {artwork.points} pts
+                  <h3 className="text-2xl font-bold text-center mb-2">{tier.name}</h3>
+                  <div className="text-center mb-6">
+                    <span className="text-4xl font-bold">${tier.price}</span>
+                    <span className="text-gray-600">/{tier.period}</span>
                   </div>
 
-                  {/* Price Badge */}
-                  <div className="absolute top-4 left-4 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <DollarSign className="h-3 w-3 mr-1" />${artwork.price.toLocaleString()}
-                  </div>
+                  <p className="text-gray-600 text-center mb-6">{tier.description}</p>
 
-                  {/* Artwork Info - Appears on Hover */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                    <h3 className="text-white text-xl font-bold">{artwork.title}</h3>
-                    <p className="text-white/80 text-sm mb-2">by {artwork.artist}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
-                        {artwork.category}
-                      </span>
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
-                        +{Math.floor(artwork.points * 0.1)} pts on purchase
-                      </span>
-                    </div>
-                    <Button
-                      className="mt-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30"
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                  </div>
+                  <ul className="space-y-3 mb-8">
+                    {tier.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start">
+                        <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-gray-600">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    className={`w-full ${tier.popular ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"}`}
+                  >
+                    {tier.cta}
+                  </Button>
                 </div>
               </motion.div>
             ))}
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-8">
-            {galleryImages.slice(3, 6).map((artwork, index) => (
-              <motion.div
-                key={index + 3}
-                className="relative overflow-hidden rounded-xl shadow-lg group"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: (index + 3) * 0.1 }}
-                whileHover={{ y: -10 }}
-              >
-                <div className="relative aspect-square overflow-hidden">
-                  <Image
-                    src={artwork.src || "/placeholder.svg"}
-                    alt={artwork.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                  {/* Colored Rating Square */}
-                  <div
-                    className={`absolute bottom-4 right-4 ${
-                      index % 3 === 0 ? "bg-orange-500" : index % 3 === 1 ? "bg-red-500" : "bg-indigo-500"
-                    } text-white px-3 py-2 rounded-lg shadow-lg`}
-                  >
-                    <div className="text-lg font-bold">{artwork.rating}</div>
-                    <div className="text-xs font-medium">
-                      {artwork.rating >= 9.0 ? "EXCELLENT" : artwork.rating >= 8.5 ? "GREAT" : "GOOD"}
-                    </div>
-                  </div>
-
-                  {/* Points Badge */}
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
-                    {artwork.points} pts
-                  </div>
-
-                  {/* Price Badge */}
-                  <div className="absolute top-4 left-4 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    <DollarSign className="h-3 w-3 mr-1" />${artwork.price.toLocaleString()}
-                  </div>
-
-                  {/* Artwork Info - Appears on Hover */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                    <h3 className="text-white text-xl font-bold">{artwork.title}</h3>
-                    <p className="text-white/80 text-sm mb-2">by {artwork.artist}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs">
-                        {artwork.category}
-                      </span>
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
-                        +{Math.floor(artwork.points * 0.1)} pts on purchase
-                      </span>
-                    </div>
-                    <Button
-                      className="mt-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30"
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            className="text-center mt-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <Link href="/artist-gallery">
-              <Button size="lg" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50">
-                View Full Gallery
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </motion.div>
         </div>
       </section>
 
-      {/* Testimonials with Points */}
+      {/* Enhanced Testimonials */}
       <motion.section
         className="py-20 mb-12 relative z-10 bg-white"
         initial="hidden"
@@ -1327,18 +1308,18 @@ export default function Home() {
         >
           <motion.div variants={itemVariants} className="mb-4 inline-block">
             <span className="px-4 py-1 bg-[#e76f51]/10 text-[#e76f51] rounded-full text-sm font-medium border border-[#e76f51]/20">
-              Testimonials
+              Community Stories
             </span>
           </motion.div>
           <motion.h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800" variants={itemVariants}>
-            What Our <span className="text-[#e76f51]">Community</span> Says
+            Faithful Words from Our <span className="text-[#e76f51]">Members</span>
           </motion.h2>
           <motion.p className="text-lg text-gray-600 max-w-2xl mx-auto" variants={itemVariants}>
-            Hear from artists, patrons, and churches who are earning points and growing their ministries
+            Hear from artists, patrons, and churches who are growing their ministries and earning rewards
           </motion.p>
         </motion.div>
 
-        <div className="relative h-[350px] md:h-[300px]">
+        <div className="relative h-[400px] md:h-[350px]">
           <AnimatePresence mode="wait">
             {testimonials.map(
               (testimonial, index) =>
@@ -1352,7 +1333,7 @@ export default function Home() {
                     transition={{ duration: 0.5 }}
                   >
                     <div className="max-w-5xl mx-auto bg-white p-8 rounded-xl border border-amber-200 shadow-lg flex flex-col md:flex-row items-center gap-6 h-full">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
+                      <div className="relative w-24 h-24 md:w-32 md:h-32 shrink-0">
                         <Image
                           src={testimonial.image || "/placeholder.svg"}
                           alt={testimonial.name}
@@ -1368,23 +1349,52 @@ export default function Home() {
                             ease: "linear",
                           }}
                         ></motion.div>
+
+                        {/* Level Badge */}
+                        <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">
+                          {testimonial.level}
+                        </div>
                       </div>
+
                       <div className="text-center md:text-left flex-1">
-                        <p className="text-gray-600 mb-4 italic">"{testimonial.quote}"</p>
+                        <p className="text-gray-600 mb-4 italic text-lg">"{testimonial.quote}"</p>
+
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                          <div>
-                            <h3 className="font-bold text-amber-600">{testimonial.name}</h3>
+                          <div className="mb-4 md:mb-0">
+                            <h3 className="font-bold text-amber-600 text-lg">{testimonial.name}</h3>
                             <p className="text-sm text-gray-500">{testimonial.role}</p>
-                          </div>
-                          <div className="mt-2 md:mt-0 flex items-center space-x-4">
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                              <span className="font-bold text-amber-600">{testimonial.points.toLocaleString()}</span>
-                              <span className="text-xs text-gray-500">points earned</span>
+                            <div className="flex items-center justify-center md:justify-start mt-2">
+                              <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 rounded-full text-xs font-medium">
+                                {testimonial.tier}
+                              </span>
                             </div>
-                            <div className="flex items-center space-x-1">
-                              <Trophy className="h-4 w-4 text-orange-500" />
-                              <span className="text-sm font-medium text-gray-700">{testimonial.level}</span>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                              <div className="flex items-center justify-center mb-1">
+                                <Sparkles className="h-4 w-4 text-purple-500 mr-1" />
+                                <span className="font-bold text-purple-600">
+                                  {testimonial.experience.toLocaleString()}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-500">Experience</span>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-center mb-1">
+                                <Coins className="h-4 w-4 text-amber-500 mr-1" />
+                                <span className="font-bold text-amber-600">
+                                  {testimonial.faithCoins.toLocaleString()}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-500">FaithCoins</span>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-center mb-1">
+                                <Trophy className="h-4 w-4 text-orange-500 mr-1" />
+                                <span className="font-bold text-orange-600">{testimonial.badges.length}</span>
+                              </div>
+                              <span className="text-xs text-gray-500">Badges</span>
                             </div>
                           </div>
                         </div>
@@ -1409,7 +1419,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Call to Action with Points Emphasis */}
+      {/* Call to Action with Enhanced Features */}
       <section className="py-20 relative z-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -1460,26 +1470,34 @@ export default function Home() {
               </motion.div>
 
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Join Our <span className="text-yellow-200">Points-Based</span> Community
+                Join Our <span className="text-yellow-200">Faith-Based</span> Community
               </h2>
               <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
-                Start earning points today! Whether you're an artist, patron, or church, there's a place for you in our
-                faith-based creative ecosystem.
+                Start your journey today! Whether you're an artist, patron, or church, there's a place for you in our
+                growing ecosystem of creativity, service, and rewards.
               </p>
 
-              {/* Points Earning Preview */}
-              <div className="grid md:grid-cols-3 gap-6 mb-8 max-w-2xl mx-auto">
+              {/* Enhanced Features Preview */}
+              <div className="grid md:grid-cols-4 gap-6 mb-8 max-w-4xl mx-auto">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold mb-1">+50</div>
-                  <div className="text-sm opacity-80">Points per artwork</div>
+                  <Palette className="h-8 w-8 mx-auto mb-2" />
+                  <div className="text-lg font-bold mb-1">Create & Sell</div>
+                  <div className="text-sm opacity-80">Upload artwork, build courses</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold mb-1">+100</div>
-                  <div className="text-sm opacity-80">Points per sale</div>
+                  <HandHeart className="h-8 w-8 mx-auto mb-2" />
+                  <div className="text-lg font-bold mb-1">Help & Serve</div>
+                  <div className="text-sm opacity-80">Become a Helper, earn badges</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold mb-1">+25</div>
-                  <div className="text-sm opacity-80">Points per engagement</div>
+                  <Target className="h-8 w-8 mx-auto mb-2" />
+                  <div className="text-lg font-bold mb-1">Join Challenges</div>
+                  <div className="text-sm opacity-80">Participate in matching donations</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <Trophy className="h-8 w-8 mx-auto mb-2" />
+                  <div className="text-lg font-bold mb-1">Level Up</div>
+                  <div className="text-sm opacity-80">Earn XP, FaithCoins, rewards</div>
                 </div>
               </div>
 
@@ -1491,7 +1509,7 @@ export default function Home() {
                   >
                     <span className="relative z-10 flex items-center">
                       <Zap className="mr-2 h-5 w-5" />
-                      Start Earning Points
+                      Start Your Journey
                     </span>
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 relative z-10" />
                   </Button>
@@ -1500,7 +1518,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white/10 backdrop-blur-sm"
+                    className="border-white text-white hover:bg-white/10 backdrop-blur-sm bg-transparent"
                   >
                     View Membership Tiers
                   </Button>
